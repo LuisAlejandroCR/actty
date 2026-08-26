@@ -294,7 +294,9 @@ h1,h2,h3{margin:0; font-weight:660; letter-spacing:-.012em}
 .sidebar .doc[aria-pressed="true"]{background:rgba(255,255,255,.10); border-left-color:var(--accent-fill)}
 .sidebar .doc.missing .name{color:var(--side-ink-2)}
 .sidebar .node{background:rgba(255,255,255,.07); border-color:var(--side-line); color:var(--side-ink-2)}
+.sidebar .node[aria-current="true"]{background:rgba(255,255,255,.16); border-color:var(--accent-fill); color:var(--side-ink)}
 .sidebar .node.alert{background:rgba(201,80,63,.24); border-color:var(--red-fill); color:#f6c9c2}
+.sidebar .node.alert[aria-current="true"]{background:rgba(201,80,63,.4)}
 
 /* ---------- assistant dock ---------- */
 .chat-h{display:flex; align-items:center; gap:9px; padding:13px 15px; border-bottom:1px solid var(--line)}
@@ -437,10 +439,14 @@ h1,h2,h3{margin:0; font-weight:660; letter-spacing:-.012em}
 /* module pipeline with travelling dot */
 .pipe{position:relative; display:flex; align-items:center; gap:3px; margin-top:12px; padding-bottom:10px}
 .pipe .node{
-  flex:1; text-align:center; font-size:10px; font-weight:700; color:var(--ink-2);
-  background:var(--panel-2); border:1px solid var(--line-2); border-radius:6px; padding:3px 2px;
+  flex:1; text-align:center; font:inherit; font-size:10px; font-weight:700; color:var(--ink-2);
+  background:var(--panel-2); border:1px solid var(--line-2); border-radius:6px; padding:5px 2px;
+  cursor:pointer; min-height:26px;
 }
+.pipe .node:hover{border-color:var(--brand-1); color:var(--ink)}
+.pipe .node[aria-current="true"]{border-color:var(--brand-1); background:var(--accent-bg); color:var(--accent)}
 .pipe .node.alert{border-color:color-mix(in srgb,var(--red) 40%,transparent); color:var(--red); background:var(--red-bg)}
+.pipe .node.alert[aria-current="true"]{border-color:var(--red); background:var(--red-bg)}
 .pipe .arrow{color:var(--ink-3); font-size:10px}
 .flow-track{position:absolute; left:0; right:0; bottom:0; height:7px; pointer-events:none}
 .flow-track .fp{
@@ -664,6 +670,97 @@ button.card-h:hover{background:var(--panel-2)}
 .frag-meta{display:block; font-size:11.5px; color:var(--ink-3); margin-top:4px}
 .tree-list .mod:last-child{border-bottom:none}
 
+/* ---------- extraction pipeline demo ---------- */
+.demo{
+  background:var(--panel); border:1px solid var(--line); border-radius:var(--radius);
+  box-shadow:var(--shadow); padding:14px 16px 16px; margin-bottom:14px;
+}
+.demo-h{display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:2px}
+.demo-h h2{font-size:15px; margin:0}
+.demo-btn{
+  margin-left:auto; font:inherit; font-size:12.5px; font-weight:700; cursor:pointer;
+  min-height:38px; padding:7px 14px; border-radius:8px;
+  background:var(--accent-solid); color:var(--accent-on); border:1px solid var(--accent-solid);
+}
+.demo-src{font-size:11.5px; color:var(--ink-3); margin:0 0 12px}
+.demo-steps{
+  list-style:none; display:flex; align-items:stretch; gap:4px; margin:0 0 10px; padding:0;
+  overflow-x:auto; scrollbar-width:none;
+}
+.demo-steps::-webkit-scrollbar{display:none}
+.dstep{
+  flex:1 1 0; min-width:88px; text-align:center; border-radius:9px; padding:8px 6px;
+  background:var(--panel-2); border:1px solid var(--line-2); opacity:.4;
+  transition:opacity .3s var(--ease), background .3s var(--ease), border-color .3s var(--ease);
+}
+.dstep.on{opacity:1; background:var(--accent-bg); border-color:var(--brand-1)}
+.dk{display:block; font-size:10px; text-transform:uppercase; letter-spacing:.05em;
+    color:var(--ink-3); font-weight:700}
+.db{display:block; font-size:20px; font-weight:700; line-height:1.2; margin-top:2px; color:var(--ink)}
+.dstep.on .db{color:var(--accent)}
+.du{display:block; font-size:10.5px; color:var(--ink-3)}
+.dsep{align-self:center; color:var(--ink-3); font-size:13px; flex:none}
+.demo-say{font-size:13px; color:var(--ink-2); margin:0; min-height:2.8em; line-height:1.5}
+.demo-out{margin-top:10px}
+.demo-tbl{width:100%; border-collapse:collapse; font-size:12.5px}
+.demo-tbl caption{
+  text-align:left; font-size:11px; color:var(--ink-3); padding-bottom:6px; font-weight:700;
+  text-transform:uppercase; letter-spacing:.04em;
+}
+.demo-tbl th{
+  text-align:left; font-size:10.5px; text-transform:uppercase; letter-spacing:.04em;
+  color:var(--ink-3); padding:5px 8px 5px 0; border-bottom:1px solid var(--line);
+}
+.demo-tbl td{padding:6px 8px 6px 0; border-bottom:1px solid var(--line-2); color:var(--ink)}
+.demo-tbl tr:last-child td{border-bottom:none}
+.demo-limit{font-size:12px; color:var(--ink-3); margin:8px 0 0; line-height:1.5}
+.demo-note{font-size:11.5px; color:var(--ink-3); margin:10px 0 0; line-height:1.5; font-style:italic}
+
+/* ---------- BPM map lightbox ---------- */
+.map-btn{
+  font:inherit; font-size:12px; font-weight:700; cursor:pointer; width:100%; min-height:38px;
+  margin-top:10px; padding:8px 10px; border-radius:8px; text-align:left;
+  background:rgba(255,255,255,.07); border:1px solid var(--side-line); color:var(--side-ink-2);
+}
+.map-btn:hover{background:rgba(255,255,255,.13); color:var(--side-ink)}
+.lightbox{
+  position:fixed; inset:0; z-index:80; background:rgba(20,12,6,.82);
+  display:flex; flex-direction:column; padding:14px; gap:10px;
+}
+.lightbox[hidden]{display:none}
+.lb-h{display:flex; align-items:center; gap:10px; color:#f6efe6; font-size:13px}
+.lb-h b{font-size:14px}
+.lb-close{
+  margin-left:auto; font:inherit; font-size:13px; font-weight:700; cursor:pointer;
+  min-height:38px; padding:7px 14px; border-radius:8px;
+  background:rgba(255,255,255,.13); color:#fff; border:1px solid rgba(255,255,255,.3);
+}
+.lb-body{flex:1; overflow:auto; background:#fff; border-radius:8px; padding:8px}
+.lb-body img{display:block; max-width:none; height:auto}
+.lb-fallback{color:var(--ink-3); font-size:13px; padding:20px; text-align:center}
+
+.tree-stages{
+  display:flex; align-items:center; gap:6px; margin-bottom:10px; overflow-x:auto; scrollbar-width:none;
+}
+.tree-stages::-webkit-scrollbar{display:none}
+.tree-stages .stage{
+  flex:1; min-width:44px; min-height:38px; text-align:center; font:inherit; font-size:12px;
+  font-weight:700; color:var(--ink-2); background:var(--panel); border:1px solid var(--line);
+  border-radius:8px; cursor:pointer; padding:6px 4px;
+}
+.tree-stages .stage:hover{border-color:var(--brand-1); color:var(--ink)}
+.tree-stages .stage[aria-current="true"]{
+  background:var(--accent-bg); border-color:var(--brand-1); color:var(--accent);
+}
+.tree-stages .stage.alert{border-color:var(--red-fill); color:var(--red)}
+.tree-stages .stage.alert[aria-current="true"]{background:var(--red-bg)}
+.stage-arrow{
+  flex:none; width:36px; min-height:38px; font-size:16px; font-weight:700; cursor:pointer;
+  background:var(--panel); border:1px solid var(--line); border-radius:8px; color:var(--ink-2);
+}
+.stage-arrow:hover:not(:disabled){border-color:var(--brand-1); color:var(--ink)}
+.stage-arrow:disabled{opacity:.35; cursor:default}
+
 /* ---------- aviso al administrado ---------- */
 .aviso-doc{
   max-width:72ch; margin:0 auto; background:var(--panel); border:1px solid var(--line);
@@ -800,8 +897,8 @@ table.prec td:first-child{
 
     <nav class="side-sec" aria-label="Etapas del trámite">
       <h2>Proceso</h2>
-      <p class="hint">Navegación provisional — se reemplaza cuando llegue el mapa BPM.</p>
       <ul class="bpm" id="bpmNav"></ul>
+      <button type="button" class="map-btn" id="bpmOpen">⤢ Ver mapa BPM completo</button>
     </nav>
 
     <div class="side-sec side-tree">
@@ -919,6 +1016,17 @@ table.prec td:first-child{
   </aside>
 
   <button class="scrim" id="scrim" tabindex="-1" aria-label="Cerrar los paneles"></button>
+</div>
+
+<div class="lightbox" id="bpmBox" role="dialog" aria-modal="true" aria-label="Mapa BPM del trámite" hidden>
+  <div class="lb-h">
+    <b>Mapa BPM del trámite</b>
+    <span>Proceso real de registro sanitario — las seis etapas del riel son un recorte de este mapa.</span>
+    <button type="button" class="lb-close" id="bpmClose">Cerrar</button>
+  </div>
+  <div class="lb-body">
+    <img src="reto_invima_dossier_mvp.png" onerror="bpmFallback(this)" alt="Diagrama BPMN del trámite de registro sanitario, con los carriles de INVIMA, coordinación, evaluador y solicitante">
+  </div>
 </div>
 
 
@@ -1350,6 +1458,9 @@ const SIGN_STEP = "Revisión humana del expediente";
 
 const $  = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+/* Which module M1..M5 the rail and the Expediente screen currently focus on.
+   One shared variable so picking a module in either place moves both. */
+let treeStage = 0;
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const findingById   = id => FINDINGS.find(f => f.id === id);
 const precedentById = id => PRECEDENTS.find(p => p.id === id);
@@ -1555,17 +1666,20 @@ $('#chatLog').innerHTML = `
     `${total} folios · ${marks.length} anclas` + (loose ? ` · ${loose} sin ancla, en cola humana` : '');
 })();
 
-/* ---------- module pipeline ---------- */
-(function pipeline(){
-  $('#pipe').innerHTML = MODULES.map(m => {
+/* ---------- module pipeline: also the rail's stage selector ---------- */
+function renderPipe(){
+  $('#pipe').innerHTML = MODULES.map((m, i) => {
     const alert = m.documents.some(d => d.state === 'omission' || d.state === 'missing');
-    return `<span class="node${alert ? ' alert' : ''}" title="${esc(m.title)}">${esc(m.id)}</span>`;
+    return `<button type="button" class="node${alert ? ' alert' : ''}" data-stage-pipe="${i}"
+              aria-current="${i === treeStage}" title="${esc(m.title)}">${esc(m.id)}</button>`;
   }).join('<span class="arrow" aria-hidden="true">›</span>') +
     '<span class="flow-track" aria-hidden="true"><i class="fp"></i><i class="fp d2"></i><i class="fp d3"></i></span>';
-})();
+}
 
-/* ---------- document tree ---------- */
-$('#tree').innerHTML = MODULES.map(m => `
+/* ---------- document tree: one module at a time, not the whole expediente ---------- */
+function renderSideTree(){
+  const m = MODULES[treeStage];
+  $('#tree').innerHTML = `
   <section class="mod">
     <div class="mod-h">
       <span class="id">${esc(m.id)}</span>
@@ -1585,7 +1699,18 @@ $('#tree').innerHTML = MODULES.map(m => `
         <span class="sr">${esc(st.label)}${n ? ` · ${n} hallazgo${n > 1 ? 's' : ''}` : ''}</span>
       </button>`;
     }).join('')}
-  </section>`).join('');
+  </section>`;
+}
+
+function goToStage(i){
+  treeStage = Math.max(0, Math.min(MODULES.length - 1, i));
+  renderPipe();
+  renderSideTree();
+  if(typeof renderTree === 'function') renderTree();
+}
+
+renderPipe();
+renderSideTree();
 
 /* ---------- contradiction arc ---------- */
 /* Two folios that cannot both be true, drawn as what they are: two points of the
@@ -2129,6 +2254,10 @@ function docById(id){
   return null;
 }
 
+function moduleIndexOf(docId){
+  return MODULES.findIndex(m => m.documents.some(d => d.id === docId));
+}
+
 function fragmentsFor(docId){
   const out = [];
   for(const f of FINDINGS) for(const e of f.evidence) if(e.source === docId) out.push({finding: f, evidence: e});
@@ -2137,14 +2266,15 @@ function fragmentsFor(docId){
 
 function selectTreeDoc(id){
   selectedDoc = id;
-  renderTree();
+  const mi = moduleIndexOf(id);
+  if(mi >= 0 && mi !== treeStage) goToStage(mi);
+  else renderTree();
   $('#treePanel').scrollIntoView({behavior: lessMotion() ? 'auto' : 'smooth', block:'start'});
 }
 
 function renderTreePanel(){
   if(!selectedDoc){
-    return '<p class="tree-hint">Seleccione un documento del árbol para ver los fragmentos que el ' +
-           'motor extrajo de él y saltar al hallazgo donde se usó cada uno.</p>';
+    return '<p class="tree-hint">Elija un documento para ver qué se extrajo de él.</p>';
   }
   const hit = docById(selectedDoc);
   if(!hit) return '';
@@ -2155,9 +2285,8 @@ function renderTreePanel(){
 
   if(d.state === 'missing'){
     const refs = (d.findings || []).map(esc).join(', ');
-    return head + '<p class="tree-missing">' + esc(m.id) + ' declara este estudio, pero <b>no fue ' +
-      'aportado</b> al expediente radicado: no hay folio que abrir. Esa ausencia es en sí misma la ' +
-      'evidencia del hallazgo ' + refs + '.</p>';
+    return head + '<p class="tree-missing">Declarado en ' + esc(m.id) + ', <b>no aportado</b>. ' +
+      'No hay folio que abrir: la ausencia es la evidencia del hallazgo ' + refs + '.</p>';
   }
 
   const frags = fragmentsFor(d.id);
@@ -2174,27 +2303,134 @@ function renderTreePanel(){
   return head + body;
 }
 
+function renderTreeStage(){
+  const m = MODULES[treeStage];
+  return '<section class="mod">' +
+    '<div class="mod-h"><span class="id">' + esc(m.id) + '</span><span class="t">' + esc(m.title) + '</span>' +
+    '<span class="f mono">' + esc(m.folios) + '</span></div>' +
+    '<p class="mod-q">' + esc(m.question) + '</p>' +
+    m.documents.map(d => {
+      const n = (d.findings || []).length;
+      const st = STATES[d.state];
+      return '<button type="button" class="doc' + (d.state === 'missing' ? ' missing' : '') + '" ' +
+        'aria-pressed="' + (d.id === selectedDoc) + '" data-doc="' + esc(d.id) + '" ' +
+        'title="' + esc(d.name) + ' — ' + esc(st.label) + '">' +
+        '<span class="dot ' + st.color + '">' + st.icon + '</span>' +
+        '<span class="name">' + esc(d.name) + '</span>' +
+        (n ? '<span class="count">' + n + '</span>' : '') +
+        '<span class="folios mono">' + esc(d.folios) + '</span></button>';
+    }).join('') +
+    '</section>';
+}
+
+function renderTreeNav(){
+  return '<nav class="tree-stages" aria-label="Etapas del expediente">' +
+    '<button type="button" class="stage-arrow" id="stagePrev" ' + (treeStage === 0 ? 'disabled' : '') +
+    ' aria-label="Módulo anterior">‹</button>' +
+    MODULES.map((m, i) => {
+      const alert = m.documents.some(d => d.state === 'omission' || d.state === 'missing');
+      return '<button type="button" class="stage' + (alert ? ' alert' : '') + '" data-stage="' + i + '" ' +
+        'aria-current="' + (i === treeStage) + '" title="' + esc(m.title) + '">' + esc(m.id) + '</button>';
+    }).join('') +
+    '<button type="button" class="stage-arrow" id="stageNext" ' +
+    (treeStage === MODULES.length - 1 ? 'disabled' : '') + ' aria-label="Módulo siguiente">›</button>' +
+    '</nav>';
+}
+
+/* ---------- extraction pipeline, played step by step ---------- */
+/* Second document on purpose: a real, public FDA clinical review, so the pipeline
+   can be shown against a document nobody in the room prepared. Every figure below
+   was read out of the PDF with `pdftotext -layout`, never from the model. */
+const DEMO_DOC = {
+  label: 'FDA · Clinical Review NDA 21883 — DALVANCE (dalbavancin)',
+  note: 'Documento público de la FDA, 58 páginas. No pertenece al expediente CORAZILIMAB: sirve para mostrar el recorrido sobre un documento que nadie preparó para este demo.',
+};
+const DEMO_STEPS = [
+  { k:'Documento',  big:'58',  unit:'páginas',  t:'PDF sin estructura: se identifica autoridad, tipo, producto y revisor.' },
+  { k:'Índice',     big:'8',   unit:'secciones', t:'El código arma el índice clínico antes de llamar al modelo.' },
+  { k:'M5 clínico', big:'5.1', unit:'§ folio 22', t:'La sección de estudios clínicos queda acotada: ya no son 58 páginas.' },
+  { k:'Pivotales',  big:'2',   unit:'estudios',  t:'DUR001-301 y DUR001-302, los dos de Fase III.' },
+  { k:'Endpoint',   big:'6.1.4', unit:'§ folio 44', t:'Análisis del desenlace primario: respuesta clínica a 48–72 h.' },
+  { k:'Evidencia',  big:'T.18', unit:'folio 44',  t:'Tabla 18 — el dato con su ubicación exacta, verificable en el PDF.' },
+];
+const DEMO_RESULT = [
+  ['DUR001-301', '240/288 (83,3 %)', '233/285 (81,8 %)', '+1,5 % (−4,6 · 7,9)'],
+  ['DUR001-302', '285/371 (76,8 %)', '288/368 (78,3 %)', '−1,5 % (−7,4 · 4,6)'],
+];
+let demoTimers = [];
+
+function renderDemo(){
+  return '<section class="demo" aria-labelledby="demoT">' +
+    '<div class="demo-h">' +
+      '<h2 id="demoT">De 58 páginas a un folio</h2>' +
+      '<button type="button" id="demoPlay" class="demo-btn">▶ Reproducir</button>' +
+    '</div>' +
+    '<p class="demo-src">' + esc(DEMO_DOC.label) + '</p>' +
+    '<ol class="demo-steps" id="demoSteps">' +
+      DEMO_STEPS.map((s, i) =>
+        '<li class="dstep" data-i="' + i + '">' +
+        '<span class="dk">' + esc(s.k) + '</span>' +
+        '<span class="db">' + esc(s.big) + '</span>' +
+        '<span class="du">' + esc(s.unit) + '</span>' +
+        '</li>').join('<li class="dsep" aria-hidden="true">›</li>') +
+    '</ol>' +
+    '<p class="demo-say" id="demoSay">' + esc(DEMO_STEPS[0].t) + '</p>' +
+    '<div class="demo-out" id="demoOut" hidden>' +
+      '<table class="demo-tbl"><caption>Tabla 18 · respuesta temprana 48–72 h, población ITT</caption>' +
+      '<tr><th>Estudio</th><th>Dalbavancina</th><th>Comparador</th><th>Diferencia</th></tr>' +
+      DEMO_RESULT.map(r => '<tr>' + r.map((c, j) =>
+        (j ? '<td class="mono">' : '<td>') + esc(c) + '</td>').join('') + '</tr>').join('') +
+      '</table>' +
+      '<p class="demo-limit">Margen de no inferioridad −10 %. El sistema <b>trae el dato y su folio</b>; ' +
+      'si la evidencia sustenta la indicación lo decide el evaluador.</p>' +
+    '</div>' +
+    '<p class="demo-note">' + esc(DEMO_DOC.note) + '</p>' +
+  '</section>';
+}
+
+/* The BPM map ships beside index.html, not inside it: a 322 kB data URI quadrupled
+   the page and broke tooling that loads it. Says so when the file is not there. */
+function bpmFallback(img){
+  if(!img || !img.parentNode) return;
+  img.replaceWith(Object.assign(document.createElement('p'), {
+    className: 'lb-fallback',
+    textContent: 'El mapa BPM (reto_invima_dossier_mvp.png) no está junto a esta página. ' +
+                 'Copie el archivo al mismo directorio que index.html para verlo.',
+  }));
+}
+
+/* onerror does not fire in every context (a page served from a data: URL just
+   leaves the image empty), so the width is checked as well before showing it. */
+function openBpm(){
+  $('#bpmBox').hidden = false;
+  const img = $('#bpmBox img');
+  if(img && img.complete && img.naturalWidth === 0) bpmFallback(img);
+  $('#bpmClose').focus();
+}
+
+function playDemo(){
+  demoTimers.forEach(clearTimeout);
+  demoTimers = [];
+  const steps = $$('#demoSteps .dstep');
+  steps.forEach(s => s.classList.remove('on'));
+  $('#demoOut').hidden = true;
+  const gap = lessMotion() ? 0 : 520;
+  steps.forEach((s, i) => {
+    const run = () => {
+      steps.forEach((o, j) => o.classList.toggle('on', j <= i));
+      $('#demoSay').textContent = DEMO_STEPS[i].t;
+      if(i === steps.length - 1) $('#demoOut').hidden = false;
+    };
+    if(gap) demoTimers.push(setTimeout(run, i * gap)); else run();
+  });
+}
+
 function renderTree(){
   $('#screenTree').innerHTML =
+    renderDemo() +
     '<div class="tree-panel" id="treePanel">' + renderTreePanel() + '</div>' +
-    '<div class="tree-list">' + MODULES.map(m =>
-      '<section class="mod">' +
-      '<div class="mod-h"><span class="id">' + esc(m.id) + '</span><span class="t">' + esc(m.title) + '</span>' +
-      '<span class="f mono">' + esc(m.folios) + '</span></div>' +
-      '<p class="mod-q">' + esc(m.question) + '</p>' +
-      m.documents.map(d => {
-        const n = (d.findings || []).length;
-        const st = STATES[d.state];
-        return '<button type="button" class="doc' + (d.state === 'missing' ? ' missing' : '') + '" ' +
-          'aria-pressed="' + (d.id === selectedDoc) + '" data-doc="' + esc(d.id) + '" ' +
-          'title="' + esc(d.name) + ' — ' + esc(st.label) + '">' +
-          '<span class="dot ' + st.color + '">' + st.icon + '</span>' +
-          '<span class="name">' + esc(d.name) + '</span>' +
-          (n ? '<span class="count">' + n + '</span>' : '') +
-          '<span class="folios mono">' + esc(d.folios) + '</span></button>';
-      }).join('') +
-      '</section>'
-    ).join('') + '</div>';
+    renderTreeNav() +
+    '<div class="tree-list">' + renderTreeStage() + '</div>';
 }
 
 /* ---------- aviso al administrado ---------- */
@@ -2298,7 +2534,7 @@ function showScreen(name){
   currentScreen = name;
   $$('.screens button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.s === name)));
   $$('#content [data-screen]').forEach(el => { el.hidden = el.dataset.screen !== name; });
-  if(name === 'tree') renderTree();
+  if(name === 'tree'){ renderTree(); playDemo(); }
   if(name === 'trace') renderTrace();
   if(name === 'aviso') renderAviso();
 }
@@ -2334,8 +2570,19 @@ document.addEventListener('click', e => {
   if(e.target.closest('#chainTamper')){ toggleTamper(); return; }
   if(e.target.closest('#signBtn')){ signReview(); return; }
 
+  if(e.target.closest('#demoPlay')){ playDemo(); return; }
+  if(e.target.closest('#bpmOpen')){ openBpm(); return; }
+  if(e.target.closest('#bpmClose')){ $('#bpmBox').hidden = true; $('#bpmOpen').focus(); return; }
+
   const tdoc = e.target.closest('#screenTree .doc');
   if(tdoc){ selectTreeDoc(tdoc.dataset.doc); return; }
+
+  if(e.target.closest('#stagePrev')){ goToStage(treeStage - 1); return; }
+  if(e.target.closest('#stageNext')){ goToStage(treeStage + 1); return; }
+  const stageBtn = e.target.closest('.tree-stages .stage');
+  if(stageBtn){ goToStage(+stageBtn.dataset.stage); return; }
+  const pipeNode = e.target.closest('#pipe .node');
+  if(pipeNode){ goToStage(+pipeNode.dataset.stagePipe); return; }
 
   const tab = e.target.closest('.tab');
   if(tab){ selectTab(tab); return; }
@@ -2370,7 +2617,10 @@ document.addEventListener('click', e => {
 document.addEventListener('keydown', e => {
   /* Escape is checked before the target guard: it must work even when focus
      sits on the document itself, where `closest` does not exist. */
-  if(e.key === 'Escape'){ closePanels(); return; }
+  if(e.key === 'Escape'){
+    if(!$('#bpmBox').hidden){ $('#bpmBox').hidden = true; $('#bpmOpen').focus(); return; }
+    closePanels(); return;
+  }
 
   const t = e.target;
   if(!t || !t.closest) return;

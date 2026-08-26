@@ -1,0 +1,13 @@
+# Safety net: nothing private reaches a public deploy.
+# Only prototipo/ is meant to be published.
+docs/
+descubrimientos/
+reference/
+cockpit-evaluador/
+motor/
+.claude/
+.git/
+*.md
+!prototipo/**
+.env
+.env.*
