@@ -1,0 +1,840 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cockpit del Evaluador — Expediente CORAZILIMAB</title>
+<style>
+:root{
+  --bg:#f6f7f9; --panel:#ffffff; --panel-2:#fbfcfd; --ink:#16191d; --ink-2:#525a66;
+  --ink-3:#7d8896; --line:#e2e6ec; --line-2:#eef1f5;
+  --verde:#1a7f52; --verde-bg:#e6f4ed; --ambar:#9a6510; --ambar-bg:#fdf3e0;
+  --rojo:#b3261e; --rojo-bg:#fceceb; --gris:#5b6673; --gris-bg:#eef0f3;
+  --azul:#1f5fa8; --azul-bg:#e8f0fa;
+  --shadow:0 1px 2px rgba(16,24,40,.05),0 1px 3px rgba(16,24,40,.06);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e1116; --panel:#161a21; --panel-2:#1b2029; --ink:#e8ecf2; --ink-2:#a6b0be;
+    --ink-3:#78838f; --line:#262c36; --line-2:#1f242c;
+    --verde:#5fd39b; --verde-bg:#122c20; --ambar:#e0aa5a; --ambar-bg:#2e2312;
+    --rojo:#f28b82; --rojo-bg:#331c1a; --gris:#9aa5b1; --gris-bg:#20252d;
+    --azul:#79b0f0; --azul-bg:#132234;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 1px 3px rgba(0,0,0,.4);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e1116; --panel:#161a21; --panel-2:#1b2029; --ink:#e8ecf2; --ink-2:#a6b0be;
+  --ink-3:#78838f; --line:#262c36; --line-2:#1f242c;
+  --verde:#5fd39b; --verde-bg:#122c20; --ambar:#e0aa5a; --ambar-bg:#2e2312;
+  --rojo:#f28b82; --rojo-bg:#331c1a; --gris:#9aa5b1; --gris-bg:#20252d;
+  --azul:#79b0f0; --azul-bg:#132234;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 1px 3px rgba(0,0,0,.4);
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font:15px/1.55 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3{margin:0; font-weight:650; letter-spacing:-.011em}
+.mono{font-family:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace}
+
+/* ---------- barra superior ---------- */
+.top{
+  background:var(--panel); border-bottom:1px solid var(--line);
+  padding:14px 22px; display:flex; gap:22px; align-items:center; flex-wrap:wrap;
+  position:sticky; top:0; z-index:20;
+}
+.brand{display:flex; flex-direction:column; gap:2px; margin-right:auto; min-width:0}
+.brand h1{font-size:16px}
+.brand .sub{font-size:12.5px; color:var(--ink-3)}
+.cui{
+  font-size:12px; padding:3px 9px; border-radius:5px;
+  background:var(--azul-bg); color:var(--azul); border:1px solid color-mix(in srgb,var(--azul) 25%,transparent);
+}
+.kpi{display:flex; flex-direction:column; gap:1px; padding-left:20px; border-left:1px solid var(--line)}
+.kpi .n{font-size:20px; font-weight:680; line-height:1.2; letter-spacing:-.02em}
+.kpi .l{font-size:11px; color:var(--ink-3); text-transform:uppercase; letter-spacing:.05em}
+.riesgo-alto{color:var(--rojo)}
+.btn-tema{
+  background:transparent; border:1px solid var(--line); color:var(--ink-2);
+  border-radius:6px; padding:6px 10px; cursor:pointer; font-size:13px;
+}
+.btn-tema:hover{background:var(--panel-2)}
+
+.aviso{
+  background:var(--ambar-bg); color:var(--ambar); font-size:12.5px;
+  padding:7px 22px; border-bottom:1px solid var(--line);
+}
+
+/* ---------- rejilla ---------- */
+.wrap{display:grid; grid-template-columns:minmax(300px,380px) 1fr; gap:0; align-items:start}
+@media (max-width:940px){ .wrap{grid-template-columns:1fr} }
+
+.izq{border-right:1px solid var(--line); background:var(--panel); min-height:calc(100vh - 96px)}
+.der{padding:18px 22px 60px; min-width:0}
+
+/* ---------- árbol ---------- */
+.izq-head{padding:16px 18px 10px; border-bottom:1px solid var(--line-2)}
+.izq-head h2{font-size:13px; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-3)}
+.leyenda{display:flex; gap:12px; flex-wrap:wrap; margin-top:9px; font-size:11.5px; color:var(--ink-2)}
+.leyenda span{display:flex; align-items:center; gap:4px}
+.mod{border-bottom:1px solid var(--line-2)}
+.mod-h{padding:11px 18px 9px; display:flex; align-items:baseline; gap:8px}
+.mod-h .id{
+  font-size:11px; font-weight:700; padding:2px 6px; border-radius:4px;
+  background:var(--gris-bg); color:var(--ink-2);
+}
+.mod-h .t{font-size:13.5px; font-weight:600}
+.mod-h .f{margin-left:auto; font-size:11px; color:var(--ink-3)}
+.mod-q{padding:0 18px 8px; font-size:11.5px; color:var(--ink-3); font-style:italic; line-height:1.45}
+.doc{
+  display:flex; align-items:center; gap:9px; padding:7px 18px 7px 18px;
+  cursor:pointer; border-left:3px solid transparent; font-size:13px;
+}
+.doc:hover{background:var(--panel-2)}
+.doc.sel{background:var(--azul-bg); border-left-color:var(--azul)}
+.doc .pt{font-size:11px; line-height:1}
+.doc .nm{flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.doc .fo{font-size:10.5px; color:var(--ink-3); font-variant-numeric:tabular-nums}
+.doc.ausente .nm{color:var(--ink-3); font-style:italic}
+.pt.verde{color:var(--verde)} .pt.ambar{color:var(--ambar)}
+.pt.rojo{color:var(--rojo)} .pt.gris{color:var(--gris)}
+
+/* ---------- pestañas ---------- */
+.tabs{display:flex; gap:2px; border-bottom:1px solid var(--line); margin-bottom:18px}
+.tab{
+  background:none; border:none; border-bottom:2px solid transparent; color:var(--ink-2);
+  padding:9px 14px; cursor:pointer; font-size:13.5px; font-weight:550; font-family:inherit;
+}
+.tab:hover{color:var(--ink)}
+.tab.on{color:var(--ink); border-bottom-color:var(--azul)}
+.tab .c{
+  font-size:11px; margin-left:6px; padding:1px 6px; border-radius:9px;
+  background:var(--gris-bg); color:var(--ink-2);
+}
+.tab.on .c{background:var(--azul-bg); color:var(--azul)}
+
+/* ---------- tarjetas ---------- */
+.card{
+  background:var(--panel); border:1px solid var(--line); border-radius:9px;
+  margin-bottom:14px; box-shadow:var(--shadow); overflow:hidden;
+}
+.card-h{padding:14px 16px; display:flex; gap:11px; align-items:flex-start; cursor:pointer}
+.card-h:hover{background:var(--panel-2)}
+.sev{
+  font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.05em;
+  padding:3px 8px; border-radius:4px; white-space:nowrap; margin-top:1px;
+}
+.sev.critico{background:var(--rojo-bg); color:var(--rojo)}
+.sev.menor{background:var(--ambar-bg); color:var(--ambar)}
+.sev.ok{background:var(--verde-bg); color:var(--verde)}
+.sev.ref{background:var(--azul-bg); color:var(--azul)}
+.card-h .tt{flex:1; min-width:0}
+.card-h .tt h3{font-size:14.5px; margin-bottom:3px}
+.card-h .tt p{margin:0; font-size:13px; color:var(--ink-2); line-height:1.5}
+.card-h .chev{color:var(--ink-3); font-size:12px; margin-top:3px; transition:transform .15s}
+.card.open .chev{transform:rotate(90deg)}
+.card-b{display:none; padding:0 16px 16px; border-top:1px solid var(--line-2)}
+.card.open .card-b{display:block}
+
+.campo{padding:11px 0; border-bottom:1px solid var(--line-2)}
+.campo:last-child{border-bottom:none}
+.campo .k{
+  font-size:10.5px; text-transform:uppercase; letter-spacing:.06em;
+  color:var(--ink-3); font-weight:650; margin-bottom:4px;
+}
+.campo .v{font-size:13.5px; color:var(--ink); line-height:1.55}
+.campo .v.tenue{color:var(--ink-2)}
+
+.ev{
+  background:var(--panel-2); border:1px solid var(--line-2); border-left:3px solid var(--azul);
+  border-radius:0 6px 6px 0; padding:9px 12px; margin-bottom:7px;
+}
+.ev q{font-size:13px; color:var(--ink); font-style:italic; display:block; margin-bottom:5px; line-height:1.5}
+.ev q::before,.ev q::after{content:""}
+.ev .src{font-size:11px; color:var(--ink-3); display:flex; gap:8px; flex-wrap:wrap; align-items:center}
+.ev .src .b{
+  background:var(--gris-bg); color:var(--ink-2); padding:1px 6px; border-radius:4px; font-weight:600;
+}
+
+.ruta{
+  font-size:12px; color:var(--ink-2); background:var(--panel-2);
+  border:1px solid var(--line-2); border-radius:6px; padding:8px 11px; line-height:1.6;
+}
+.conf{display:flex; align-items:center; gap:8px}
+.conf .lvl{font-weight:650}
+.conf .lvl.Alta{color:var(--verde)} .conf .lvl.Media{color:var(--ambar)}
+
+.accion{
+  background:var(--azul-bg); border:1px solid color-mix(in srgb,var(--azul) 22%,transparent);
+  border-radius:7px; padding:11px 13px; margin-top:12px;
+}
+.accion .k{color:var(--azul)}
+.accion .v{font-size:13.5px}
+
+.nota-humana{
+  display:flex; gap:9px; align-items:flex-start; margin-top:12px; padding:10px 13px;
+  border:1px dashed var(--line); border-radius:7px; font-size:12.5px; color:var(--ink-2);
+}
+
+/* ---------- barras de área ---------- */
+.areas{display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:12px; margin-bottom:20px}
+.area{background:var(--panel); border:1px solid var(--line); border-radius:9px; padding:13px 15px; box-shadow:var(--shadow)}
+.area .nm{font-size:12px; color:var(--ink-3); text-transform:uppercase; letter-spacing:.05em; margin-bottom:5px}
+.area .pc{font-size:22px; font-weight:680; letter-spacing:-.02em; line-height:1.1}
+.area .peso{font-size:11.5px; color:var(--ink-3); margin-top:2px}
+.bar{height:5px; background:var(--gris-bg); border-radius:3px; margin-top:9px; overflow:hidden}
+.bar i{display:block; height:100%; border-radius:3px}
+
+.ahorro{
+  background:var(--verde-bg); border:1px solid color-mix(in srgb,var(--verde) 24%,transparent);
+  border-radius:9px; padding:13px 16px; margin-bottom:16px; font-size:13.5px; color:var(--ink);
+}
+.ahorro strong{color:var(--verde)}
+
+table.prec{width:100%; border-collapse:collapse; font-size:13px}
+table.prec td{padding:6px 0; vertical-align:top; border-bottom:1px solid var(--line-2)}
+table.prec td:first-child{
+  width:120px; color:var(--ink-3); font-size:11px; text-transform:uppercase;
+  letter-spacing:.05em; font-weight:650; padding-right:12px;
+}
+.pie{padding:22px; font-size:12px; color:var(--ink-3); border-top:1px solid var(--line); line-height:1.6}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div class="brand">
+    <h1>Cockpit del Evaluador</h1>
+    <div class="sub" id="sub"></div>
+  </div>
+  <span class="cui mono" id="cui"></span>
+  <div class="kpi"><div class="n" id="kGlobal">—</div><div class="l">Índice de rigor</div></div>
+  <div class="kpi"><div class="n riesgo-alto" id="kRiesgo">—</div><div class="l">Riesgo de auto</div></div>
+  <div class="kpi"><div class="n" id="kFolios">—</div><div class="l">Folios</div></div>
+  <button class="btn-tema" id="tema">Tema</button>
+</div>
+
+<div class="aviso">
+  Prototipo de hackatón sobre un <strong>expediente ficticio</strong> entregado por el organizador.
+  No es un sistema del INVIMA. No emite decisiones administrativas: toda conclusión requiere
+  revisión y firma del evaluador competente.
+</div>
+
+<div class="wrap">
+  <aside class="izq">
+    <div class="izq-head">
+      <h2>Preclasificación del expediente</h2>
+      <div class="leyenda">
+        <span><b class="pt verde">●</b> Conforme</span>
+        <span><b class="pt ambar">▲</b> Subsanable</span>
+        <span><b class="pt rojo">■</b> Omisión</span>
+        <span><b class="pt gris">○</b> No aportado</span>
+      </div>
+    </div>
+    <div id="arbol"></div>
+  </aside>
+
+  <main class="der">
+    <div class="tabs">
+      <button class="tab on" data-v="hallazgos">Hallazgos<span class="c" id="cH"></span></button>
+      <button class="tab" data-v="aprobado">Ya evaluado<span class="c" id="cA"></span></button>
+      <button class="tab" data-v="precedentes">Precedentes de Sala<span class="c" id="cP"></span></button>
+    </div>
+    <div id="vista"></div>
+  </main>
+</div>
+
+<div class="pie">
+  Análisis precomputado fuera de línea a partir de los PDF del organizador y revisado por una persona
+  antes de publicarse. La aplicación no realiza llamadas de red: el expediente no sale de esta máquina.
+  Misma entrada, misma salida. Precedentes tomados del Acta No.&nbsp;04 de 2026 SEMPB, documento público.
+</div>
+
+<script>
+/* datos.js — Análisis precomputado del expediente CORAZILIMAB.
+ *
+ * PROCEDENCIA: extraído de los 5 PDF de módulo entregados por el organizador el
+ * 2026-08-26 a las 10:25, con `pdftotext -layout`. Cada hallazgo cita documento y
+ * folio verificables en el PDF original. El análisis se precomputó fuera de línea y
+ * fue revisado por una persona antes de cargarse aquí: la aplicación no hace
+ * ninguna llamada de red y no envía el expediente a ningún servicio externo.
+ *
+ * Los precedentes de Sala provienen del Acta No. 04 de 2026 SEMPB (documento público).
+ */
+
+const EXPEDIENTE = {
+  cui: "MED-BIO-IMP-NUE-2026-001784",
+  producto: "CORAZILIMAB 150 mg/mL solución inyectable en jeringa precargada",
+  dci: "Corazilimab",
+  codigoDesarrollo: "CRZ-042",
+  expediente: "2026-REG-CRZ-001784",
+  titular: "Biotec Global Therapeutics Ltd. (Reino Unido)",
+  solicitante: "Biofarma Andina S.A.S.",
+  modalidad: "Importar y vender",
+  ruta: "Evaluación farmacológica — Decreto 1782 de 2014",
+  indicacionSolicitada:
+    "Hipertensión arterial pulmonar en adultos y adolescentes ≥12 años",
+  folios: 166,
+};
+
+/* Pesos del scoring, según la especificación del sistema (PASO 5). */
+const PESOS = { legal: 0.25, calidad: 0.45, farmacologia: 0.30 };
+
+/* Estados de preclasificación — códigos de color del PASO 2 de la especificación. */
+const ESTADOS = {
+  conforme:   { etiqueta: "Conforme",    color: "verde",   icono: "●" },
+  subsanable: { etiqueta: "Subsanable",  color: "ambar",   icono: "▲" },
+  omision:    { etiqueta: "Omisión",     color: "rojo",    icono: "■" },
+  ausente:    { etiqueta: "No aportado", color: "gris",    icono: "○" },
+};
+
+/* ---------------------------------------------------------------------------
+ * ÁRBOL DEL EXPEDIENTE — preclasificación por documento
+ * ------------------------------------------------------------------------- */
+const MODULOS = [
+  {
+    id: "M1",
+    titulo: "Información general",
+    area: "legal",
+    folios: "1–21",
+    pregunta:
+      "¿La solicitud es válida, completa, consistente y jurídicamente soportada?",
+    documentos: [
+      { id: "ASS-RSA-FM113", nombre: "Formato general para solicitudes de productos biológicos", version: "05", folios: "1–9", estado: "conforme" },
+      { id: "M1-02-PODER", nombre: "Poder / representación legal", version: "v1.0", folios: "9–10", estado: "conforme" },
+      { id: "M1-03-BPM-CPP", nombre: "Certificados BPM y CPP/CVL", version: "v1.0", folios: "10–14", estado: "omision", hallazgos: ["H3"] },
+      { id: "M1-04-DATOS-PROT", nombre: "Protección de datos de prueba", version: "v1.0", folios: "15–21", estado: "conforme" },
+    ],
+  },
+  {
+    id: "M2",
+    titulo: "Resúmenes generales",
+    area: "farmacologia",
+    folios: "22–52",
+    pregunta:
+      "¿El relato global representa fielmente la evidencia detallada de M3–M5?",
+    documentos: [
+      { id: "M2-01-INTRO", nombre: "Introducción general al dossier CTD", version: "v1.0", folios: "22–30", estado: "subsanable", hallazgos: ["H4"] },
+      { id: "M2-03-QOS", nombre: "Resumen global de calidad (QOS)", version: "v1.0", folios: "31–38", estado: "conforme" },
+      { id: "M2-04-NCO", nombre: "Resumen no clínico", version: "v1.0", folios: "39–43", estado: "conforme" },
+      { id: "M2-05-CO", nombre: "Resumen clínico", version: "v1.0", folios: "44–52", estado: "omision", hallazgos: ["H1", "H2"] },
+    ],
+  },
+  {
+    id: "M3",
+    titulo: "Calidad",
+    area: "calidad",
+    folios: "53–97",
+    pregunta:
+      "¿El producto puede fabricarse y controlarse de manera reproducible?",
+    documentos: [
+      { id: "M3-32S-DS", nombre: "Sustancia activa (drug substance)", version: "v1.0", folios: "53–70", estado: "conforme" },
+      { id: "M3-32P-DP", nombre: "Producto terminado (drug product)", version: "v1.0", folios: "71–80", estado: "omision", hallazgos: ["H3"] },
+      { id: "M3-32P-EXC", nombre: "Excipientes", version: "v1.0", folios: "81–84", estado: "conforme" },
+      { id: "M3-32P-LOTES", nombre: "Análisis de lotes", version: "v1.0", folios: "85–89", estado: "conforme" },
+      { id: "M3-32P-STAB", nombre: "Estabilidad", version: "v1.0", folios: "90–97", estado: "conforme" },
+    ],
+  },
+  {
+    id: "M4",
+    titulo: "Estudios no clínicos",
+    area: "farmacologia",
+    folios: "98–129",
+    pregunta:
+      "¿La evidencia preclínica respalda la exposición humana y caracteriza riesgos?",
+    documentos: [
+      { id: "M4-421-PK", nombre: "Farmacocinética no clínica", version: "v1.0", folios: "98–110", estado: "conforme" },
+      { id: "M4-423-TOX", nombre: "Toxicología a dosis repetida", version: "v1.0", folios: "111–122", estado: "conforme" },
+      { id: "M4-425-REPRO", nombre: "Toxicidad reproductiva y del desarrollo", version: "v1.0", folios: "123–129", estado: "subsanable", hallazgos: ["H5"] },
+    ],
+  },
+  {
+    id: "M5",
+    titulo: "Estudios clínicos",
+    area: "farmacologia",
+    folios: "130–166",
+    pregunta:
+      "¿La población, comparador, desenlaces y resultados sustentan la indicación solicitada?",
+    documentos: [
+      { id: "M5-01-PKPD", nombre: "Fase I farmacología clínica — CRZ-HAP-101", version: "1.0", folios: "130–147", estado: "conforme" },
+      { id: "M5-03-PIVOTAL", nombre: "Fase III pivotal — CRZ-HAP-301 PULMO-CLEAR", version: "1.0", folios: "148–166", estado: "omision", hallazgos: ["H1"] },
+      { id: "CRZ-HAP-201", nombre: "Fase II — declarado en M2, no aportado", version: "—", folios: "—", estado: "ausente", hallazgos: ["H2"] },
+      { id: "CRZ-HAP-401", nombre: "Extensión — declarado en M2, no aportado", version: "—", folios: "—", estado: "ausente", hallazgos: ["H2"] },
+      { id: "CRZ-HAP-501", nombre: "Exploratorio adolescentes — declarado en M2, no aportado", version: "—", folios: "—", estado: "ausente", hallazgos: ["H1", "H2"] },
+    ],
+  },
+];
+
+/* ---------------------------------------------------------------------------
+ * HALLAZGOS — cada uno trae los nueve campos de salida mínima obligatoria
+ * que exige la ficha visual del organizador (p. 4).
+ * ------------------------------------------------------------------------- */
+const HALLAZGOS = [
+  {
+    id: "H1",
+    severidad: "critico",
+    area: "farmacologia",
+    titulo: "La indicación solicitada excede la población estudiada",
+    respuesta:
+      "La indicación propuesta cubre adolescentes desde 12 años, pero el estudio pivotal excluyó expresamente a los menores de 18 y el estudio que respaldaría esa población no fue aportado.",
+    evidencia: [
+      { texto: "«Hipertensión arterial pulmonar en adultos y adolescentes ≥12 años»", fuente: "M2-05-CO", folio: "Folio 46", modulo: "M2" },
+      { texto: "«Pediatría — No se incluyeron adolescentes ni niños menores de 18 años»", fuente: "M5-03-PIVOTAL", folio: "Folio 158", modulo: "M5" },
+      { texto: "Criterios de exclusión: «Se excluyen, entre otros, pacientes pediátricos»", fuente: "M5-03-PIVOTAL", folio: "Folio 152", modulo: "M5" },
+      { texto: "PGR — información faltante: «uso en población pediátrica/adolescente»", fuente: "M5-03-PIVOTAL", folio: "Folio 163", modulo: "M5" },
+      { texto: "Compromisos: «Extensión pediátrica — Planificada — 2028»", fuente: "M5-03-PIVOTAL", folio: "Folio 165", modulo: "M5" },
+    ],
+    ubicacion: "M2 › 2.5 Resumen clínico › folio 46  ⟷  M5 › 5.3.5 Pivotal › folios 152, 158, 163, 165",
+    version: "M2-05-CO v1.0 (01/08/2026) · M5-03-PIVOTAL v1.0",
+    confianza: "Alta",
+    confianzaNota:
+      "Cinco pasajes independientes en dos módulos apuntan en la misma dirección; ninguno admite lectura alternativa.",
+    contradicciones:
+      "El propio expediente se contradice: el resumen clínico afirma una población que su estudio de respaldo declara excluida, y el plan de gestión de riesgos la reconoce como información faltante.",
+    faltante:
+      "Estudio CRZ-HAP-501 (exploratorio en adolescentes), citado en el programa clínico de M2 pero no presente en M5. Sin él no hay evidencia de PK, seguridad ni eficacia en la población reclamada.",
+    limitaciones:
+      "El sistema compara el texto de la indicación contra las secciones de población y criterios de los estudios aportados. No juzga si la extrapolación farmacológica desde adultos sería científicamente admisible: esa es una valoración del evaluador.",
+    accion:
+      "Requerir al solicitante que aporte CRZ-HAP-501 o que restrinja la indicación a población adulta. Es un requerimiento del art. 94 del Decreto 2106 de 2019 (una sola vez, consolidado).",
+    precedente: "P1",
+  },
+  {
+    id: "H2",
+    severidad: "critico",
+    area: "farmacologia",
+    titulo: "El resumen declara cinco estudios; el expediente contiene dos",
+    respuesta:
+      "M2 describe un programa clínico de cinco estudios y una exposición de 1.482 participantes. El Módulo 5 solo contiene los informes de dos de ellos.",
+    evidencia: [
+      { texto: "«Programa clínico: CRZ-HAP-101, CRZ-HAP-201, CRZ-HAP-301 y estudios de extensión»", fuente: "M2-05-CO", folio: "Folio 44", modulo: "M2" },
+      { texto: "Tabla del programa: 101 (I), 201 (II), 301 (III), 401 (extensión), 501 (exploratorio adolescentes)", fuente: "M2-05-CO", folio: "Folio 45", modulo: "M2" },
+      { texto: "«aproximadamente 1.482 participantes expuestos a al menos una dosis»", fuente: "M2-05-CO", folio: "Folio 45", modulo: "M2" },
+      { texto: "Módulo 5 contiene únicamente M5-01-PKPD (CRZ-HAP-101) y M5-03-PIVOTAL (CRZ-HAP-301)", fuente: "M5 — inventario completo", folio: "Folios 130–166", modulo: "M5" },
+    ],
+    ubicacion: "M2 › 2.5 Resumen clínico › folios 44–45  ⟷  M5 › inventario de folios 130–166",
+    version: "M2-05-CO v1.0 (01/08/2026)",
+    confianza: "Alta",
+    confianzaNota:
+      "El inventario de M5 es exhaustivo y se verificó documento por documento sobre el texto completo del módulo.",
+    contradicciones:
+      "La cifra de exposición de 1.482 participantes se apoya en tres estudios cuyos informes no están en el expediente. La cifra no es verificable con lo aportado.",
+    faltante:
+      "Informes completos de CRZ-HAP-201 (Fase II), CRZ-HAP-401 (extensión) y CRZ-HAP-501 (exploratorio).",
+    limitaciones:
+      "El sistema constata ausencia dentro del radicado analizado. No puede saber si esos informes fueron aportados en un radicado distinto o en un alcance posterior.",
+    accion:
+      "Verificar si existen alcances al expediente. Si no, requerir los tres informes o la corrección de la cifra de exposición declarada en M2.",
+  },
+  {
+    id: "H3",
+    severidad: "critico",
+    area: "legal",
+    titulo: "El certificado BPM no ampara a la entidad declarada como fabricante",
+    respuesta:
+      "El certificado de Buenas Prácticas de Manufactura del producto terminado se expide a «PharmaFill Solutions Inc.», mientras el Módulo 3 declara como fabricante a «PharmaFill Solutions S.A.». Son personas jurídicas distintas.",
+    evidencia: [
+      { texto: "«M1-03-02 — BPM — PharmaFill Solutions Inc. / Drug Product»", fuente: "M1-03-BPM-CPP", folio: "Folio 5 (pág. 14)", modulo: "M1" },
+      { texto: "Fabricante del producto terminado: «PharmaFill Solutions S.A.»", fuente: "M3-32P-DP", folio: "Folio 76", modulo: "M3" },
+    ],
+    ubicacion: "M1 › 1.3 Certificados › folio 5  ⟷  M3 › 3.2.P.3.1 Fabricante › folio 76",
+    version: "M1-03-BPM-CPP v1.0 (20/05/2026) · M3-32P-DP v1.0",
+    confianza: "Media",
+    confianzaNota:
+      "La discrepancia textual es inequívoca, pero podría tratarse de un error de transcripción del solicitante en lugar de una entidad realmente distinta. Requiere confirmación documental.",
+    contradicciones:
+      "Cruce entre evaluación legal y evaluación de calidad: hoy las revisan dos grupos distintos que no ven el documento del otro.",
+    faltante:
+      "Documento que acredite la identidad entre ambas razones sociales, o un BPM expedido a nombre de la entidad que efectivamente fabrica.",
+    limitaciones:
+      "El sistema compara razones sociales literales. No consulta registros mercantiles ni verifica si «Inc.» y «S.A.» corresponden a la misma matriz corporativa.",
+    accion:
+      "Requerir aclaración de la razón social del fabricante del producto terminado y, si procede, el certificado BPM corregido.",
+  },
+  {
+    id: "H4",
+    severidad: "menor",
+    area: "farmacologia",
+    titulo: "Código ATC incompleto",
+    respuesta:
+      "El expediente declara un código ATC que comienza por «B01» sin completar los niveles restantes. El propio documento advierte que no se completó por no estar disponible en la fuente.",
+    evidencia: [
+      { texto: "«identifica un código ATC que comienza por B01; no se encuentra disponible en la fuente suministrada el código completo»", fuente: "M2-01-INTRO", folio: "Folio 23", modulo: "M2" },
+    ],
+    ubicacion: "M2 › 2.2 Introducción general › folio 23",
+    version: "M2-01-INTRO v1.0 (01/08/2026)",
+    confianza: "Alta",
+    confianzaNota: "El documento reconoce expresamente la omisión.",
+    contradicciones: "Ninguna.",
+    faltante: "Código ATC completo a quinto nivel.",
+    limitaciones:
+      "El sistema detecta el campo incompleto. No propone un código: asignar ATC es competencia técnica del evaluador.",
+    accion: "Solicitar el código ATC completo. Subsanable sin impacto en el fondo.",
+  },
+  {
+    id: "H5",
+    severidad: "menor",
+    area: "farmacologia",
+    titulo: "Hallazgos de toxicidad reproductiva pendientes de valoración",
+    respuesta:
+      "El resumen no clínico condiciona el respaldo a la indicación a la consideración de hallazgos de toxicidad reproductiva y de alteraciones hepáticas a dosis elevadas.",
+    evidencia: [
+      { texto: "«sujeto a consideración de los hallazgos de toxicidad reproductiva, las alteraciones hepáticas observadas a dosis elevadas y el seguimiento de potenciales efectos asociados con la farmacología del receptor ALK-1»", fuente: "M2-04-NCO", folio: "Folio 43", modulo: "M2" },
+    ],
+    ubicacion: "M2 › 2.4 Resumen no clínico › folio 43 › remite a M4 › 4.2.5 › folios 123–129",
+    version: "M2-04-NCO v1.0 · M4-425-REPRO v1.0",
+    confianza: "Media",
+    confianzaNota:
+      "El sistema señala que el propio expediente deja la conclusión condicionada. No evalúa la suficiencia de los estudios.",
+    contradicciones: "Ninguna detectada entre M2 y M4 en este punto.",
+    faltante:
+      "No se identifica documentación faltante: el estudio está aportado y la valoración corresponde al evaluador.",
+    limitaciones:
+      "Interpretar si estos hallazgos impiden la indicación es juicio de beneficio-riesgo — expresamente fuera del alcance de la herramienta.",
+    accion:
+      "Marcar para revisión farmacológica humana. No se sugiere requerimiento automático.",
+  },
+];
+
+/* ---------------------------------------------------------------------------
+ * PRECEDENTES DE SALA — Acta No. 04 de 2026 SEMPB (documento público)
+ * Base del reliance interno: qué ya conceptuó la Sala en casos comparables.
+ * ------------------------------------------------------------------------- */
+const PRECEDENTES = [
+  {
+    id: "P1",
+    producto: "EVKEEZA 150 mg/mL (evinacumab)",
+    expediente: "20292007",
+    radicado: "20241261870",
+    fecha: "09/10/2024",
+    interesado: "Ultragenyx Colombia S.A.S.",
+    acta: "Acta No. 04 de 2026 SEMPB, num. 3.1.2.2",
+    similitud: "Muy alta",
+    porQue:
+      "Anticuerpo monoclonal recombinante, misma concentración (150 mg/mL), misma vía de evaluación farmacológica, y — el punto decisivo — indicación que incluye población pediátrica.",
+    concepto:
+      "La Sala aprobó la indicación que incluye «pacientes adultos y niños a partir de 5 años» sustentada en el estudio NCT03399786 (R1500-CL-1629), presentado como soporte clínico principal y que enroló esa población.",
+    leccion:
+      "El precedente muestra el estándar aplicado: cuando la indicación abarca menores, la Sala exige un estudio pivotal identificado que haya enrolado esa población. Corazilimab reclama población adolescente con un pivotal que la excluyó.",
+    relacion: "contraste",
+  },
+  {
+    id: "P2",
+    producto: "SPEVIGO 150 mg/mL",
+    expediente: "—",
+    radicado: "—",
+    fecha: "—",
+    interesado: "—",
+    acta: "Acta No. 04 de 2026 SEMPB, num. 3.1.2.1",
+    similitud: "Alta",
+    porQue:
+      "Biológico de la misma concentración evaluado como molécula nueva en la misma acta. Sirve como referencia de estructura de concepto y de nivel de detalle exigido.",
+    concepto:
+      "Evaluado dentro de «3.1.2 Medicamentos biológicos» como registro sanitario nuevo.",
+    leccion:
+      "Referencia de forma: qué secciones cita la Sala y con qué granularidad al conceptuar un biológico nuevo.",
+    relacion: "referencia",
+  },
+  {
+    id: "P3",
+    producto: "YESINTEK 130 mg/26 mL · YESAFILI (aflibercept) · CLONOMAB · ASUMLEA (denosumab)",
+    expediente: "—",
+    radicado: "—",
+    fecha: "—",
+    interesado: "—",
+    acta: "Acta No. 04 de 2026 SEMPB, num. 3.2.1 a 3.2.4",
+    similitud: "Media",
+    porQue:
+      "Biológicos competidores. Definen el estándar de comparabilidad que la Sala aplica cuando ya existe un producto de referencia aprobado.",
+    concepto: "Evaluados bajo «3.2 Medicamentos biológicos competidores (registro sanitario nuevo)».",
+    leccion:
+      "No aplica directamente a Corazilimab (molécula nueva, sin competidor), pero acota qué NO se le puede exigir.",
+    relacion: "referencia",
+  },
+];
+
+/* ---------------------------------------------------------------------------
+ * TRAMOS YA EVALUADOS — evita reevaluar lo que ya tiene concepto favorable.
+ * En un despliegue real esto vendría del histórico del expediente; aquí se
+ * deriva del propio dossier y del acta.
+ * ------------------------------------------------------------------------- */
+const YA_APROBADO = [
+  {
+    ambito: "M3 — Calidad · Sustancia activa",
+    docs: ["M3-32S-DS"],
+    estado: "Sin hallazgos",
+    detalle:
+      "Proceso fed-batch en CHO-DG44, Protein A, inactivación viral a pH 3,55 durante 60 min, CEX, AEX y nanofiltración Planova 20N. LRV >14,2 para virus envueltos.",
+    ahorro: "18 folios",
+    razon: "coherente",
+  },
+  {
+    ambito: "M3 — Calidad · Estabilidad",
+    docs: ["M3-32P-STAB"],
+    estado: "Sin hallazgos",
+    detalle:
+      "Vida útil de 24 meses a 2–8 °C, coherente entre M2 (QOS) y M3 en las 19 menciones cotejadas. Sin divergencias de condición ni de periodo.",
+    ahorro: "8 folios",
+    razon: "coherente",
+  },
+  {
+    ambito: "M3 — Calidad · Lotes y excipientes",
+    docs: ["M3-32P-LOTES", "M3-32P-EXC"],
+    estado: "Sin hallazgos",
+    detalle:
+      "Análisis de lotes y composición de excipientes consistentes con las especificaciones del producto terminado.",
+    ahorro: "9 folios",
+    razon: "coherente",
+  },
+  {
+    ambito: "M4 — No clínicos · PK y toxicología a dosis repetida",
+    docs: ["M4-421-PK", "M4-423-TOX"],
+    estado: "Sin hallazgos",
+    detalle:
+      "Resumen de M2 coherente con los informes de M4 en especie, dosis, NOAEL y hallazgos reportados.",
+    ahorro: "24 folios",
+    razon: "coherente",
+  },
+  {
+    ambito: "M1 — Legal · Poder y protección de datos",
+    docs: ["M1-02-PODER", "M1-04-DATOS-PROT"],
+    estado: "Sin hallazgos",
+    detalle:
+      "Poder vigente mientras existan actuaciones pendientes. Protección de datos de prueba invocada conforme al régimen de cinco años.",
+    ahorro: "8 folios",
+    razon: "coherente",
+  },
+  {
+    ambito: "Clase terapéutica — anticuerpo monoclonal 150 mg/mL",
+    docs: [],
+    estado: "Precedente disponible",
+    detalle:
+      "La Sala ya conceptuó sobre EVKEEZA 150 mg/mL (evinacumab) en el Acta No. 04 de 2026. El concepto describe el estándar de soporte preclínico aceptado para un anticuerpo monoclonal recombinante.",
+    ahorro: "consulta previa resuelta",
+    razon: "precedente",
+    precedente: "P1",
+  },
+];
+
+</script>
+<script>
+/* ---------- utilidades ---------- */
+const $ = (s,r=document)=>r.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const hallazgoPorId = id => HALLAZGOS.find(h => h.id === id);
+const precedentePorId = id => PRECEDENTES.find(p => p.id === id);
+
+/* ---------- scoring por área (pesos de la especificación) ---------- */
+function puntajes(){
+  const acc = {legal:[0,0], calidad:[0,0], farmacologia:[0,0]};
+  for(const m of MODULOS){
+    for(const d of m.documentos){
+      const a = acc[m.area];
+      a[1]++;
+      if(d.estado === 'conforme') a[0]++;
+      else if(d.estado === 'subsanable') a[0] += 0.5;
+    }
+  }
+  const pct = k => acc[k][1] ? Math.round(acc[k][0] / acc[k][1] * 100) : 0;
+  const r = {legal:pct('legal'), calidad:pct('calidad'), farmacologia:pct('farmacologia')};
+  r.global = Math.round(r.legal*PESOS.legal + r.calidad*PESOS.calidad + r.farmacologia*PESOS.farmacologia);
+  return r;
+}
+function colorPct(p){ return p >= 85 ? 'var(--verde)' : p >= 65 ? 'var(--ambar)' : 'var(--rojo)'; }
+
+/* ---------- cabecera ---------- */
+const P = puntajes();
+$('#sub').textContent = EXPEDIENTE.producto;
+$('#cui').textContent = EXPEDIENTE.cui;
+$('#kGlobal').textContent = P.global + '%';
+$('#kGlobal').style.color = colorPct(P.global);
+$('#kFolios').textContent = EXPEDIENTE.folios;
+const criticos = HALLAZGOS.filter(h => h.severidad === 'critico').length;
+$('#kRiesgo').textContent = criticos >= 2 ? 'Alto' : criticos === 1 ? 'Medio' : 'Bajo';
+
+/* ---------- árbol ---------- */
+$('#arbol').innerHTML = MODULOS.map(m => `
+  <section class="mod">
+    <div class="mod-h">
+      <span class="id">${esc(m.id)}</span>
+      <span class="t">${esc(m.titulo)}</span>
+      <span class="f mono">${esc(m.folios)}</span>
+    </div>
+    <div class="mod-q">${esc(m.pregunta)}</div>
+    ${m.documentos.map(d => `
+      <div class="doc ${d.estado==='ausente'?'ausente':''}" data-doc="${esc(d.id)}"
+           data-hall="${(d.hallazgos||[]).join(',')}">
+        <span class="pt ${ESTADOS[d.estado].color}">${ESTADOS[d.estado].icono}</span>
+        <span class="nm" title="${esc(d.nombre)}">${esc(d.nombre)}</span>
+        <span class="fo mono">${esc(d.folios)}</span>
+      </div>`).join('')}
+  </section>`).join('');
+
+/* ---------- vistas ---------- */
+function vistaHallazgos(){
+  const areas = `
+    <div class="areas">
+      ${[['Legal','legal'],['Calidad','calidad'],['Farmacología','farmacologia']].map(([n,k])=>`
+        <div class="area">
+          <div class="nm">${n}</div>
+          <div class="pc" style="color:${colorPct(P[k])}">${P[k]}%</div>
+          <div class="peso">Peso ${Math.round(PESOS[k]*100)}% del índice global</div>
+          <div class="bar"><i style="width:${P[k]}%;background:${colorPct(P[k])}"></i></div>
+        </div>`).join('')}
+    </div>`;
+
+  const cards = HALLAZGOS.map(h => {
+    const prec = h.precedente ? precedentePorId(h.precedente) : null;
+    return `
+    <article class="card" id="c-${h.id}">
+      <div class="card-h" data-t="c-${h.id}">
+        <span class="sev ${h.severidad}">${h.severidad === 'critico' ? 'Crítico' : 'Menor'}</span>
+        <div class="tt"><h3>${esc(h.titulo)}</h3><p>${esc(h.respuesta)}</p></div>
+        <span class="chev">▶</span>
+      </div>
+      <div class="card-b">
+        <div class="campo"><div class="k">Evidencia</div><div class="v">
+          ${h.evidencia.map(e => `
+            <div class="ev">
+              <q>${esc(e.texto)}</q>
+              <div class="src">
+                <span class="b mono">${esc(e.modulo)}</span>
+                <span class="mono">${esc(e.fuente)}</span>
+                <span>·</span><span>${esc(e.folio)}</span>
+              </div>
+            </div>`).join('')}
+        </div></div>
+        <div class="campo"><div class="k">Ubicación exacta</div>
+          <div class="v"><div class="ruta mono">${esc(h.ubicacion)}</div></div></div>
+        <div class="campo"><div class="k">Versión</div><div class="v tenue mono">${esc(h.version)}</div></div>
+        <div class="campo"><div class="k">Nivel de confianza</div>
+          <div class="v"><div class="conf"><span class="lvl ${esc(h.confianza)}">${esc(h.confianza)}</span></div>
+          <div style="margin-top:4px;color:var(--ink-2);font-size:13px">${esc(h.confianzaNota)}</div></div></div>
+        <div class="campo"><div class="k">Contradicciones</div><div class="v tenue">${esc(h.contradicciones)}</div></div>
+        <div class="campo"><div class="k">Información faltante</div><div class="v tenue">${esc(h.faltante)}</div></div>
+        <div class="campo"><div class="k">Limitaciones</div><div class="v tenue">${esc(h.limitaciones)}</div></div>
+        ${prec ? `
+        <div class="campo"><div class="k">Precedente de Sala aplicable</div><div class="v">
+          <div class="ev" style="border-left-color:var(--verde)">
+            <q>${esc(prec.leccion)}</q>
+            <div class="src"><span class="b mono">${esc(prec.producto)}</span><span>·</span>
+            <span>${esc(prec.acta)}</span></div>
+          </div></div></div>` : ''}
+        <div class="accion">
+          <div class="k">Siguiente acción sugerida</div>
+          <div class="v">${esc(h.accion)}</div>
+        </div>
+        <div class="nota-humana">
+          <span>◆</span>
+          <span>Sugerencia para revisión. El sistema no califica cumplimiento ni propone el sentido
+          de la decisión: la valoración y la firma corresponden al evaluador competente.</span>
+        </div>
+      </div>
+    </article>`;
+  }).join('');
+  return areas + cards;
+}
+
+function vistaAprobado(){
+  const folios = YA_APROBADO
+    .map(y => parseInt(y.ahorro, 10))
+    .filter(n => !isNaN(n))
+    .reduce((a,b) => a+b, 0);
+  const head = `
+    <div class="ahorro">
+      <strong>${folios} de ${EXPEDIENTE.folios} folios</strong> corresponden a tramos sin hallazgos de
+      coherencia entre módulos. Se listan aquí para que la revisión empiece por lo que sí tiene
+      discrepancias, no para darlos por aprobados: el concepto sigue siendo del evaluador.
+    </div>`;
+  return head + YA_APROBADO.map(y => {
+    const prec = y.precedente ? precedentePorId(y.precedente) : null;
+    return `
+    <article class="card open">
+      <div class="card-h" style="cursor:default">
+        <span class="sev ${y.razon === 'precedente' ? 'ref' : 'ok'}">
+          ${y.razon === 'precedente' ? 'Precedente' : 'Sin hallazgos'}</span>
+        <div class="tt">
+          <h3>${esc(y.ambito)}</h3>
+          <p>${esc(y.detalle)}</p>
+        </div>
+        <span class="fo mono" style="color:var(--ink-3);font-size:11.5px">${esc(y.ahorro)}</span>
+      </div>
+      ${prec ? `<div class="card-b" style="display:block">
+        <div class="campo"><div class="k">Concepto previo de la Sala</div>
+        <div class="v tenue">${esc(prec.concepto)}</div></div></div>` : ''}
+    </article>`;
+  }).join('');
+}
+
+function vistaPrecedentes(){
+  return `<div class="ahorro" style="background:var(--azul-bg);border-color:color-mix(in srgb,var(--azul) 24%,transparent)">
+    Conceptos previos de la Sala Especializada sobre productos comparables, tomados del
+    <strong>Acta No. 04 de 2026 SEMPB</strong>. Responden a la primera tarea manual del proceso:
+    buscar conceptos previos y productos similares antes de armar la agenda.
+  </div>` + PRECEDENTES.map(p => `
+    <article class="card open">
+      <div class="card-h" style="cursor:default">
+        <span class="sev ${p.relacion === 'contraste' ? 'critico' : 'ref'}">
+          ${p.relacion === 'contraste' ? 'Contraste' : 'Referencia'}</span>
+        <div class="tt"><h3>${esc(p.producto)}</h3><p>${esc(p.porQue)}</p></div>
+      </div>
+      <div class="card-b" style="display:block">
+        <table class="prec">
+          <tr><td>Similitud</td><td>${esc(p.similitud)}</td></tr>
+          ${p.expediente !== '—' ? `<tr><td>Expediente</td><td class="mono">${esc(p.expediente)}</td></tr>
+          <tr><td>Radicado</td><td class="mono">${esc(p.radicado)}</td></tr>
+          <tr><td>Fecha</td><td>${esc(p.fecha)}</td></tr>
+          <tr><td>Interesado</td><td>${esc(p.interesado)}</td></tr>` : ''}
+          <tr><td>Fuente</td><td>${esc(p.acta)}</td></tr>
+          <tr><td>Concepto</td><td>${esc(p.concepto)}</td></tr>
+          <tr><td>Lectura</td><td><strong>${esc(p.leccion)}</strong></td></tr>
+        </table>
+      </div>
+    </article>`).join('');
+}
+
+const VISTAS = {hallazgos:vistaHallazgos, aprobado:vistaAprobado, precedentes:vistaPrecedentes};
+function render(v){ $('#vista').innerHTML = VISTAS[v](); }
+
+$('#cH').textContent = HALLAZGOS.length;
+$('#cA').textContent = YA_APROBADO.length;
+$('#cP').textContent = PRECEDENTES.length;
+render('hallazgos');
+
+/* ---------- interacción ---------- */
+document.addEventListener('click', e => {
+  const tab = e.target.closest('.tab');
+  if(tab){
+    document.querySelectorAll('.tab').forEach(t => t.classList.toggle('on', t === tab));
+    render(tab.dataset.v);
+    return;
+  }
+  const cab = e.target.closest('.card-h[data-t]');
+  if(cab){ document.getElementById(cab.dataset.t).classList.toggle('open'); return; }
+
+  const doc = e.target.closest('.doc');
+  if(doc){
+    document.querySelectorAll('.doc').forEach(d => d.classList.toggle('sel', d === doc));
+    const ids = (doc.dataset.hall || '').split(',').filter(Boolean);
+    if(!ids.length) return;
+    document.querySelectorAll('.tab').forEach(t => t.classList.toggle('on', t.dataset.v === 'hallazgos'));
+    render('hallazgos');
+    const card = document.getElementById('c-' + ids[0]);
+    if(card){
+      card.classList.add('open');
+      card.scrollIntoView({behavior:'smooth', block:'center'});
+    }
+  }
+});
+
+$('#tema').addEventListener('click', () => {
+  const dark = matchMedia('(prefers-color-scheme:dark)').matches;
+  const cur = document.documentElement.getAttribute('data-theme') || (dark ? 'dark' : 'light');
+  document.documentElement.setAttribute('data-theme', cur === 'dark' ? 'light' : 'dark');
+});
+</script>
+</body>
+</html>
