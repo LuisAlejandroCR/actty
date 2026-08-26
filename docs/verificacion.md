@@ -623,7 +623,7 @@ a un nombre ASCII temporal antes de invocarlo. Node maneja el nombre original si
 |---|---|---|
 | 10 | **Tasa de éxito 5/5** sobre el caso H1 completo. «Éxito» = el hallazgo sale con al menos dos pasajes anclados, uno del módulo de resúmenes y otro del de estudios clínicos | 5 corridas consecutivas, sin fallos que reportar |
 | 11 | **Determinismo: una sola huella** en 5 corridas — el hash del hallazgo completo, con sus nueve campos, no cambió | SHA-256 del hallazgo por corrida |
-| 12 | **1,87 s por corrida** de punta a punta, dos llamadas al modelo incluidas | Cronometrado dentro del arnés |
+| 12 | **1,87 s por corrida** de punta a punta con el modelo ya cargado, dos llamadas incluidas. Con el modelo frío la primera corrida sube a ~7 s y arrastra el promedio a 3,3 s | Cronometrado dentro del arnés, 5 corridas en caliente y 3 en frío |
 | 13 | El modelo genera a **67,6 tok/s** en esta máquina, más del doble de los 30,8 medidos el 24 | `eval_count` / `eval_duration` de `/api/generate` |
 
 ⚠️ **N=5 es N=5.** La tasa es 5/5 sobre **un** caso, no sobre el expediente entero. Decirlo así en el

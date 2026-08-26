@@ -1,91 +1,95 @@
-# Hackatón INVIMA del Futuro — Genera Summit 2026
+# Cockpit del evaluador — Hackatón INVIMA del Futuro
 
-Preparación para la Hackatón INVIMA del **26 de agosto de 2026**, **Ágora Bogotá, 8:00 a.m. – 5:00
-p.m.**, con computador propio. Dentro del Genera Summit 2026 de MenteX, en la Hackaton House de GoFest.
+Un expediente de medicamento nuevo llega al INVIMA con cientos de folios repartidos en cinco módulos,
+y lo revisan grupos evaluadores distintos que no se ven entre sí. Cuando el módulo que resume dice una
+cosa y el que reporta el estudio dice otra, nadie está mirando los dos a la vez.
 
-El reto: diseñar soluciones de IA que mejoren la eficiencia, oportunidad, trazabilidad y gestión del
-riesgo en los procesos del INVIMA — **como apoyo a la función administrativa, nunca como sustituto de
-la decisión del servidor público**.
+Esto es una herramienta de lectura para esa persona. Toma el expediente, lo preclasifica documento por
+documento y señala dónde dos módulos se contradicen — **con la frase textual y el folio exacto donde
+está**.
 
-Este repositorio contiene **solo documentación**: investigación, análisis y especificación. No hay
-código.
+> Construido para la Hackatón INVIMA del Futuro del 26 de agosto de 2026, en Ágora Bogotá, dentro del
+> Genera Summit 2026. El expediente que se usa es **ficticio**: CORAZILIMAB, 166 folios, entregado por
+> el organizador para el reto.
 
-## Empieza aquí
+## Lo que hace, y lo que no
 
-| Si quieres… | Abre |
+**Localiza, cita y ordena la lectura.**
+
+**No aprueba, no rechaza, no califica cumplimiento y no decide.** No es una postura de cortesía: el
+art. 7.1 de la Resolución 2026025611 reconoce el derecho a que la decisión la tome una persona, y la
+herramienta está construida para que eso siga siendo cierto. Cada hallazgo sale marcado como lectura
+asistida, y la acción sugerida siempre termina en alguien que firma.
+
+Tampoco opina sobre el fondo científico — si la eficacia alcanza, si el riesgo es aceptable, si la
+calidad basta. Ese es juicio técnico humano y ahí no se mete.
+
+## Las cuatro cosas que lo sostienen
+
+1. **Sin ancla, no se muestra.** Toda afirmación apunta a módulo, documento, folio y renglón. Lo que
+   no se puede señalar en el papel no aparece en pantalla: va a revisión humana.
+2. **El folio lo dice el documento, no el programa.** Cada página del expediente trae su folio
+   impreso en el pie, y de ahí se lee. Donde no lo trae, se calcula y **se dice que se calculó**.
+3. **El expediente no sale de la máquina.** Todo el procesamiento es local. No hay servicios
+   externos en el camino, así que se puede demostrar con el WiFi apagado.
+4. **El texto del expediente es dato, nunca una orden.** Si alguien esconde instrucciones dentro de
+   un PDF para manipular la lectura, no se obedecen — y hay una prueba automática que lo comprueba.
+
+## Las dos piezas
+
+| Carpeta | Qué es |
 |---|---|
-| **Ver el dataset del día y sus contradicciones** | [descubrimientos/dataset-corazilimab.md](descubrimientos/dataset-corazilimab.md) |
-| Entender el reto y las reglas reales | [descubrimientos/reto-invima-2026.md](descubrimientos/reto-invima-2026.md) |
-| Ver las ideas y cuál conviene | [descubrimientos/brainstorming.md](descubrimientos/brainstorming.md) |
-| Saber qué te puede descalificar | [descubrimientos/riesgos.md](descubrimientos/riesgos.md) |
-| Saber contra quién compites | [descubrimientos/competencia.md](descubrimientos/competencia.md) |
-| Saber con qué herramientas construir | [descubrimientos/stack-google.md](descubrimientos/stack-google.md) |
-| Saber qué skills y CLIs de agente aplican | [descubrimientos/toolchain-agente.md](descubrimientos/toolchain-agente.md) |
-| Saber cómo se va a trabajar | [descubrimientos/metodologia-sdd.md](descubrimientos/metodologia-sdd.md) |
-| Ver qué hay que hacer y cuándo | [docs/plan.md](docs/plan.md) |
-| Ver el estado y las decisiones tomadas | [docs/memoria.md](docs/memoria.md) |
-| Ver qué está verificado y qué falta | [docs/verificacion.md](docs/verificacion.md) |
+| `prototipo/` | La pantalla del evaluador. Un solo archivo HTML, sin instalación y sin conexión: se abre en el navegador y funciona |
+| `motor/` | Lo que lee los PDF, encuentra dónde está cada cita y comprueba que lo que se muestra es cierto |
 
-## Estado — 26 de agosto, día del evento
+### Abrir la pantalla
 
-**El dataset ya llegó** (10:25 a.m.): un expediente CTD ficticio de 166 páginas, **CORAZILIMAB**
-(anticuerpo monoclonal anti-ALK-1 para hipertensión arterial pulmonar), más un **acta real** de Sala
-Especializada con 64 productos. Trae **contradicciones plantadas y verificadas** entre módulos.
-Todo el análisis está en
-[descubrimientos/dataset-corazilimab.md](descubrimientos/dataset-corazilimab.md).
+Basta con abrir `prototipo/index.html` en cualquier navegador. No hay que instalar nada.
 
-Los trámites de entrada (invitación de Calendar, Declaración de PI firmada a `jdvargas@mentex.co`)
-tenían plazo antes del inicio del evento — bloque B0 de [docs/plan.md](docs/plan.md).
+### Correr el motor
 
-WiFi de la sede: **GOHACKIA** / **GOHACK26**.
+Necesita [Node](https://nodejs.org) 24 o superior y `pdftotext` (viene con
+[Poppler](https://poppler.freedesktop.org/), y también con Git para Windows). Para la lectura
+asistida hace falta además [Ollama](https://ollama.com) corriendo en la misma máquina.
 
-## Las cuatro cosas que hay que tener claras
+Leer el expediente y armar el índice de folios:
 
-1. **Hay una etapa eliminatoria antes del puntaje.** Una propuesta brillante que cruce una línea
-   prohibida no se evalúa. Las tres trampas más fáciles de pisar están en
-   [descubrimientos/riesgos.md](descubrimientos/riesgos.md) §A.
-2. **Cerca de la mitad del puntaje no se gana con el demo.** Confiabilidad 20 % + Seguridad 15 % +
-   Cumplimiento legal (10 % o 15 %) = 45–50 %, y se gana con documentos: la clasificación de riesgo y
-   la Evaluación de Impacto Algorítmico.
-3. ⚠️ **La rúbrica oficial y la de la presentación de hoy no coinciden.** Escalabilidad y
-   Cumplimiento legal están intercambiados (10 %/15 % contra 15 %/10 %). Hay que preguntarlo al
-   mentor; mientras tanto se defienden **ambos como 15 %**. Detalle en
-   [descubrimientos/dataset-corazilimab.md](descubrimientos/dataset-corazilimab.md) §2.
-4. **Hay que declarar pista: A o B.** A = escalar la comprensión humana del expediente.
-   B = habilitar flujos autónomos de bajo riesgo. Son las dos únicas aprobadas.
+```bash
+node motor/ingesta.mjs
+```
 
-Y dos más, del cierre del 24:
+Buscar dónde está una frase dentro del expediente:
 
-4. El correo anuncia un enfoque de "agentes de IA y herramientas de bioinformática", pero **la tabla
-   de usos elegibles de las reglas no tiene ninguna fila de bioinformática**. El puente defendible
-   está en [descubrimientos/stack-google.md](descubrimientos/stack-google.md) §2.3.
-5. **La inferencia local ya corre en tu máquina.** Ollama está instalado con `qwen2.5:3b`, que cabe
-   entero en los 4 GB de la RTX 3050 Ti. Eso convierte *"el expediente no sale de la máquina"* en un
-   hecho de arquitectura, que vale Seguridad 15 % + Cumplimiento 15 %
-   ([descubrimientos/toolchain-agente.md](descubrimientos/toolchain-agente.md) §6).
+```bash
+node motor/anclar.mjs "adultos y adolescentes"
+```
 
-## Fuentes primarias en esta carpeta
+Comprobar que todas las citas de la pantalla apuntan al folio correcto:
 
-Del día del evento (26 de agosto, 10:25 a.m.):
+```bash
+node motor/auditar.mjs
+```
 
-- `01_Ficha_visual_Dossier_Regulatorio_Hackathon_INVIMA.pdf` — anatomía del dossier y **contrato de
-  una IA regulatoria asistiva** (los cinco controles no negociables y la salida mínima obligatoria)
-- `02_Anexo_tecnico_Dossier_Medicamento_Nuevo_Hackathon_INVIMA.pdf` — proceso regulatorio de extremo
-  a extremo y modelo mínimo del objeto documental
-- `Modulo 1…5_*.pdf` — el expediente CORAZILIMAB, 166 páginas
-- `Acta No. 04 de 2026 SEMPB Primera parte_copia.pdf` — acta real de Sala Especializada
-- `Presentación de la jornada.pptx.pdf` — agenda, pistas A/B, rúbrica y reglas de uso de IA
+Medir qué tan fiable es, sobre cinco corridas seguidas:
 
-Previas:
+```bash
+node motor/verificar.mjs --n 5
+```
 
-- `Reglas de juego Hackaton Invima-2.md` — reglamento oficial del reto
-- `Declaracion_Propiedad_Intelectual_Hackaton_INVIMA.md` — declaración a firmar y enviar
-- `Confirma tu participación y conoce el reto.md` — correo del organizador
-- `Ecosistema de Google para Desarrolladores Cientificos.md` — insumo técnico oficial
+Los PDF del expediente no están en este repositorio: son material del organizador y se guardan
+aparte. `motor/ingesta.mjs` los busca en una carpeta `reference/`, o donde se le indique con
+`--docs`.
 
-La investigación previa del 28–29 de julio quedó absorbida en
-[descubrimientos/reto-invima-2026.md](descubrimientos/reto-invima-2026.md) §6 — ficha del evento,
-patrocinadores, quién evalúa dentro del INVIMA, la estructura CTD del expediente y los precedentes
-técnicos. Lo que contradecía a las reglas está corregido y fechado en
-[docs/verificacion.md](docs/verificacion.md) §3.
-# actty
+## Por qué esto importa
+
+La comprobación no es decorativa. La primera vez que se corrió el auditor contra la pantalla,
+encontró que **siete de trece citas apuntaban al folio equivocado** y tres estaban atribuidas a otro
+documento — errores de lectura humana que nadie habría visto sin cotejar contra el papel.
+
+Un evaluador que abre el folio citado y no encuentra la frase deja de creer todo lo demás. Por eso la
+comprobación corre sola y avisa cuando algo no cuadra.
+
+## Licencia y alcance
+
+Prototipo de hackatón sobre un expediente ficticio. No es un sistema en producción, no está
+certificado y no representa al INVIMA ni a ninguna autoridad sanitaria.
