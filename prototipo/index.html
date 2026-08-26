@@ -5,836 +5,1829 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Cockpit del Evaluador — Expediente CORAZILIMAB</title>
 <style>
+/* index.html: evaluator cockpit for the CORAZILIMAB dossier. Single file, no
+   network calls. Colour tokens are derived from the public invima.gov.co site;
+   the logo, seal and gov.co bar are deliberately not used, because this is not
+   an INVIMA system. Fonts stay on the system stack for the same reason. */
 :root{
-  --bg:#f6f7f9; --panel:#ffffff; --panel-2:#fbfcfd; --ink:#16191d; --ink-2:#525a66;
-  --ink-3:#7d8896; --line:#e2e6ec; --line-2:#eef1f5;
-  --verde:#1a7f52; --verde-bg:#e6f4ed; --ambar:#9a6510; --ambar-bg:#fdf3e0;
-  --rojo:#b3261e; --rojo-bg:#fceceb; --gris:#5b6673; --gris-bg:#eef0f3;
-  --azul:#1f5fa8; --azul-bg:#e8f0fa;
-  --shadow:0 1px 2px rgba(16,24,40,.05),0 1px 3px rgba(16,24,40,.06);
+  /* brand */
+  --brand-1:#c9622a; --brand-1-d:#9c4a1e; --brand-2:#dd9c33; --brand-3:#abcd73;
+
+  /* surfaces */
+  --bg:#faf6f0; --panel:#fffcf8; --panel-2:#f7f1e9; --panel-3:#f1e7da;
+  --ink:#241d17; --ink-2:#5c4f44; --ink-3:#75655a;
+  --line:#e8ddd0; --line-2:#f2eae0;
+
+  /* semantic */
+  --accent:#9c4a1e; --accent-bg:#fbeee4; --accent-fill:#c9622a;
+  --accent-solid:#8f4119; --accent-on:#fff8f3;
+  --crit-bg:#9c2418; --crit-on:#fff4f2; --min-bg:#dd9c33; --min-on:#26160a;
+  --green:#556c1d;  --green-bg:#f0f2de;  --green-fill:#abcd73;
+  --amber:#8a5a10;  --amber-bg:#fbf0dc;  --amber-fill:#dd9c33;
+  --red:#a3271b;    --red-bg:#fbe9e6;    --red-fill:#c9503f;
+  --grey:#6b5d51;   --grey-bg:#f0e9df;   --grey-fill:#c4b5a5;
+
+  --shadow:0 1px 2px rgba(80,45,15,.06),0 2px 8px rgba(80,45,15,.06);
+  --shadow-2:0 4px 18px rgba(80,45,15,.12);
+  --radius:10px;
+  --ease:cubic-bezier(.16,1,.3,1);
+  --rail-w:286px; --chat-w:336px;
+  --side-bg:#2b201a; --side-ink:#f6ece1; --side-ink-2:#c0a894; --side-line:#3d2e25;
 }
 @media (prefers-color-scheme:dark){
   :root:not([data-theme="light"]){
-    --bg:#0e1116; --panel:#161a21; --panel-2:#1b2029; --ink:#e8ecf2; --ink-2:#a6b0be;
-    --ink-3:#78838f; --line:#262c36; --line-2:#1f242c;
-    --verde:#5fd39b; --verde-bg:#122c20; --ambar:#e0aa5a; --ambar-bg:#2e2312;
-    --rojo:#f28b82; --rojo-bg:#331c1a; --gris:#9aa5b1; --gris-bg:#20252d;
-    --azul:#79b0f0; --azul-bg:#132234;
-    --shadow:0 1px 2px rgba(0,0,0,.3),0 1px 3px rgba(0,0,0,.4);
+    --brand-1:#e08a52; --brand-1-d:#f0a06a; --brand-2:#e6b463; --brand-3:#bcd98c;
+    --bg:#17120e; --panel:#1f1813; --panel-2:#271f18; --panel-3:#31271e;
+    --ink:#f2e9df; --ink-2:#c0b0a1; --ink-3:#a08d7c;
+    --line:#392e24; --line-2:#2b221a;
+    --accent:#f0a06a; --accent-bg:#37210f; --accent-fill:#d1703a;
+  --accent-solid:#f0a06a; --accent-on:#2a1408;
+    --accent-solid:#f0a06a; --accent-on:#2a1408;
+    --crit-bg:#f2a094; --crit-on:#37100a; --min-bg:#eec072; --min-on:#2e2005;
+    --green:#c3d98c;  --green-bg:#232a12;  --green-fill:#8fbb52;
+    --amber:#eec072;  --amber-bg:#352612;  --amber-fill:#c9922f;
+    --red:#f2a094;    --red-bg:#3a1d18;    --red-fill:#c0554c;
+    --grey:#b5a596;   --grey-bg:#2a2119;   --grey-fill:#5c4d40;
+    --side-bg:#120e0a; --side-ink:#f2e9df; --side-ink-2:#a08d7c; --side-line:#2a211a;
+    --shadow:0 1px 2px rgba(0,0,0,.45),0 2px 8px rgba(0,0,0,.35);
+    --shadow-2:0 6px 22px rgba(0,0,0,.5);
   }
 }
 :root[data-theme="dark"]{
-  --bg:#0e1116; --panel:#161a21; --panel-2:#1b2029; --ink:#e8ecf2; --ink-2:#a6b0be;
-  --ink-3:#78838f; --line:#262c36; --line-2:#1f242c;
-  --verde:#5fd39b; --verde-bg:#122c20; --ambar:#e0aa5a; --ambar-bg:#2e2312;
-  --rojo:#f28b82; --rojo-bg:#331c1a; --gris:#9aa5b1; --gris-bg:#20252d;
-  --azul:#79b0f0; --azul-bg:#132234;
-  --shadow:0 1px 2px rgba(0,0,0,.3),0 1px 3px rgba(0,0,0,.4);
+  --brand-1:#e08a52; --brand-1-d:#f0a06a; --brand-2:#e6b463; --brand-3:#bcd98c;
+  --bg:#17120e; --panel:#1f1813; --panel-2:#271f18; --panel-3:#31271e;
+  --ink:#f2e9df; --ink-2:#c0b0a1; --ink-3:#a08d7c;
+  --line:#392e24; --line-2:#2b221a;
+  --accent:#f0a06a; --accent-bg:#37210f; --accent-fill:#d1703a;
+  --accent-solid:#f0a06a; --accent-on:#2a1408;
+  --crit-bg:#f2a094; --crit-on:#37100a; --min-bg:#eec072; --min-on:#2e2005;
+  --green:#c3d98c;  --green-bg:#232a12;  --green-fill:#8fbb52;
+  --amber:#eec072;  --amber-bg:#352612;  --amber-fill:#c9922f;
+  --red:#f2a094;    --red-bg:#3a1d18;    --red-fill:#c0554c;
+  --grey:#b5a596;   --grey-bg:#2a2119;   --grey-fill:#5c4d40;
+  --side-bg:#120e0a; --side-ink:#f2e9df; --side-ink-2:#a08d7c; --side-line:#2a211a;
+  --shadow:0 1px 2px rgba(0,0,0,.45),0 2px 8px rgba(0,0,0,.35);
+  --shadow-2:0 6px 22px rgba(0,0,0,.5);
 }
+
+/* One global rule so [hidden] always wins over any class that sets display. */
+[hidden]{display:none !important}
+
 *{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
 body{
   margin:0; background:var(--bg); color:var(--ink);
-  font:15px/1.55 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
-  -webkit-font-smoothing:antialiased;
+  font:15px/1.55 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  -webkit-font-smoothing:antialiased; overflow-x:hidden;
 }
-h1,h2,h3{margin:0; font-weight:650; letter-spacing:-.011em}
-.mono{font-family:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace}
+h1,h2,h3{margin:0; font-weight:660; letter-spacing:-.012em}
+.mono{font-family:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace; font-variant-numeric:tabular-nums}
+:focus-visible{outline:2px solid var(--brand-1); outline-offset:2px; border-radius:4px}
+.sr{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap}
 
-/* ---------- barra superior ---------- */
+.skip{
+  position:absolute; left:-9999px; top:0; background:var(--panel); color:var(--ink);
+  padding:12px 16px; z-index:100; border-radius:0 0 8px 0; border:1px solid var(--line);
+}
+.skip:focus{left:0}
+
+/* ---------- top bar ------------------------------------------------ */
 .top{
-  background:var(--panel); border-bottom:1px solid var(--line);
-  padding:14px 22px; display:flex; gap:22px; align-items:center; flex-wrap:wrap;
-  position:sticky; top:0; z-index:20;
+  position:sticky; top:0; z-index:30;
+  background:linear-gradient(180deg,var(--panel) 0%,var(--panel) 70%,var(--panel-2) 100%);
+  border-bottom:1px solid var(--line);
+  padding:10px 16px; display:flex; gap:14px; align-items:center; flex-wrap:wrap;
 }
-.brand{display:flex; flex-direction:column; gap:2px; margin-right:auto; min-width:0}
-.brand h1{font-size:16px}
-.brand .sub{font-size:12.5px; color:var(--ink-3)}
+.top::after{
+  content:""; position:absolute; left:0; right:0; bottom:-1px; height:2px;
+  background:linear-gradient(90deg,var(--brand-1) 0%,var(--brand-2) 45%,var(--brand-3) 100%);
+  opacity:.9;
+}
+.brand{display:flex; align-items:center; gap:11px; margin-right:auto; min-width:0}
+.logo{
+  width:34px; height:34px; flex:none; border-radius:9px; display:grid; place-items:center;
+  background:linear-gradient(140deg,var(--brand-1) 0%,var(--brand-1-d) 70%);
+  box-shadow:0 2px 8px rgba(13,142,186,.30);
+}
+.brand .txt{min-width:0}
+.brand h1{font-size:15.5px; line-height:1.25}
+.brand .sub{
+  font-size:12px; color:var(--ink-3); margin-top:1px;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:min(62vw,420px);
+}
 .cui{
-  font-size:12px; padding:3px 9px; border-radius:5px;
-  background:var(--azul-bg); color:var(--azul); border:1px solid color-mix(in srgb,var(--azul) 25%,transparent);
+  font-size:11.5px; padding:5px 9px; border-radius:6px; white-space:nowrap;
+  background:var(--accent-bg); color:var(--accent);
+  border:1px solid color-mix(in srgb,var(--accent) 26%,transparent);
 }
-.kpi{display:flex; flex-direction:column; gap:1px; padding-left:20px; border-left:1px solid var(--line)}
-.kpi .n{font-size:20px; font-weight:680; line-height:1.2; letter-spacing:-.02em}
-.kpi .l{font-size:11px; color:var(--ink-3); text-transform:uppercase; letter-spacing:.05em}
-.riesgo-alto{color:var(--rojo)}
-.btn-tema{
-  background:transparent; border:1px solid var(--line); color:var(--ink-2);
-  border-radius:6px; padding:6px 10px; cursor:pointer; font-size:13px;
+.kpis{display:flex; align-items:center; gap:6px; flex-wrap:wrap}
+.kpi{
+  display:flex; align-items:center; gap:9px; padding:5px 11px 5px 8px; border-radius:9px;
+  background:var(--panel-2); border:1px solid var(--line-2);
 }
-.btn-tema:hover{background:var(--panel-2)}
+.kpi .n{font-size:18px; font-weight:700; line-height:1.15; letter-spacing:-.02em}
+.kpi .l{font-size:10px; color:var(--ink-3); text-transform:uppercase; letter-spacing:.06em; font-weight:650; line-height:1.35}
+.risk-high{color:var(--red)} .risk-med{color:var(--amber)} .risk-low{color:var(--green)}
+.theme-btn{
+  min-height:44px; min-width:44px; display:grid; place-items:center;
+  background:var(--panel); border:1px solid var(--line); color:var(--ink-2);
+  border-radius:9px; cursor:pointer; font-size:16px; line-height:1;
+  transition:background .15s,border-color .15s,transform .1s;
+}
+.theme-btn:hover{background:var(--panel-3); border-color:var(--brand-1); color:var(--brand-1)}
+.theme-btn:active{transform:scale(.94)}
+.icon-btn{
+  min-height:44px; min-width:44px; display:grid; place-items:center; flex:none;
+  background:var(--panel); border:1px solid var(--line); color:var(--ink-2);
+  border-radius:9px; cursor:pointer; font-size:15px; line-height:1;
+  transition:background .15s,border-color .15s,transform .1s;
+}
+.icon-btn:hover{background:var(--panel-3); border-color:var(--accent-fill); color:var(--accent)}
+.icon-btn:active{transform:scale(.94)}
 
-.aviso{
-  background:var(--ambar-bg); color:var(--ambar); font-size:12.5px;
-  padding:7px 22px; border-bottom:1px solid var(--line);
+/* rigor gauge */
+.gauge{position:relative; width:52px; height:52px; flex:none}
+.gauge svg{width:52px; height:52px; transform:rotate(-90deg); display:block}
+.gauge .track{fill:none; stroke:var(--grey-bg); stroke-width:6}
+.gauge .arc{fill:none; stroke-width:6; stroke-linecap:round; transition:stroke-dashoffset 1.15s var(--ease)}
+.gauge .val{
+  position:absolute; inset:0; display:grid; place-items:center;
+  font-size:14px; font-weight:730; letter-spacing:-.03em;
 }
 
-/* ---------- rejilla ---------- */
-.wrap{display:grid; grid-template-columns:minmax(300px,380px) 1fr; gap:0; align-items:start}
-@media (max-width:940px){ .wrap{grid-template-columns:1fr} }
+/* ---------- notice --------------------------------------------------------- */
+.notice{
+  display:flex; gap:9px; align-items:flex-start; margin:0;
+  background:var(--amber-bg); color:var(--amber); font-size:12.5px; line-height:1.5;
+  padding:9px 16px; border-bottom:1px solid var(--line);
+}
+.notice b{font-weight:700}
 
-.izq{border-right:1px solid var(--line); background:var(--panel); min-height:calc(100vh - 96px)}
-.der{padding:18px 22px 60px; min-width:0}
+/* ---------- folio map ------------------------------------------------ */
+.map-wrap{background:var(--panel); border-bottom:1px solid var(--line); padding:12px 16px 14px}
+.map-head{display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; margin-bottom:9px}
+.map-head h2{font-size:11.5px; text-transform:uppercase; letter-spacing:.07em; color:var(--ink-3)}
+.map-head .note{font-size:11.5px; color:var(--ink-3)}
+.map{position:relative; width:100%}
+.map svg{width:100%; height:auto; display:block; overflow:visible}
+/* Below 700px the folio labels stop being legible when the SVG scales down,
+   so the map scrolls inside its own box instead of shrinking further. */
+@media (max-width:700px){
+  .map{overflow-x:auto; overscroll-behavior-x:contain; padding-bottom:4px}
+  .map svg{min-width:560px}
+}
+.map .anchor{cursor:pointer}
+.map .anchor circle.hit{fill:transparent}
+.map .pulse{transform-box:fill-box; transform-origin:center}
+.tip{
+  position:absolute; pointer-events:none; opacity:0; transform:translateY(3px);
+  transition:opacity .12s,transform .12s; z-index:5; left:0; top:0;
+  background:var(--ink); color:var(--bg); font-size:11.5px; line-height:1.4;
+  padding:6px 9px; border-radius:6px; max-width:240px; box-shadow:var(--shadow-2);
+}
+.tip.on{opacity:1; transform:translateY(0)}
 
-/* ---------- árbol ---------- */
-.izq-head{padding:16px 18px 10px; border-bottom:1px solid var(--line-2)}
-.izq-head h2{font-size:13px; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-3)}
-.leyenda{display:flex; gap:12px; flex-wrap:wrap; margin-top:9px; font-size:11.5px; color:var(--ink-2)}
-.leyenda span{display:flex; align-items:center; gap:4px}
+/* ---------- app shell ---------- */
+/* Three zones: BPM navigation, work column, assistant dock. Two of them collapse
+   into drawers as the viewport narrows, and the breakpoints that decide it live
+   here in CSS, never read from JavaScript. */
+.app{display:grid; grid-template-columns:var(--rail-w) minmax(0,1fr) var(--chat-w); min-height:100vh}
+.app.rail-toggled{--rail-w:0px}
+.app.rail-toggled .sidebar{display:none}
+.app.chat-toggled{--chat-w:0px}
+.app.chat-toggled .chat{display:none}
+
+.sidebar{
+  grid-column:1; background:var(--side-bg); color:var(--side-ink);
+  position:sticky; top:0; height:100vh; overflow-y:auto; overscroll-behavior:contain;
+  display:flex; flex-direction:column; z-index:60;
+}
+.work{grid-column:2; min-width:0; display:flex; flex-direction:column}
+.chat{
+  grid-column:3; background:var(--panel); border-left:1px solid var(--line);
+  position:sticky; top:0; height:100vh; display:flex; flex-direction:column; z-index:55;
+}
+.scrim{
+  position:fixed; inset:0; background:rgba(36,20,10,.45); z-index:50;
+  opacity:0; pointer-events:none; transition:opacity .2s; border:none;
+}
+
+@media (max-width:1380px){
+  .app{grid-template-columns:var(--rail-w) minmax(0,1fr)}
+  .chat{
+    position:fixed; top:0; right:0; bottom:0; width:min(360px,92vw);
+    display:flex !important; transform:translateX(101%); transition:transform .22s var(--ease);
+    box-shadow:var(--shadow-2);
+  }
+  .app.chat-toggled .chat{transform:none}
+  .app.chat-toggled .scrim{opacity:1; pointer-events:auto}
+}
+@media (max-width:1020px){
+  .app,.app.rail-toggled{grid-template-columns:minmax(0,1fr)}
+  .sidebar{
+    position:fixed; top:0; left:0; bottom:0; width:min(300px,88vw);
+    display:flex !important; transform:translateX(-101%); transition:transform .22s var(--ease);
+    box-shadow:var(--shadow-2);
+  }
+  .app.rail-toggled .sidebar{transform:none}
+  .app.rail-toggled .scrim{opacity:1; pointer-events:auto}
+  .content{padding:14px 14px 60px}
+  .map-wrap{padding:12px 14px 14px}
+  .top{padding:9px 14px}
+  .notice{padding:9px 14px}
+}
+
+.content{padding:16px 20px 60px; min-width:0; flex:1}
+
+/* ---------- sidebar: brand, BPM navigation, dossier tree ---------- */
+.side-brand{
+  display:flex; align-items:center; gap:11px; padding:14px 16px;
+  border-bottom:1px solid var(--side-line); position:sticky; top:0;
+  background:var(--side-bg); z-index:2;
+}
+.side-brand h1{font-size:14.5px; line-height:1.25; color:var(--side-ink)}
+.side-brand .sub{font-size:11px; color:var(--side-ink-2); margin-top:1px}
+.side-sec{padding:14px 12px 4px}
+.side-sec h2{
+  font-size:10.5px; text-transform:uppercase; letter-spacing:.09em;
+  color:var(--side-ink-2); padding:0 6px; margin-bottom:9px;
+}
+.side-sec .hint{font-size:10.5px; color:var(--side-ink-2); padding:0 6px 8px; line-height:1.5}
+
+/* Each stage is a numbered step joined to the next by a rule, so the panel reads
+   as a process rather than as a list of links. */
+.bpm{list-style:none; margin:0; padding:0}
+.bpm li{position:relative}
+.bpm li::before{
+  content:""; position:absolute; left:23px; top:36px; bottom:-2px; width:1.5px;
+  background:var(--side-line);
+}
+.bpm li:last-child::before{display:none}
+.bpm a{
+  display:flex; align-items:center; gap:11px; min-height:44px; padding:5px 10px;
+  border-radius:9px; text-decoration:none; color:var(--side-ink-2); font-size:13px; font-weight:550;
+  transition:background .14s,color .14s;
+}
+.bpm a:hover{background:rgba(255,255,255,.06); color:var(--side-ink)}
+.bpm .num{
+  width:26px; height:26px; flex:none; border-radius:999px; display:grid; place-items:center;
+  font-size:11px; font-weight:700; border:1.5px solid var(--side-line);
+  background:var(--side-bg); color:var(--side-ink-2); position:relative; z-index:1;
+}
+.bpm .done .num{background:var(--green-fill); border-color:var(--green-fill); color:#1d2a08}
+.bpm .done a{color:var(--side-ink)}
+.bpm .active a{background:var(--accent-solid); color:var(--accent-on); font-weight:680}
+.bpm .active .num{background:var(--accent-on); border-color:var(--accent-on); color:var(--accent-solid)}
+.bpm .st{margin-left:auto; font-size:10px; opacity:.85}
+
+.side-tree{border-top:1px solid var(--side-line); margin-top:10px; padding-top:6px}
+.sidebar .legend{color:var(--side-ink-2)}
+.sidebar .mod{border-bottom-color:var(--side-line)}
+.sidebar .mod-h .id{background:rgba(255,255,255,.09); color:var(--side-ink)}
+.sidebar .mod-h .t{color:var(--side-ink)}
+.sidebar .mod-h .f,.sidebar .mod-q,.sidebar .doc .folios{color:var(--side-ink-2)}
+.sidebar .doc{color:var(--side-ink)}
+.sidebar .doc:hover{background:rgba(255,255,255,.06)}
+.sidebar .doc[aria-pressed="true"]{background:rgba(255,255,255,.10); border-left-color:var(--accent-fill)}
+.sidebar .doc.missing .name{color:var(--side-ink-2)}
+.sidebar .node{background:rgba(255,255,255,.07); border-color:var(--side-line); color:var(--side-ink-2)}
+.sidebar .node.alert{background:rgba(201,80,63,.24); border-color:var(--red-fill); color:#f6c9c2}
+
+/* ---------- assistant dock ---------- */
+.chat-h{display:flex; align-items:center; gap:9px; padding:13px 15px; border-bottom:1px solid var(--line)}
+.chat-h h2{font-size:13.5px}
+.chat-h .st{
+  margin-left:auto; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.05em;
+  padding:3px 8px; border-radius:999px; background:var(--grey-bg); color:var(--grey);
+}
+.chat-log{flex:1; overflow-y:auto; padding:14px 15px; display:flex; flex-direction:column; gap:10px}
+.msg{max-width:92%; font-size:13px; line-height:1.5; padding:9px 12px; border-radius:12px}
+.msg.bot{background:var(--panel-2); border:1px solid var(--line-2); border-bottom-left-radius:4px}
+.msg.me{background:var(--accent-solid); color:var(--accent-on); align-self:flex-end; border-bottom-right-radius:4px}
+.msg .who{
+  display:block; font-size:10px; text-transform:uppercase; letter-spacing:.06em;
+  font-weight:700; color:var(--ink-3); margin-bottom:3px;
+}
+.chat-slot{
+  border:1px dashed var(--line); border-radius:10px; padding:14px; text-align:center;
+  font-size:12px; color:var(--ink-3); line-height:1.55;
+}
+.chat-form{display:flex; gap:8px; padding:12px 15px; border-top:1px solid var(--line)}
+.chat-form input{
+  flex:1; min-width:0; min-height:44px; padding:0 12px; font:inherit; font-size:13px;
+  border:1px solid var(--line); border-radius:9px; background:var(--panel-2); color:var(--ink);
+}
+.chat-form input::placeholder{color:var(--ink-3)}
+.chat-form button{
+  min-height:44px; min-width:44px; padding:0 14px; border:none; border-radius:9px;
+  background:var(--accent-solid); color:var(--accent-on); font:inherit; font-weight:650; cursor:pointer;
+}
+.chat-form input:disabled,.chat-form button:disabled{opacity:.55; cursor:not-allowed}
+
+/* ---------- screen switch ---------- */
+/* Two screens on the same data: Resumen answers "how bad, and where" with almost
+   no prose; Detalle carries the nine mandatory fields per finding. */
+.screens{display:flex; gap:3px; background:var(--panel-2); border:1px solid var(--line); border-radius:10px; padding:3px}
+.screens button{
+  min-height:38px; padding:0 14px; border:none; border-radius:7px; background:none;
+  font:inherit; font-size:13px; font-weight:620; color:var(--ink-2); cursor:pointer;
+  display:flex; align-items:center; gap:7px; position:relative; transition:background .15s,color .15s;
+}
+.screens button::before{content:""; position:absolute; left:0; right:0; top:-3px; bottom:-3px}
+.screens button[aria-selected="true"]{background:var(--accent-solid); color:var(--accent-on)}
+
+/* ---------- summary screen ---------- */
+.tiles{display:grid; grid-template-columns:repeat(auto-fit,minmax(168px,1fr)); gap:11px; margin-bottom:14px}
+.tile{
+  background:var(--panel); border:1px solid var(--line); border-radius:var(--radius);
+  padding:14px 15px; box-shadow:var(--shadow); display:flex; align-items:center; gap:13px;
+}
+.tile.hot{border-color:color-mix(in srgb,var(--red) 40%,transparent); background:var(--red-bg)}
+.tile .big{font-size:27px; font-weight:730; letter-spacing:-.03em; line-height:1}
+.tile .cap{font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-3); font-weight:680; margin-top:4px}
+.tile .ico{
+  width:40px; height:40px; flex:none; border-radius:11px; display:grid; place-items:center;
+  font-size:17px; background:var(--accent-bg); color:var(--accent);
+}
+.tile.hot .ico{background:color-mix(in srgb,var(--red) 18%,transparent); color:var(--red)}
+
+.cols2{display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:12px; margin-bottom:14px}
+.panel{
+  background:var(--panel); border:1px solid var(--line); border-radius:var(--radius);
+  padding:14px 15px; box-shadow:var(--shadow); min-width:0;
+}
+.panel > h3{font-size:11.5px; text-transform:uppercase; letter-spacing:.07em; color:var(--ink-3); margin-bottom:12px}
+
+/* donuts read faster than bars when the question is "how full is this" */
+.donuts{display:flex; gap:16px; flex-wrap:wrap; justify-content:space-around}
+.donut{text-align:center; width:96px}
+.donut .ring{position:relative; width:76px; height:76px; margin:0 auto}
+.donut svg{width:76px; height:76px; transform:rotate(-90deg); display:block}
+.donut .bg{fill:none; stroke:var(--grey-bg); stroke-width:8}
+.donut .fg{fill:none; stroke-width:8; stroke-linecap:round; transition:stroke-dashoffset 1.1s var(--ease)}
+.donut .num{position:absolute; inset:0; display:grid; place-items:center; font-size:16px; font-weight:720; letter-spacing:-.02em}
+.donut .lb{font-size:11px; color:var(--ink-2); margin-top:7px; font-weight:600; line-height:1.3}
+.donut .wt{font-size:10px; color:var(--ink-3); margin-top:1px}
+
+/* module heatmap: one cell per document, colour is the whole message */
+.heat{display:grid; gap:7px}
+.heat-row{display:grid; grid-template-columns:34px 1fr; gap:9px; align-items:center}
+.heat-row .mid{font-size:11px; font-weight:700; color:var(--ink-2)}
+.heat-cells{display:flex; gap:4px; flex-wrap:wrap}
+.cell{
+  width:26px; height:26px; border-radius:6px; border:none; padding:0; cursor:default;
+  position:relative; display:grid; place-items:center; font-size:10px; color:rgba(20,10,2,.7);
+}
+.cell::before{content:""; position:absolute; left:-4px; right:-4px; top:-9px; bottom:-9px}
+.cell.act{cursor:pointer}
+.cell.act:hover{outline:2px solid var(--accent-fill); outline-offset:1px}
+
+.legend-inline{display:flex; gap:12px; flex-wrap:wrap; margin-top:12px; font-size:11px; color:var(--ink-2)}
+.legend-inline span{display:flex; align-items:center; gap:5px}
+.legend-inline i{width:11px; height:11px; border-radius:3px; display:block}
+
+/* finding chips: glyph, five words, and the two folios that clash */
+.chips-find{display:flex; flex-direction:column; gap:8px}
+.find-chip{
+  width:100%; display:flex; align-items:center; gap:11px; min-height:44px; padding:9px 12px;
+  background:var(--panel); border:1px solid var(--line); border-left:3px solid var(--grey-fill);
+  border-radius:9px; font:inherit; text-align:left; cursor:pointer; color:var(--ink);
+  transition:box-shadow .15s,border-color .15s;
+}
+.find-chip:hover{box-shadow:var(--shadow-2)}
+.find-chip.critical{border-left-color:var(--red-fill)}
+.find-chip.minor{border-left-color:var(--amber-fill)}
+.find-chip .g{font-size:12px; flex:none}
+.find-chip.critical .g{color:var(--red)}
+.find-chip.minor .g{color:var(--amber)}
+.find-chip .tx{flex:1; min-width:0; font-size:13px; font-weight:600; line-height:1.35}
+.find-chip .cl{
+  font-size:10.5px; font-family:ui-monospace,Consolas,monospace; color:var(--ink-3);
+  white-space:nowrap; flex:none;
+}
+.find-chip .go{color:var(--ink-3); font-size:11px; flex:none}
+
+/* severity split, drawn as one stacked bar instead of a sentence */
+.split{display:flex; height:30px; border-radius:8px; overflow:hidden; border:1px solid var(--line)}
+.split i{display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; min-width:0}
+.split i.crit{background:var(--crit-bg); color:var(--crit-on)}
+.split i.min{background:var(--min-bg); color:var(--min-on)}
+
+/* ---------- graphics strip ---------- */
+.gfx{margin-bottom:18px}
+.gfx-h{display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; margin-bottom:10px}
+.gfx-h h2{font-size:11.5px; text-transform:uppercase; letter-spacing:.07em; color:var(--ink-3)}
+.gfx-h .note{font-size:11.5px; color:var(--ink-3)}
+.gfx-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:11px}
+.gfx-slot{
+  border:1px dashed var(--line); border-radius:var(--radius); padding:16px 15px;
+  display:flex; flex-direction:column; justify-content:center; gap:5px;
+  font-size:12px; color:var(--ink-3); line-height:1.5; min-height:118px; background:var(--panel-2);
+}
+.gfx-slot b{font-size:12.5px; color:var(--ink-2); font-weight:650}
+
+/* ---------- tree --------------------------------------------------------- */
+.rail-head{padding:14px 16px 12px}
+.legend{display:flex; gap:10px; flex-wrap:wrap; margin-top:9px; font-size:11.5px; color:var(--ink-2)}
+.legend span{display:flex; align-items:center; gap:5px}
+
+/* module pipeline with travelling dot */
+.pipe{position:relative; display:flex; align-items:center; gap:3px; margin-top:12px; padding-bottom:10px}
+.pipe .node{
+  flex:1; text-align:center; font-size:10px; font-weight:700; color:var(--ink-2);
+  background:var(--panel-2); border:1px solid var(--line-2); border-radius:6px; padding:3px 2px;
+}
+.pipe .node.alert{border-color:color-mix(in srgb,var(--red) 40%,transparent); color:var(--red); background:var(--red-bg)}
+.pipe .arrow{color:var(--ink-3); font-size:10px}
+.flow-track{position:absolute; left:0; right:0; bottom:0; height:7px; pointer-events:none}
+.flow-track .fp{
+  position:absolute; top:0; width:7px; height:7px; border-radius:999px;
+  background:var(--brand-1); box-shadow:0 0 7px 2px color-mix(in srgb,var(--brand-1) 55%,transparent);
+  animation:flowTravel 4.2s cubic-bezier(.45,0,.55,1) infinite;
+}
+.flow-track .fp.d2{animation-delay:1.4s; background:var(--brand-2); box-shadow:0 0 7px 2px color-mix(in srgb,var(--brand-2) 50%,transparent)}
+.flow-track .fp.d3{animation-delay:2.8s; background:var(--brand-3); box-shadow:0 0 7px 2px color-mix(in srgb,var(--brand-3) 60%,transparent)}
+@keyframes flowTravel{0%{left:0;opacity:0}8%{opacity:1}92%{opacity:1}100%{left:calc(100% - 7px);opacity:0}}
+
 .mod{border-bottom:1px solid var(--line-2)}
-.mod-h{padding:11px 18px 9px; display:flex; align-items:baseline; gap:8px}
+.mod-h{padding:12px 16px 8px; display:flex; align-items:baseline; gap:8px}
 .mod-h .id{
-  font-size:11px; font-weight:700; padding:2px 6px; border-radius:4px;
-  background:var(--gris-bg); color:var(--ink-2);
+  font-size:10.5px; font-weight:700; padding:2px 6px; border-radius:4px;
+  background:var(--accent-bg); color:var(--accent); letter-spacing:.02em;
 }
-.mod-h .t{font-size:13.5px; font-weight:600}
+.mod-h .t{font-size:13.5px; font-weight:620}
 .mod-h .f{margin-left:auto; font-size:11px; color:var(--ink-3)}
-.mod-q{padding:0 18px 8px; font-size:11.5px; color:var(--ink-3); font-style:italic; line-height:1.45}
+.mod-q{padding:0 16px 8px; font-size:11.5px; color:var(--ink-3); font-style:italic; line-height:1.45}
 .doc{
-  display:flex; align-items:center; gap:9px; padding:7px 18px 7px 18px;
-  cursor:pointer; border-left:3px solid transparent; font-size:13px;
+  display:flex; align-items:center; gap:9px; width:100%; min-height:44px;
+  padding:6px 16px; cursor:pointer; border:none; border-left:3px solid transparent;
+  background:none; font:inherit; font-size:13px; color:var(--ink); text-align:left;
+  transition:background .13s,border-color .13s;
 }
 .doc:hover{background:var(--panel-2)}
-.doc.sel{background:var(--azul-bg); border-left-color:var(--azul)}
-.doc .pt{font-size:11px; line-height:1}
-.doc .nm{flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
-.doc .fo{font-size:10.5px; color:var(--ink-3); font-variant-numeric:tabular-nums}
-.doc.ausente .nm{color:var(--ink-3); font-style:italic}
-.pt.verde{color:var(--verde)} .pt.ambar{color:var(--ambar)}
-.pt.rojo{color:var(--rojo)} .pt.gris{color:var(--gris)}
+.doc[aria-pressed="true"]{background:var(--accent-bg); border-left-color:var(--brand-1); font-weight:620}
+.doc .dot{font-size:11px; line-height:1; flex:none}
+.doc .name{flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.doc .folios{font-size:10.5px; color:var(--ink-3); flex:none}
+.doc .count{
+  font-size:10px; font-weight:700; padding:1px 5px; border-radius:9px; flex:none;
+  background:var(--red-bg); color:var(--red);
+}
+.doc.missing .name{color:var(--ink-3); font-style:italic}
+.dot.green{color:var(--green)} .dot.amber{color:var(--amber)}
+.dot.red{color:var(--red)} .dot.grey{color:var(--grey)}
 
-/* ---------- pestañas ---------- */
-.tabs{display:flex; gap:2px; border-bottom:1px solid var(--line); margin-bottom:18px}
+/* ---------- tabs ------------------------------------------------------ */
+.tabs{
+  display:flex; gap:2px; border-bottom:1px solid var(--line); margin-bottom:16px;
+  overflow-x:auto; scrollbar-width:none;
+}
+.tabs::-webkit-scrollbar{display:none}
 .tab{
   background:none; border:none; border-bottom:2px solid transparent; color:var(--ink-2);
-  padding:9px 14px; cursor:pointer; font-size:13.5px; font-weight:550; font-family:inherit;
+  min-height:44px; padding:0 14px; cursor:pointer; font:inherit; font-size:13.5px; font-weight:570;
+  white-space:nowrap; display:flex; align-items:center; gap:7px;
+  transition:color .15s,border-color .15s;
 }
 .tab:hover{color:var(--ink)}
-.tab.on{color:var(--ink); border-bottom-color:var(--azul)}
+.tab[aria-selected="true"]{color:var(--accent); border-bottom-color:var(--brand-1); font-weight:660}
 .tab .c{
-  font-size:11px; margin-left:6px; padding:1px 6px; border-radius:9px;
-  background:var(--gris-bg); color:var(--ink-2);
+  font-size:11px; padding:1px 7px; border-radius:9px;
+  background:var(--grey-bg); color:var(--ink-2); font-weight:700;
 }
-.tab.on .c{background:var(--azul-bg); color:var(--azul)}
+.tab[aria-selected="true"] .c{background:var(--accent-bg); color:var(--accent)}
 
-/* ---------- tarjetas ---------- */
+/* ---------- filters ------------------------------------------------------- */
+.filters{display:flex; gap:7px; flex-wrap:wrap; align-items:center; margin-bottom:14px}
+.filters .label{font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-3); font-weight:680}
+.chip{
+  position:relative; background:var(--panel); border:1px solid var(--line); color:var(--ink-2);
+  border-radius:999px; padding:0 13px; cursor:pointer; font:inherit; font-size:12.5px; font-weight:600;
+  display:inline-flex; align-items:center; gap:6px; height:32px;
+  transition:background .14s,border-color .14s,color .14s;
+}
+/* 32px drawing, 44px hit area: WCAG target size without a bigger chip. */
+.chip::before{content:""; position:absolute; left:0; right:0; top:-6px; bottom:-6px}
+.chip:hover{border-color:var(--brand-1); color:var(--ink)}
+.chip[aria-pressed="true"]{background:var(--accent-bg); border-color:var(--brand-1); color:var(--accent)}
+.chip .dot{font-size:10px}
+
+/* ---------- cards ------------------------------------------------------ */
 .card{
-  background:var(--panel); border:1px solid var(--line); border-radius:9px;
-  margin-bottom:14px; box-shadow:var(--shadow); overflow:hidden;
+  background:var(--panel); border:1px solid var(--line); border-radius:var(--radius);
+  margin-bottom:12px; box-shadow:var(--shadow); overflow:hidden;
+  transition:box-shadow .18s,border-color .18s;
 }
-.card-h{padding:14px 16px; display:flex; gap:11px; align-items:flex-start; cursor:pointer}
-.card-h:hover{background:var(--panel-2)}
+.card:hover{box-shadow:var(--shadow-2)}
+.card.critical{border-left:3px solid var(--red-fill)}
+.card.minor{border-left:3px solid var(--amber-fill)}
+.card-h{
+  width:100%; min-height:44px; padding:13px 15px; display:flex; gap:11px; align-items:flex-start;
+  background:none; border:none; font:inherit; color:inherit; text-align:left;
+  transition:background .13s;
+}
+button.card-h{cursor:pointer}
+button.card-h:hover{background:var(--panel-2)}
 .sev{
-  font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.05em;
-  padding:3px 8px; border-radius:4px; white-space:nowrap; margin-top:1px;
+  font-size:10px; font-weight:750; text-transform:uppercase; letter-spacing:.06em;
+  padding:4px 8px; border-radius:5px; white-space:nowrap; margin-top:1px; flex:none;
+  display:inline-flex; align-items:center; gap:5px;
 }
-.sev.critico{background:var(--rojo-bg); color:var(--rojo)}
-.sev.menor{background:var(--ambar-bg); color:var(--ambar)}
-.sev.ok{background:var(--verde-bg); color:var(--verde)}
-.sev.ref{background:var(--azul-bg); color:var(--azul)}
+.sev.critical{background:var(--red-bg); color:var(--red)}
+.sev.minor{background:var(--amber-bg); color:var(--amber)}
+.sev.ok{background:var(--green-bg); color:var(--green)}
+.sev.ref{background:var(--accent-bg); color:var(--accent)}
 .card-h .tt{flex:1; min-width:0}
-.card-h .tt h3{font-size:14.5px; margin-bottom:3px}
+.card-h .tt h3{font-size:14.5px; margin-bottom:4px; line-height:1.35}
 .card-h .tt p{margin:0; font-size:13px; color:var(--ink-2); line-height:1.5}
-.card-h .chev{color:var(--ink-3); font-size:12px; margin-top:3px; transition:transform .15s}
-.card.open .chev{transform:rotate(90deg)}
-.card-b{display:none; padding:0 16px 16px; border-top:1px solid var(--line-2)}
-.card.open .card-b{display:block}
+.card-h .chev{color:var(--ink-3); font-size:11px; margin-top:4px; flex:none; transition:transform .2s var(--ease)}
+.card-h[aria-expanded="true"] .chev{transform:rotate(90deg)}
+.card-h .folios{font-size:11.5px; color:var(--ink-3); flex:none; margin-top:3px}
+.card-b{padding:0 15px 15px; border-top:1px solid var(--line-2)}
 
-.campo{padding:11px 0; border-bottom:1px solid var(--line-2)}
-.campo:last-child{border-bottom:none}
-.campo .k{
-  font-size:10.5px; text-transform:uppercase; letter-spacing:.06em;
-  color:var(--ink-3); font-weight:650; margin-bottom:4px;
+.field{padding:11px 0; border-bottom:1px solid var(--line-2)}
+.field:last-child{border-bottom:none}
+.field .k{
+  font-size:10.5px; text-transform:uppercase; letter-spacing:.07em;
+  color:var(--ink-3); font-weight:700; margin-bottom:5px;
 }
-.campo .v{font-size:13.5px; color:var(--ink); line-height:1.55}
-.campo .v.tenue{color:var(--ink-2)}
+.field .v{font-size:13.5px; color:var(--ink); line-height:1.55}
+.field .v.dim{color:var(--ink-2)}
 
 .ev{
-  background:var(--panel-2); border:1px solid var(--line-2); border-left:3px solid var(--azul);
-  border-radius:0 6px 6px 0; padding:9px 12px; margin-bottom:7px;
+  background:var(--panel-2); border:1px solid var(--line-2); border-left:3px solid var(--brand-1);
+  border-radius:0 7px 7px 0; padding:9px 12px; margin-bottom:7px;
 }
 .ev q{font-size:13px; color:var(--ink); font-style:italic; display:block; margin-bottom:5px; line-height:1.5}
 .ev q::before,.ev q::after{content:""}
-.ev .src{font-size:11px; color:var(--ink-3); display:flex; gap:8px; flex-wrap:wrap; align-items:center}
-.ev .src .b{
-  background:var(--gris-bg); color:var(--ink-2); padding:1px 6px; border-radius:4px; font-weight:600;
-}
+.ev .src{font-size:11px; color:var(--ink-3); display:flex; gap:7px; flex-wrap:wrap; align-items:center}
+.ev .src .b{background:var(--accent-bg); color:var(--accent); padding:1px 6px; border-radius:4px; font-weight:700}
 
-.ruta{
+/* contradiction arc */
+.arc-wrap{background:var(--panel-2); border:1px solid var(--line-2); border-radius:8px; padding:10px 12px 6px}
+.arc-wrap svg{width:100%; height:auto; display:block; overflow:visible}
+.arc-wrap .cap{font-size:11px; color:var(--ink-3); margin-top:4px; line-height:1.45}
+.arc path.link{fill:none; stroke-width:1.7; stroke-dasharray:5 4; stroke:var(--red-fill)}
+.arc text{font-family:ui-monospace,Consolas,monospace; font-size:8.5px; fill:var(--ink-3)}
+.arc text.mod-label{font-size:9.5px; font-weight:700; font-family:inherit; fill:var(--ink-2)}
+
+.path-line{
   font-size:12px; color:var(--ink-2); background:var(--panel-2);
-  border:1px solid var(--line-2); border-radius:6px; padding:8px 11px; line-height:1.6;
+  border:1px solid var(--line-2); border-radius:7px; padding:8px 11px; line-height:1.6;
+  overflow-x:auto;
 }
-.conf{display:flex; align-items:center; gap:8px}
-.conf .lvl{font-weight:650}
-.conf .lvl.Alta{color:var(--verde)} .conf .lvl.Media{color:var(--ambar)}
+.conf{display:flex; align-items:center; gap:9px; flex-wrap:wrap}
+.conf .lvl{font-weight:700}
+.conf .lvl.high{color:var(--green)} .conf .lvl.medium{color:var(--amber)}
+.conf-bars{display:flex; gap:3px}
+.conf-bars i{width:17px; height:5px; border-radius:2px; background:var(--grey-bg); display:block}
+.conf-bars i.on{background:currentColor}
 
-.accion{
-  background:var(--azul-bg); border:1px solid color-mix(in srgb,var(--azul) 22%,transparent);
-  border-radius:7px; padding:11px 13px; margin-top:12px;
+.action{
+  background:var(--accent-bg); border:1px solid color-mix(in srgb,var(--accent) 24%,transparent);
+  border-radius:8px; padding:11px 13px; margin-top:12px;
 }
-.accion .k{color:var(--azul)}
-.accion .v{font-size:13.5px}
-
-.nota-humana{
+.action .k{color:var(--accent)}
+.action .v{font-size:13.5px}
+.human-note{
   display:flex; gap:9px; align-items:flex-start; margin-top:12px; padding:10px 13px;
-  border:1px dashed var(--line); border-radius:7px; font-size:12.5px; color:var(--ink-2);
+  border:1px dashed var(--line); border-radius:8px; font-size:12.5px; color:var(--ink-2); line-height:1.5;
 }
+.human-note span:first-child{color:var(--brand-1); flex:none}
 
-/* ---------- barras de área ---------- */
-.areas{display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:12px; margin-bottom:20px}
-.area{background:var(--panel); border:1px solid var(--line); border-radius:9px; padding:13px 15px; box-shadow:var(--shadow)}
-.area .nm{font-size:12px; color:var(--ink-3); text-transform:uppercase; letter-spacing:.05em; margin-bottom:5px}
-.area .pc{font-size:22px; font-weight:680; letter-spacing:-.02em; line-height:1.1}
-.area .peso{font-size:11.5px; color:var(--ink-3); margin-top:2px}
-.bar{height:5px; background:var(--gris-bg); border-radius:3px; margin-top:9px; overflow:hidden}
-.bar i{display:block; height:100%; border-radius:3px}
-
-.ahorro{
-  background:var(--verde-bg); border:1px solid color-mix(in srgb,var(--verde) 24%,transparent);
-  border-radius:9px; padding:13px 16px; margin-bottom:16px; font-size:13.5px; color:var(--ink);
+/* ---------- area bars ------------------------------------------------ */
+.areas{display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:11px; margin-bottom:18px}
+.area{
+  background:var(--panel); border:1px solid var(--line); border-radius:var(--radius);
+  padding:13px 15px; box-shadow:var(--shadow);
 }
-.ahorro strong{color:var(--verde)}
+.area .name{font-size:11px; color:var(--ink-3); text-transform:uppercase; letter-spacing:.06em; font-weight:680; margin-bottom:5px}
+.area .pct{font-size:24px; font-weight:720; letter-spacing:-.025em; line-height:1.1}
+.area .weight{font-size:11px; color:var(--ink-3); margin-top:2px}
+.bar{height:6px; background:var(--grey-bg); border-radius:3px; margin-top:10px; overflow:hidden}
+.bar i{display:block; height:100%; border-radius:3px; transition:width .9s var(--ease)}
+
+.summary{
+  border-radius:var(--radius); padding:13px 16px; margin-bottom:14px; font-size:13.5px; line-height:1.55;
+  background:var(--green-bg); border:1px solid color-mix(in srgb,var(--green) 26%,transparent); color:var(--ink);
+}
+.summary strong{color:var(--green)}
+.summary.info{background:var(--accent-bg); border-color:color-mix(in srgb,var(--accent) 26%,transparent)}
+.summary.info strong{color:var(--accent)}
 
 table.prec{width:100%; border-collapse:collapse; font-size:13px}
-table.prec td{padding:6px 0; vertical-align:top; border-bottom:1px solid var(--line-2)}
+table.prec td{padding:7px 0; vertical-align:top; border-bottom:1px solid var(--line-2)}
+table.prec tr:last-child td{border-bottom:none}
 table.prec td:first-child{
-  width:120px; color:var(--ink-3); font-size:11px; text-transform:uppercase;
-  letter-spacing:.05em; font-weight:650; padding-right:12px;
+  width:118px; color:var(--ink-3); font-size:10.5px; text-transform:uppercase;
+  letter-spacing:.06em; font-weight:700; padding-right:12px;
 }
-.pie{padding:22px; font-size:12px; color:var(--ink-3); border-top:1px solid var(--line); line-height:1.6}
+.empty{padding:26px 16px; text-align:center; color:var(--ink-3); font-size:13.5px}
+.foot{padding:20px 16px 34px; font-size:12px; color:var(--ink-3); border-top:1px solid var(--line); line-height:1.65}
+
+/* ---------- motion ----------------------------------------------------- */
+/* The static file is already correct: nothing ships hidden or dimmed. The script
+   ADDS .anim, which is what introduces the initial animation state, so a page
+   whose JS never runs still reads in full. */
+@keyframes reveal{from{opacity:0; transform:translateY(7px) scale(.985)} to{opacity:1; transform:none}}
+.anim .reveal-item{animation:reveal .5s var(--ease) both}
+.anim .reveal-item:nth-child(1){animation-delay:0s}
+.anim .reveal-item:nth-child(2){animation-delay:.05s}
+.anim .reveal-item:nth-child(3){animation-delay:.1s}
+.anim .reveal-item:nth-child(4){animation-delay:.15s}
+.anim .reveal-item:nth-child(5){animation-delay:.2s}
+.anim .reveal-item:nth-child(n+6){animation-delay:.25s}
+.draw-in{transition:stroke-dashoffset 1.2s var(--ease)}
+@keyframes pulseFade{0%,100%{opacity:.9} 50%{opacity:.3}}
+.anim .pulse{animation:pulseFade 2.4s ease-in-out infinite}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none !important; transition:none !important}
+  .flow-track{display:none}
+}
 </style>
 </head>
 <body>
 
-<div class="top">
-  <div class="brand">
-    <h1>Cockpit del Evaluador</h1>
-    <div class="sub" id="sub"></div>
-  </div>
-  <span class="cui mono" id="cui"></span>
-  <div class="kpi"><div class="n" id="kGlobal">—</div><div class="l">Índice de rigor</div></div>
-  <div class="kpi"><div class="n riesgo-alto" id="kRiesgo">—</div><div class="l">Riesgo de auto</div></div>
-  <div class="kpi"><div class="n" id="kFolios">—</div><div class="l">Folios</div></div>
-  <button class="btn-tema" id="tema">Tema</button>
-</div>
+<a class="skip" href="#content">Saltar al contenido</a>
 
-<div class="aviso">
-  Prototipo de hackatón sobre un <strong>expediente ficticio</strong> entregado por el organizador.
-  No es un sistema del INVIMA. No emite decisiones administrativas: toda conclusión requiere
-  revisión y firma del evaluador competente.
-</div>
+<div class="app" id="app">
 
-<div class="wrap">
-  <aside class="izq">
-    <div class="izq-head">
-      <h2>Preclasificación del expediente</h2>
-      <div class="leyenda">
-        <span><b class="pt verde">●</b> Conforme</span>
-        <span><b class="pt ambar">▲</b> Subsanable</span>
-        <span><b class="pt rojo">■</b> Omisión</span>
-        <span><b class="pt gris">○</b> No aportado</span>
+  <aside class="sidebar" id="sidebar" aria-label="Navegación del proceso y del expediente">
+    <div class="side-brand">
+      <span class="logo" aria-hidden="true">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <path d="M14 2v6h6"/><path d="m9 15 2 2 4-4"/>
+        </svg>
+      </span>
+      <div>
+        <h1>Cockpit del Evaluador</h1>
+        <div class="sub">Trámite de registro sanitario</div>
       </div>
     </div>
-    <div id="arbol"></div>
+
+    <nav class="side-sec" aria-label="Etapas del trámite">
+      <h2>Proceso</h2>
+      <p class="hint">Navegación provisional — se reemplaza cuando llegue el mapa BPM.</p>
+      <ul class="bpm" id="bpmNav"></ul>
+    </nav>
+
+    <div class="side-sec side-tree">
+      <h2>Expediente</h2>
+      <div class="legend">
+        <span><b class="dot green" aria-hidden="true">●</b> Conforme</span>
+        <span><b class="dot amber" aria-hidden="true">▲</b> Subsanable</span>
+        <span><b class="dot red" aria-hidden="true">■</b> Omisión</span>
+        <span><b class="dot grey" aria-hidden="true">○</b> No aportado</span>
+      </div>
+      <div class="pipe" id="pipe"></div>
+    </div>
+    <div id="tree"></div>
   </aside>
 
-  <main class="der">
-    <div class="tabs">
-      <button class="tab on" data-v="hallazgos">Hallazgos<span class="c" id="cH"></span></button>
-      <button class="tab" data-v="aprobado">Ya evaluado<span class="c" id="cA"></span></button>
-      <button class="tab" data-v="precedentes">Precedentes de Sala<span class="c" id="cP"></span></button>
+  <div class="work">
+    <header class="top">
+      <button class="icon-btn" id="railToggle" aria-expanded="true" aria-controls="sidebar"
+              aria-label="Mostrar u ocultar la navegación">☰</button>
+
+      <div class="screens" role="tablist" aria-label="Pantalla">
+        <button role="tab" id="scr-summary" aria-selected="true" aria-controls="content" data-s="summary">
+          <span aria-hidden="true">▦</span> Resumen</button>
+        <button role="tab" id="scr-detail" aria-selected="false" aria-controls="content" data-s="detail">
+          <span aria-hidden="true">☰</span> Detalle</button>
+      </div>
+
+      <span class="cui mono" id="cui">—</span>
+
+      <div class="kpis">
+        <div class="kpi">
+          <div class="gauge">
+            <svg viewBox="0 0 52 52" aria-hidden="true">
+              <circle class="track" cx="26" cy="26" r="21"/>
+              <circle class="arc" id="gaugeArc" cx="26" cy="26" r="21"/>
+            </svg>
+            <span class="val" id="kGlobal">—</span>
+          </div>
+          <div class="l">Índice<br>de rigor</div>
+        </div>
+        <div class="kpi">
+          <div><div class="n" id="kRisk">—</div><div class="l">Riesgo</div></div>
+        </div>
+      </div>
+
+      <button class="theme-btn" id="theme" aria-label="Cambiar entre tema claro y oscuro"
+              title="Cambiar tema">◐</button>
+      <button class="icon-btn" id="chatToggle" aria-expanded="false" aria-controls="chat"
+              aria-label="Mostrar u ocultar el asistente">✦</button>
+    </header>
+
+    <p class="notice">
+      <span aria-hidden="true">⚠</span>
+      <span><b>Expediente ficticio.</b> Prototipo de hackatón. <b>No es un sistema del INVIMA.</b>
+      No emite decisiones: la valoración y la firma son del evaluador.</span>
+    </p>
+
+    <section class="map-wrap" aria-labelledby="mapTitle">
+      <div class="map-head">
+        <h2 id="mapTitle">Mapa del expediente</h2>
+        <span class="note" id="mapNote"></span>
+      </div>
+      <div class="map" id="map"></div>
+    </section>
+
+    <main class="content" id="content" tabindex="-1">
+      <div id="screenSummary"></div>
+
+      <div id="screenDetail" hidden>
+        <div class="tabs" role="tablist" aria-label="Vistas del análisis">
+          <button class="tab" role="tab" id="tab-findings" aria-selected="true" aria-controls="view" data-v="findings">
+            Hallazgos<span class="c" id="cH">0</span></button>
+          <button class="tab" role="tab" id="tab-cleared" aria-selected="false" aria-controls="view" data-v="cleared">
+            Ya evaluado<span class="c" id="cA">0</span></button>
+          <button class="tab" role="tab" id="tab-precedents" aria-selected="false" aria-controls="view" data-v="precedents">
+            Precedentes<span class="c" id="cP">0</span></button>
+        </div>
+        <div id="view" role="tabpanel" aria-labelledby="tab-findings"></div>
+      </div>
+    </main>
+
+    <footer class="foot">
+      Análisis precomputado fuera de línea a partir de los PDF del organizador y revisado por una
+      persona. La aplicación no realiza llamadas de red: el expediente no sale de esta máquina.
+      Precedentes tomados del Acta No.&nbsp;04 de 2026 SEMPB, documento público. Paleta derivada del
+      sitio invima.gov.co; sin logotipo, escudo ni imagen institucional.
+    </footer>
+  </div>
+
+  <aside class="chat" id="chat" aria-label="Asistente del evaluador">
+    <div class="chat-h">
+      <span aria-hidden="true">✦</span>
+      <h2>Asistente</h2>
+      <span class="st">Sin conectar</span>
     </div>
-    <div id="vista"></div>
-  </main>
+    <div class="chat-log" id="chatLog"></div>
+    <form class="chat-form" id="chatForm">
+      <label class="sr" for="chatInput">Pregunta al asistente</label>
+      <input id="chatInput" type="text" autocomplete="off" disabled
+             placeholder="Espacio reservado — aún sin conectar">
+      <button type="submit" disabled aria-label="Enviar">↑</button>
+    </form>
+  </aside>
+
+  <button class="scrim" id="scrim" tabindex="-1" aria-label="Cerrar los paneles"></button>
 </div>
 
-<div class="pie">
-  Análisis precomputado fuera de línea a partir de los PDF del organizador y revisado por una persona
-  antes de publicarse. La aplicación no realiza llamadas de red: el expediente no sale de esta máquina.
-  Misma entrada, misma salida. Precedentes tomados del Acta No.&nbsp;04 de 2026 SEMPB, documento público.
-</div>
 
 <script>
-/* datos.js — Análisis precomputado del expediente CORAZILIMAB.
- *
- * PROCEDENCIA: extraído de los 5 PDF de módulo entregados por el organizador el
- * 2026-08-26 a las 10:25, con `pdftotext -layout`. Cada hallazgo cita documento y
- * folio verificables en el PDF original. El análisis se precomputó fuera de línea y
- * fue revisado por una persona antes de cargarse aquí: la aplicación no hace
- * ninguna llamada de red y no envía el expediente a ningún servicio externo.
- *
- * Los precedentes de Sala provienen del Acta No. 04 de 2026 SEMPB (documento público).
- */
+/* data: precomputed analysis of the CORAZILIMAB dossier. Extracted from the five
+   module PDFs handed out by the organiser with `pdftotext -layout`, reviewed by a
+   person before being loaded here. Every finding cites a document and a folio that
+   can be checked against the original PDF. Precedents come from a public minute. */
 
-const EXPEDIENTE = {
+const DOSSIER = {
   cui: "MED-BIO-IMP-NUE-2026-001784",
-  producto: "CORAZILIMAB 150 mg/mL solución inyectable en jeringa precargada",
-  dci: "Corazilimab",
-  codigoDesarrollo: "CRZ-042",
-  expediente: "2026-REG-CRZ-001784",
-  titular: "Biotec Global Therapeutics Ltd. (Reino Unido)",
-  solicitante: "Biofarma Andina S.A.S.",
-  modalidad: "Importar y vender",
-  ruta: "Evaluación farmacológica — Decreto 1782 de 2014",
-  indicacionSolicitada:
+  product: "CORAZILIMAB 150 mg/mL solución inyectable en jeringa precargada",
+  inn: "Corazilimab",
+  developmentCode: "CRZ-042",
+  fileNumber: "2026-REG-CRZ-001784",
+  holder: "Biotec Global Therapeutics Ltd. (Reino Unido)",
+  applicant: "Biofarma Andina S.A.S.",
+  modality: "Importar y vender",
+  route: "Evaluación farmacológica — Decreto 1782 de 2014",
+  requestedIndication:
     "Hipertensión arterial pulmonar en adultos y adolescentes ≥12 años",
   folios: 166,
 };
 
-/* Pesos del scoring, según la especificación del sistema (PASO 5). */
-const PESOS = { legal: 0.25, calidad: 0.45, farmacologia: 0.30 };
+/* Area weights of the global index, from the system specification. */
+const WEIGHTS = { legal: 0.25, quality: 0.45, pharmacology: 0.30 };
 
-/* Estados de preclasificación — códigos de color del PASO 2 de la especificación. */
-const ESTADOS = {
-  conforme:   { etiqueta: "Conforme",    color: "verde",   icono: "●" },
-  subsanable: { etiqueta: "Subsanable",  color: "ambar",   icono: "▲" },
-  omision:    { etiqueta: "Omisión",     color: "rojo",    icono: "■" },
-  ausente:    { etiqueta: "No aportado", color: "gris",    icono: "○" },
+/* Preclassification states and the dot colour each one paints. */
+const STATES = {
+  compliant:   { label: "Conforme",    color: "green",   icon: "●" },
+  remediable: { label: "Subsanable",  color: "amber",   icon: "▲" },
+  omission:    { label: "Omisión",     color: "red",    icon: "■" },
+  missing:    { label: "No aportado", color: "grey",    icon: "○" },
 };
 
-/* ---------------------------------------------------------------------------
- * ÁRBOL DEL EXPEDIENTE — preclasificación por documento
- * ------------------------------------------------------------------------- */
-const MODULOS = [
+/* Dossier tree: one preclassification state per document. */
+const MODULES = [
   {
     id: "M1",
-    titulo: "Información general",
+    title: "Información general",
     area: "legal",
     folios: "1–21",
-    pregunta:
+    question:
       "¿La solicitud es válida, completa, consistente y jurídicamente soportada?",
-    documentos: [
-      { id: "ASS-RSA-FM113", nombre: "Formato general para solicitudes de productos biológicos", version: "05", folios: "1–9", estado: "conforme" },
-      { id: "M1-02-PODER", nombre: "Poder / representación legal", version: "v1.0", folios: "9–10", estado: "conforme" },
-      { id: "M1-03-BPM-CPP", nombre: "Certificados BPM y CPP/CVL", version: "v1.0", folios: "10–14", estado: "omision", hallazgos: ["H3"] },
-      { id: "M1-04-DATOS-PROT", nombre: "Protección de datos de prueba", version: "v1.0", folios: "15–21", estado: "conforme" },
+    documents: [
+      { id: "ASS-RSA-FM113", name: "Formato general para solicitudes de productos biológicos", version: "05", folios: "1–9", state: "compliant" },
+      { id: "M1-02-PODER", name: "Poder / representación legal", version: "v1.0", folios: "9–10", state: "compliant" },
+      { id: "M1-03-BPM-CPP", name: "Certificados BPM y CPP/CVL", version: "v1.0", folios: "10–14", state: "omission", findings: ["H3"] },
+      { id: "M1-04-DATOS-PROT", name: "Protección de datos de prueba", version: "v1.0", folios: "15–21", state: "compliant" },
     ],
   },
   {
     id: "M2",
-    titulo: "Resúmenes generales",
-    area: "farmacologia",
+    title: "Resúmenes generales",
+    area: "pharmacology",
     folios: "22–52",
-    pregunta:
+    question:
       "¿El relato global representa fielmente la evidencia detallada de M3–M5?",
-    documentos: [
-      { id: "M2-01-INTRO", nombre: "Introducción general al dossier CTD", version: "v1.0", folios: "22–30", estado: "subsanable", hallazgos: ["H4"] },
-      { id: "M2-03-QOS", nombre: "Resumen global de calidad (QOS)", version: "v1.0", folios: "31–38", estado: "conforme" },
-      { id: "M2-04-NCO", nombre: "Resumen no clínico", version: "v1.0", folios: "39–43", estado: "conforme" },
-      { id: "M2-05-CO", nombre: "Resumen clínico", version: "v1.0", folios: "44–52", estado: "omision", hallazgos: ["H1", "H2"] },
+    documents: [
+      { id: "M2-01-INTRO", name: "Introducción general al dossier CTD", version: "v1.0", folios: "22–30", state: "remediable", findings: ["H4"] },
+      { id: "M2-03-QOS", name: "Resumen global de calidad (QOS)", version: "v1.0", folios: "31–38", state: "compliant" },
+      { id: "M2-04-NCO", name: "Resumen no clínico", version: "v1.0", folios: "39–43", state: "compliant" },
+      { id: "M2-05-CO", name: "Resumen clínico", version: "v1.0", folios: "44–52", state: "omission", findings: ["H1", "H2"] },
     ],
   },
   {
     id: "M3",
-    titulo: "Calidad",
-    area: "calidad",
+    title: "Calidad",
+    area: "quality",
     folios: "53–97",
-    pregunta:
+    question:
       "¿El producto puede fabricarse y controlarse de manera reproducible?",
-    documentos: [
-      { id: "M3-32S-DS", nombre: "Sustancia activa (drug substance)", version: "v1.0", folios: "53–70", estado: "conforme" },
-      { id: "M3-32P-DP", nombre: "Producto terminado (drug product)", version: "v1.0", folios: "71–80", estado: "omision", hallazgos: ["H3"] },
-      { id: "M3-32P-EXC", nombre: "Excipientes", version: "v1.0", folios: "81–84", estado: "conforme" },
-      { id: "M3-32P-LOTES", nombre: "Análisis de lotes", version: "v1.0", folios: "85–89", estado: "conforme" },
-      { id: "M3-32P-STAB", nombre: "Estabilidad", version: "v1.0", folios: "90–97", estado: "conforme" },
+    documents: [
+      { id: "M3-32S-DS", name: "Sustancia activa (drug substance)", version: "v1.0", folios: "53–70", state: "compliant" },
+      { id: "M3-32P-DP", name: "Producto terminado (drug product)", version: "v1.0", folios: "71–80", state: "omission", findings: ["H3"] },
+      { id: "M3-32P-EXC", name: "Excipientes", version: "v1.0", folios: "81–84", state: "compliant" },
+      { id: "M3-32P-LOTES", name: "Análisis de lotes", version: "v1.0", folios: "85–89", state: "compliant" },
+      { id: "M3-32P-STAB", name: "Estabilidad", version: "v1.0", folios: "90–97", state: "compliant" },
     ],
   },
   {
     id: "M4",
-    titulo: "Estudios no clínicos",
-    area: "farmacologia",
+    title: "Estudios no clínicos",
+    area: "pharmacology",
     folios: "98–129",
-    pregunta:
+    question:
       "¿La evidencia preclínica respalda la exposición humana y caracteriza riesgos?",
-    documentos: [
-      { id: "M4-421-PK", nombre: "Farmacocinética no clínica", version: "v1.0", folios: "98–110", estado: "conforme" },
-      { id: "M4-423-TOX", nombre: "Toxicología a dosis repetida", version: "v1.0", folios: "111–122", estado: "conforme" },
-      { id: "M4-425-REPRO", nombre: "Toxicidad reproductiva y del desarrollo", version: "v1.0", folios: "123–129", estado: "subsanable", hallazgos: ["H5"] },
+    documents: [
+      { id: "M4-421-PK", name: "Farmacocinética no clínica", version: "v1.0", folios: "98–110", state: "compliant" },
+      { id: "M4-423-TOX", name: "Toxicología a dosis repetida", version: "v1.0", folios: "111–122", state: "compliant" },
+      { id: "M4-425-REPRO", name: "Toxicidad reproductiva y del desarrollo", version: "v1.0", folios: "123–129", state: "remediable", findings: ["H5"] },
     ],
   },
   {
     id: "M5",
-    titulo: "Estudios clínicos",
-    area: "farmacologia",
+    title: "Estudios clínicos",
+    area: "pharmacology",
     folios: "130–166",
-    pregunta:
+    question:
       "¿La población, comparador, desenlaces y resultados sustentan la indicación solicitada?",
-    documentos: [
-      { id: "M5-01-PKPD", nombre: "Fase I farmacología clínica — CRZ-HAP-101", version: "1.0", folios: "130–147", estado: "conforme" },
-      { id: "M5-03-PIVOTAL", nombre: "Fase III pivotal — CRZ-HAP-301 PULMO-CLEAR", version: "1.0", folios: "148–166", estado: "omision", hallazgos: ["H1"] },
-      { id: "CRZ-HAP-201", nombre: "Fase II — declarado en M2, no aportado", version: "—", folios: "—", estado: "ausente", hallazgos: ["H2"] },
-      { id: "CRZ-HAP-401", nombre: "Extensión — declarado en M2, no aportado", version: "—", folios: "—", estado: "ausente", hallazgos: ["H2"] },
-      { id: "CRZ-HAP-501", nombre: "Exploratorio adolescentes — declarado en M2, no aportado", version: "—", folios: "—", estado: "ausente", hallazgos: ["H1", "H2"] },
+    documents: [
+      { id: "M5-01-PKPD", name: "Fase I farmacología clínica — CRZ-HAP-101", version: "1.0", folios: "130–147", state: "compliant" },
+      { id: "M5-03-PIVOTAL", name: "Fase III pivotal — CRZ-HAP-301 PULMO-CLEAR", version: "1.0", folios: "148–166", state: "omission", findings: ["H1"] },
+      { id: "CRZ-HAP-201", name: "Fase II — declarado en M2, no aportado", version: "—", folios: "—", state: "missing", findings: ["H2"] },
+      { id: "CRZ-HAP-401", name: "Extensión — declarado en M2, no aportado", version: "—", folios: "—", state: "missing", findings: ["H2"] },
+      { id: "CRZ-HAP-501", name: "Exploratorio adolescentes — declarado en M2, no aportado", version: "—", folios: "—", state: "missing", findings: ["H1", "H2"] },
     ],
   },
 ];
 
-/* ---------------------------------------------------------------------------
- * HALLAZGOS — cada uno trae los nueve campos de salida mínima obligatoria
- * que exige la ficha visual del organizador (p. 4).
- * ------------------------------------------------------------------------- */
-const HALLAZGOS = [
+/* Findings: each one carries the nine mandatory output fields the organiser
+   requires on page 4 of the visual brief. */
+const FINDINGS = [
   {
     id: "H1",
-    severidad: "critico",
-    area: "farmacologia",
-    titulo: "La indicación solicitada excede la población estudiada",
-    respuesta:
+    severity: "critical",
+    area: "pharmacology",
+    title: "La indicación solicitada excede la población estudiada",
+    answer:
       "La indicación propuesta cubre adolescentes desde 12 años, pero el estudio pivotal excluyó expresamente a los menores de 18 y el estudio que respaldaría esa población no fue aportado.",
-    evidencia: [
-      { texto: "«Hipertensión arterial pulmonar en adultos y adolescentes ≥12 años»", fuente: "M2-05-CO", folio: "Folio 46", modulo: "M2" },
-      { texto: "«Pediatría — No se incluyeron adolescentes ni niños menores de 18 años»", fuente: "M5-03-PIVOTAL", folio: "Folio 158", modulo: "M5" },
-      { texto: "Criterios de exclusión: «Se excluyen, entre otros, pacientes pediátricos»", fuente: "M5-03-PIVOTAL", folio: "Folio 152", modulo: "M5" },
-      { texto: "PGR — información faltante: «uso en población pediátrica/adolescente»", fuente: "M5-03-PIVOTAL", folio: "Folio 163", modulo: "M5" },
-      { texto: "Compromisos: «Extensión pediátrica — Planificada — 2028»", fuente: "M5-03-PIVOTAL", folio: "Folio 165", modulo: "M5" },
+    evidence: [
+      { text: "«Hipertensión arterial pulmonar en adultos y adolescentes ≥12 años»", source: "M2-05-CO", folio: "Folio 46", module: "M2" },
+      { text: "«Pediatría — No se incluyeron adolescentes ni niños menores de 18 años»", source: "M5-03-PIVOTAL", folio: "Folio 158", module: "M5" },
+      { text: "Criterios de exclusión: «Se excluyen, entre otros, pacientes pediátricos»", source: "M5-03-PIVOTAL", folio: "Folio 152", module: "M5" },
+      { text: "PGR — información faltante: «uso en población pediátrica/adolescente»", source: "M5-03-PIVOTAL", folio: "Folio 163", module: "M5" },
+      { text: "Compromisos: «Extensión pediátrica — Planificada — 2028»", source: "M5-03-PIVOTAL", folio: "Folio 165", module: "M5" },
     ],
-    ubicacion: "M2 › 2.5 Resumen clínico › folio 46  ⟷  M5 › 5.3.5 Pivotal › folios 152, 158, 163, 165",
+    location: "M2 › 2.5 Resumen clínico › folio 46  ⟷  M5 › 5.3.5 Pivotal › folios 152, 158, 163, 165",
     version: "M2-05-CO v1.0 (01/08/2026) · M5-03-PIVOTAL v1.0",
-    confianza: "Alta",
-    confianzaNota:
+    confidence: "high",
+    confidenceNote:
       "Cinco pasajes independientes en dos módulos apuntan en la misma dirección; ninguno admite lectura alternativa.",
-    contradicciones:
+    contradictions:
       "El propio expediente se contradice: el resumen clínico afirma una población que su estudio de respaldo declara excluida, y el plan de gestión de riesgos la reconoce como información faltante.",
-    faltante:
+    missingInfo:
       "Estudio CRZ-HAP-501 (exploratorio en adolescentes), citado en el programa clínico de M2 pero no presente en M5. Sin él no hay evidencia de PK, seguridad ni eficacia en la población reclamada.",
-    limitaciones:
+    limitations:
       "El sistema compara el texto de la indicación contra las secciones de población y criterios de los estudios aportados. No juzga si la extrapolación farmacológica desde adultos sería científicamente admisible: esa es una valoración del evaluador.",
-    accion:
+    action:
       "Requerir al solicitante que aporte CRZ-HAP-501 o que restrinja la indicación a población adulta. Es un requerimiento del art. 94 del Decreto 2106 de 2019 (una sola vez, consolidado).",
-    precedente: "P1",
+    precedent: "P1",
   },
   {
     id: "H2",
-    severidad: "critico",
-    area: "farmacologia",
-    titulo: "El resumen declara cinco estudios; el expediente contiene dos",
-    respuesta:
+    severity: "critical",
+    area: "pharmacology",
+    title: "El resumen declara cinco estudios; el expediente contiene dos",
+    answer:
       "M2 describe un programa clínico de cinco estudios y una exposición de 1.482 participantes. El Módulo 5 solo contiene los informes de dos de ellos.",
-    evidencia: [
-      { texto: "«Programa clínico: CRZ-HAP-101, CRZ-HAP-201, CRZ-HAP-301 y estudios de extensión»", fuente: "M2-05-CO", folio: "Folio 44", modulo: "M2" },
-      { texto: "Tabla del programa: 101 (I), 201 (II), 301 (III), 401 (extensión), 501 (exploratorio adolescentes)", fuente: "M2-05-CO", folio: "Folio 45", modulo: "M2" },
-      { texto: "«aproximadamente 1.482 participantes expuestos a al menos una dosis»", fuente: "M2-05-CO", folio: "Folio 45", modulo: "M2" },
-      { texto: "Módulo 5 contiene únicamente M5-01-PKPD (CRZ-HAP-101) y M5-03-PIVOTAL (CRZ-HAP-301)", fuente: "M5 — inventario completo", folio: "Folios 130–166", modulo: "M5" },
+    evidence: [
+      { text: "«Programa clínico: CRZ-HAP-101, CRZ-HAP-201, CRZ-HAP-301 y estudios de extensión»", source: "M2-05-CO", folio: "Folio 44", module: "M2" },
+      { text: "Tabla del programa: 101 (I), 201 (II), 301 (III), 401 (extensión), 501 (exploratorio adolescentes)", source: "M2-05-CO", folio: "Folio 45", module: "M2" },
+      { text: "«aproximadamente 1.482 participantes expuestos a al menos una dosis»", source: "M2-05-CO", folio: "Folio 45", module: "M2" },
+      { text: "Módulo 5 contiene únicamente M5-01-PKPD (CRZ-HAP-101) y M5-03-PIVOTAL (CRZ-HAP-301)", source: "M5 — inventario completo", folio: "Folios 130–166", module: "M5" },
     ],
-    ubicacion: "M2 › 2.5 Resumen clínico › folios 44–45  ⟷  M5 › inventario de folios 130–166",
+    location: "M2 › 2.5 Resumen clínico › folios 44–45  ⟷  M5 › inventario de folios 130–166",
     version: "M2-05-CO v1.0 (01/08/2026)",
-    confianza: "Alta",
-    confianzaNota:
+    confidence: "high",
+    confidenceNote:
       "El inventario de M5 es exhaustivo y se verificó documento por documento sobre el texto completo del módulo.",
-    contradicciones:
+    contradictions:
       "La cifra de exposición de 1.482 participantes se apoya en tres estudios cuyos informes no están en el expediente. La cifra no es verificable con lo aportado.",
-    faltante:
+    missingInfo:
       "Informes completos de CRZ-HAP-201 (Fase II), CRZ-HAP-401 (extensión) y CRZ-HAP-501 (exploratorio).",
-    limitaciones:
+    limitations:
       "El sistema constata ausencia dentro del radicado analizado. No puede saber si esos informes fueron aportados en un radicado distinto o en un alcance posterior.",
-    accion:
+    action:
       "Verificar si existen alcances al expediente. Si no, requerir los tres informes o la corrección de la cifra de exposición declarada en M2.",
   },
   {
     id: "H3",
-    severidad: "critico",
+    severity: "critical",
     area: "legal",
-    titulo: "El certificado BPM no ampara a la entidad declarada como fabricante",
-    respuesta:
+    title: "El certificado BPM no ampara a la entidad declarada como fabricante",
+    answer:
       "El certificado de Buenas Prácticas de Manufactura del producto terminado se expide a «PharmaFill Solutions Inc.», mientras el Módulo 3 declara como fabricante a «PharmaFill Solutions S.A.». Son personas jurídicas distintas.",
-    evidencia: [
-      { texto: "«M1-03-02 — BPM — PharmaFill Solutions Inc. / Drug Product»", fuente: "M1-03-BPM-CPP", folio: "Folio 5 (pág. 14)", modulo: "M1" },
-      { texto: "Fabricante del producto terminado: «PharmaFill Solutions S.A.»", fuente: "M3-32P-DP", folio: "Folio 76", modulo: "M3" },
+    evidence: [
+      { text: "«M1-03-02 — BPM — PharmaFill Solutions Inc. / Drug Product»", source: "M1-03-BPM-CPP", folio: "Folio 5 (pág. 14)", module: "M1" },
+      { text: "Fabricante del producto terminado: «PharmaFill Solutions S.A.»", source: "M3-32P-DP", folio: "Folio 76", module: "M3" },
     ],
-    ubicacion: "M1 › 1.3 Certificados › folio 5  ⟷  M3 › 3.2.P.3.1 Fabricante › folio 76",
+    location: "M1 › 1.3 Certificados › folio 5  ⟷  M3 › 3.2.P.3.1 Fabricante › folio 76",
     version: "M1-03-BPM-CPP v1.0 (20/05/2026) · M3-32P-DP v1.0",
-    confianza: "Media",
-    confianzaNota:
+    confidence: "medium",
+    confidenceNote:
       "La discrepancia textual es inequívoca, pero podría tratarse de un error de transcripción del solicitante en lugar de una entidad realmente distinta. Requiere confirmación documental.",
-    contradicciones:
+    contradictions:
       "Cruce entre evaluación legal y evaluación de calidad: hoy las revisan dos grupos distintos que no ven el documento del otro.",
-    faltante:
+    missingInfo:
       "Documento que acredite la identidad entre ambas razones sociales, o un BPM expedido a nombre de la entidad que efectivamente fabrica.",
-    limitaciones:
+    limitations:
       "El sistema compara razones sociales literales. No consulta registros mercantiles ni verifica si «Inc.» y «S.A.» corresponden a la misma matriz corporativa.",
-    accion:
+    action:
       "Requerir aclaración de la razón social del fabricante del producto terminado y, si procede, el certificado BPM corregido.",
   },
   {
     id: "H4",
-    severidad: "menor",
-    area: "farmacologia",
-    titulo: "Código ATC incompleto",
-    respuesta:
+    severity: "minor",
+    area: "pharmacology",
+    title: "Código ATC incompleto",
+    answer:
       "El expediente declara un código ATC que comienza por «B01» sin completar los niveles restantes. El propio documento advierte que no se completó por no estar disponible en la fuente.",
-    evidencia: [
-      { texto: "«identifica un código ATC que comienza por B01; no se encuentra disponible en la fuente suministrada el código completo»", fuente: "M2-01-INTRO", folio: "Folio 23", modulo: "M2" },
+    evidence: [
+      { text: "«identifica un código ATC que comienza por B01; no se encuentra disponible en la fuente suministrada el código completo»", source: "M2-01-INTRO", folio: "Folio 23", module: "M2" },
     ],
-    ubicacion: "M2 › 2.2 Introducción general › folio 23",
+    location: "M2 › 2.2 Introducción general › folio 23",
     version: "M2-01-INTRO v1.0 (01/08/2026)",
-    confianza: "Alta",
-    confianzaNota: "El documento reconoce expresamente la omisión.",
-    contradicciones: "Ninguna.",
-    faltante: "Código ATC completo a quinto nivel.",
-    limitaciones:
+    confidence: "high",
+    confidenceNote: "El documento reconoce expresamente la omisión.",
+    contradictions: "Ninguna.",
+    missingInfo: "Código ATC completo a quinto nivel.",
+    limitations:
       "El sistema detecta el campo incompleto. No propone un código: asignar ATC es competencia técnica del evaluador.",
-    accion: "Solicitar el código ATC completo. Subsanable sin impacto en el fondo.",
+    action: "Solicitar el código ATC completo. Subsanable sin impacto en el fondo.",
   },
   {
     id: "H5",
-    severidad: "menor",
-    area: "farmacologia",
-    titulo: "Hallazgos de toxicidad reproductiva pendientes de valoración",
-    respuesta:
+    severity: "minor",
+    area: "pharmacology",
+    title: "Hallazgos de toxicidad reproductiva pendientes de valoración",
+    answer:
       "El resumen no clínico condiciona el respaldo a la indicación a la consideración de hallazgos de toxicidad reproductiva y de alteraciones hepáticas a dosis elevadas.",
-    evidencia: [
-      { texto: "«sujeto a consideración de los hallazgos de toxicidad reproductiva, las alteraciones hepáticas observadas a dosis elevadas y el seguimiento de potenciales efectos asociados con la farmacología del receptor ALK-1»", fuente: "M2-04-NCO", folio: "Folio 43", modulo: "M2" },
+    evidence: [
+      { text: "«sujeto a consideración de los hallazgos de toxicidad reproductiva, las alteraciones hepáticas observadas a dosis elevadas y el seguimiento de potenciales efectos asociados con la farmacología del receptor ALK-1»", source: "M2-04-NCO", folio: "Folio 43", module: "M2" },
     ],
-    ubicacion: "M2 › 2.4 Resumen no clínico › folio 43 › remite a M4 › 4.2.5 › folios 123–129",
+    location: "M2 › 2.4 Resumen no clínico › folio 43 › remite a M4 › 4.2.5 › folios 123–129",
     version: "M2-04-NCO v1.0 · M4-425-REPRO v1.0",
-    confianza: "Media",
-    confianzaNota:
+    confidence: "medium",
+    confidenceNote:
       "El sistema señala que el propio expediente deja la conclusión condicionada. No evalúa la suficiencia de los estudios.",
-    contradicciones: "Ninguna detectada entre M2 y M4 en este punto.",
-    faltante:
+    contradictions: "Ninguna detectada entre M2 y M4 en este punto.",
+    missingInfo:
       "No se identifica documentación faltante: el estudio está aportado y la valoración corresponde al evaluador.",
-    limitaciones:
+    limitations:
       "Interpretar si estos hallazgos impiden la indicación es juicio de beneficio-riesgo — expresamente fuera del alcance de la herramienta.",
-    accion:
+    action:
       "Marcar para revisión farmacológica humana. No se sugiere requerimiento automático.",
   },
 ];
 
-/* ---------------------------------------------------------------------------
- * PRECEDENTES DE SALA — Acta No. 04 de 2026 SEMPB (documento público)
- * Base del reliance interno: qué ya conceptuó la Sala en casos comparables.
- * ------------------------------------------------------------------------- */
-const PRECEDENTES = [
+/* Board precedents from a public minute: what the specialised board already
+   ruled on comparable products. */
+const PRECEDENTS = [
   {
     id: "P1",
-    producto: "EVKEEZA 150 mg/mL (evinacumab)",
-    expediente: "20292007",
-    radicado: "20241261870",
-    fecha: "09/10/2024",
-    interesado: "Ultragenyx Colombia S.A.S.",
-    acta: "Acta No. 04 de 2026 SEMPB, num. 3.1.2.2",
-    similitud: "Muy alta",
-    porQue:
+    product: "EVKEEZA 150 mg/mL (evinacumab)",
+    fileNumber: "20292007",
+    filing: "20241261870",
+    date: "09/10/2024",
+    party: "Ultragenyx Colombia S.A.S.",
+    minutes: "Acta No. 04 de 2026 SEMPB, num. 3.1.2.2",
+    similarity: "Muy alta",
+    why:
       "Anticuerpo monoclonal recombinante, misma concentración (150 mg/mL), misma vía de evaluación farmacológica, y — el punto decisivo — indicación que incluye población pediátrica.",
-    concepto:
+    opinion:
       "La Sala aprobó la indicación que incluye «pacientes adultos y niños a partir de 5 años» sustentada en el estudio NCT03399786 (R1500-CL-1629), presentado como soporte clínico principal y que enroló esa población.",
-    leccion:
+    lesson:
       "El precedente muestra el estándar aplicado: cuando la indicación abarca menores, la Sala exige un estudio pivotal identificado que haya enrolado esa población. Corazilimab reclama población adolescente con un pivotal que la excluyó.",
-    relacion: "contraste",
+    relation: "contrast",
   },
   {
     id: "P2",
-    producto: "SPEVIGO 150 mg/mL",
-    expediente: "—",
-    radicado: "—",
-    fecha: "—",
-    interesado: "—",
-    acta: "Acta No. 04 de 2026 SEMPB, num. 3.1.2.1",
-    similitud: "Alta",
-    porQue:
+    product: "SPEVIGO 150 mg/mL",
+    fileNumber: "—",
+    filing: "—",
+    date: "—",
+    party: "—",
+    minutes: "Acta No. 04 de 2026 SEMPB, num. 3.1.2.1",
+    similarity: "Alta",
+    why:
       "Biológico de la misma concentración evaluado como molécula nueva en la misma acta. Sirve como referencia de estructura de concepto y de nivel de detalle exigido.",
-    concepto:
+    opinion:
       "Evaluado dentro de «3.1.2 Medicamentos biológicos» como registro sanitario nuevo.",
-    leccion:
+    lesson:
       "Referencia de forma: qué secciones cita la Sala y con qué granularidad al conceptuar un biológico nuevo.",
-    relacion: "referencia",
+    relation: "reference",
   },
   {
     id: "P3",
-    producto: "YESINTEK 130 mg/26 mL · YESAFILI (aflibercept) · CLONOMAB · ASUMLEA (denosumab)",
-    expediente: "—",
-    radicado: "—",
-    fecha: "—",
-    interesado: "—",
-    acta: "Acta No. 04 de 2026 SEMPB, num. 3.2.1 a 3.2.4",
-    similitud: "Media",
-    porQue:
+    product: "YESINTEK 130 mg/26 mL · YESAFILI (aflibercept) · CLONOMAB · ASUMLEA (denosumab)",
+    fileNumber: "—",
+    filing: "—",
+    date: "—",
+    party: "—",
+    minutes: "Acta No. 04 de 2026 SEMPB, num. 3.2.1 a 3.2.4",
+    similarity: "Media",
+    why:
       "Biológicos competidores. Definen el estándar de comparabilidad que la Sala aplica cuando ya existe un producto de referencia aprobado.",
-    concepto: "Evaluados bajo «3.2 Medicamentos biológicos competidores (registro sanitario nuevo)».",
-    leccion:
+    opinion: "Evaluados bajo «3.2 Medicamentos biológicos competidores (registro sanitario nuevo)».",
+    lesson:
       "No aplica directamente a Corazilimab (molécula nueva, sin competidor), pero acota qué NO se le puede exigir.",
-    relacion: "referencia",
+    relation: "reference",
   },
 ];
 
-/* ---------------------------------------------------------------------------
- * TRAMOS YA EVALUADOS — evita reevaluar lo que ya tiene concepto favorable.
- * En un despliegue real esto vendría del histórico del expediente; aquí se
- * deriva del propio dossier y del acta.
- * ------------------------------------------------------------------------- */
-const YA_APROBADO = [
+/* Stretches with no cross-module findings. In a real deployment this would come
+   from the file history; here it is derived from the dossier and the minute. */
+const CLEARED = [
   {
-    ambito: "M3 — Calidad · Sustancia activa",
+    scope: "M3 — Calidad · Sustancia activa",
     docs: ["M3-32S-DS"],
-    estado: "Sin hallazgos",
-    detalle:
+    state: "Sin hallazgos",
+    detail:
       "Proceso fed-batch en CHO-DG44, Protein A, inactivación viral a pH 3,55 durante 60 min, CEX, AEX y nanofiltración Planova 20N. LRV >14,2 para virus envueltos.",
-    ahorro: "18 folios",
-    razon: "coherente",
+    saved: "18 folios",
+    reason: "coherent",
   },
   {
-    ambito: "M3 — Calidad · Estabilidad",
+    scope: "M3 — Calidad · Estabilidad",
     docs: ["M3-32P-STAB"],
-    estado: "Sin hallazgos",
-    detalle:
+    state: "Sin hallazgos",
+    detail:
       "Vida útil de 24 meses a 2–8 °C, coherente entre M2 (QOS) y M3 en las 19 menciones cotejadas. Sin divergencias de condición ni de periodo.",
-    ahorro: "8 folios",
-    razon: "coherente",
+    saved: "8 folios",
+    reason: "coherent",
   },
   {
-    ambito: "M3 — Calidad · Lotes y excipientes",
+    scope: "M3 — Calidad · Lotes y excipientes",
     docs: ["M3-32P-LOTES", "M3-32P-EXC"],
-    estado: "Sin hallazgos",
-    detalle:
+    state: "Sin hallazgos",
+    detail:
       "Análisis de lotes y composición de excipientes consistentes con las especificaciones del producto terminado.",
-    ahorro: "9 folios",
-    razon: "coherente",
+    saved: "9 folios",
+    reason: "coherent",
   },
   {
-    ambito: "M4 — No clínicos · PK y toxicología a dosis repetida",
+    scope: "M4 — No clínicos · PK y toxicología a dosis repetida",
     docs: ["M4-421-PK", "M4-423-TOX"],
-    estado: "Sin hallazgos",
-    detalle:
+    state: "Sin hallazgos",
+    detail:
       "Resumen de M2 coherente con los informes de M4 en especie, dosis, NOAEL y hallazgos reportados.",
-    ahorro: "24 folios",
-    razon: "coherente",
+    saved: "24 folios",
+    reason: "coherent",
   },
   {
-    ambito: "M1 — Legal · Poder y protección de datos",
+    scope: "M1 — Legal · Poder y protección de datos",
     docs: ["M1-02-PODER", "M1-04-DATOS-PROT"],
-    estado: "Sin hallazgos",
-    detalle:
+    state: "Sin hallazgos",
+    detail:
       "Poder vigente mientras existan actuaciones pendientes. Protección de datos de prueba invocada conforme al régimen de cinco años.",
-    ahorro: "8 folios",
-    razon: "coherente",
+    saved: "8 folios",
+    reason: "coherent",
   },
   {
-    ambito: "Clase terapéutica — anticuerpo monoclonal 150 mg/mL",
+    scope: "Clase terapéutica — anticuerpo monoclonal 150 mg/mL",
     docs: [],
-    estado: "Precedente disponible",
-    detalle:
+    state: "Precedente disponible",
+    detail:
       "La Sala ya conceptuó sobre EVKEEZA 150 mg/mL (evinacumab) en el Acta No. 04 de 2026. El concepto describe el estándar de soporte preclínico aceptado para un anticuerpo monoclonal recombinante.",
-    ahorro: "consulta previa resuelta",
-    razon: "precedente",
-    precedente: "P1",
+    saved: "consulta previa resuelta",
+    reason: "precedent",
+    precedent: "P1",
   },
 ];
 
 </script>
 <script>
-/* ---------- utilidades ---------- */
-const $ = (s,r=document)=>r.querySelector(s);
-const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const hallazgoPorId = id => HALLAZGOS.find(h => h.id === id);
-const precedentePorId = id => PRECEDENTES.find(p => p.id === id);
+/* view layer: renders the precomputed dossier data into two screens. Resumen is
+   visual and nearly wordless; Detalle carries the nine mandatory fields. Reads the
+   constants above, never mutates them. Animations are progressive: under
+   prefers-reduced-motion, or with no script at all, the same figures still show. */
 
-/* ---------- scoring por área (pesos de la especificación) ---------- */
-function puntajes(){
-  const acc = {legal:[0,0], calidad:[0,0], farmacologia:[0,0]};
-  for(const m of MODULOS){
-    for(const d of m.documentos){
-      const a = acc[m.area];
-      a[1]++;
-      if(d.estado === 'conforme') a[0]++;
-      else if(d.estado === 'subsanable') a[0] += 0.5;
+const $  = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const findingById   = id => FINDINGS.find(f => f.id === id);
+const precedentById = id => PRECEDENTS.find(p => p.id === id);
+const lessMotion    = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* Folio labels arrive as free text ("Folios 130–166"), so the first integer is
+   the anchor: everything downstream positions on that number. */
+const folioNumber = txt => {
+  const m = String(txt || '').match(/(\d+)/);
+  return m ? parseInt(m[1], 10) : null;
+};
+
+/* The final value is written synchronously and only then animated. A hidden tab
+   never fires requestAnimationFrame, so anything that starts from zero and waits
+   for a frame would leave a false figure on screen. */
+function countUp(node, target, format, ms = 900){
+  if(!node || !Number.isFinite(target)) return;
+  node.textContent = format(target);
+  if(lessMotion()) return;
+  const t0 = performance.now();
+  requestAnimationFrame(function step(now){
+    const p = Math.min((now - t0) / ms, 1);
+    node.textContent = format(target * (1 - Math.pow(1 - p, 3)));
+    if(p < 1) requestAnimationFrame(step);
+  });
+}
+
+function animateWidth(node, finalWidth){
+  if(!node) return;
+  node.style.width = finalWidth;
+  if(lessMotion()) return;
+  requestAnimationFrame(() => {
+    node.style.width = '0%';
+    requestAnimationFrame(() => { node.style.width = finalWidth; });
+  });
+}
+
+function drawIn(path){
+  if(!path || lessMotion()) return;
+  const length = path.getTotalLength();
+  path.style.strokeDasharray = length;
+  path.classList.add('draw-in');
+  requestAnimationFrame(() => {
+    path.style.strokeDashoffset = length;
+    requestAnimationFrame(() => { path.style.strokeDashoffset = '0'; });
+  });
+}
+
+/* A ring fills from empty to its value, final state written first for the same
+   hidden-tab reason as countUp. */
+function fillRing(circle, pct, radius){
+  if(!circle) return;
+  const C = 2 * Math.PI * radius;
+  const end = C * (1 - pct / 100);
+  circle.style.strokeDasharray  = C;
+  circle.style.strokeDashoffset = end;
+  if(lessMotion()) return;
+  requestAnimationFrame(() => {
+    circle.style.strokeDashoffset = C;
+    requestAnimationFrame(() => { circle.style.strokeDashoffset = end; });
+  });
+}
+
+function scores(){
+  const acc = {legal:[0,0], quality:[0,0], pharmacology:[0,0]};
+  const value = {compliant:1, remediable:.6, omission:.15, missing:0};
+  for(const m of MODULES){
+    for(const d of m.documents){
+      acc[m.area][0] += value[d.state];
+      acc[m.area][1] += 1;
     }
   }
   const pct = k => acc[k][1] ? Math.round(acc[k][0] / acc[k][1] * 100) : 0;
-  const r = {legal:pct('legal'), calidad:pct('calidad'), farmacologia:pct('farmacologia')};
-  r.global = Math.round(r.legal*PESOS.legal + r.calidad*PESOS.calidad + r.farmacologia*PESOS.farmacologia);
+  const r = {legal:pct('legal'), quality:pct('quality'), pharmacology:pct('pharmacology')};
+  r.global = Math.round(r.legal*WEIGHTS.legal + r.quality*WEIGHTS.quality + r.pharmacology*WEIGHTS.pharmacology);
   return r;
 }
-function colorPct(p){ return p >= 85 ? 'var(--verde)' : p >= 65 ? 'var(--ambar)' : 'var(--rojo)'; }
+const pctInk  = p => p >= 85 ? 'var(--green)' : p >= 65 ? 'var(--amber)' : 'var(--red)';
+const pctFill = p => p >= 85 ? 'var(--green-fill)' : p >= 65 ? 'var(--amber-fill)' : 'var(--red-fill)';
 
-/* ---------- cabecera ---------- */
-const P = puntajes();
-$('#sub').textContent = EXPEDIENTE.producto;
-$('#cui').textContent = EXPEDIENTE.cui;
-$('#kGlobal').textContent = P.global + '%';
-$('#kGlobal').style.color = colorPct(P.global);
-$('#kFolios').textContent = EXPEDIENTE.folios;
-const criticos = HALLAZGOS.filter(h => h.severidad === 'critico').length;
-$('#kRiesgo').textContent = criticos >= 2 ? 'Alto' : criticos === 1 ? 'Medio' : 'Bajo';
+const STATE_ORDER = ['compliant','remediable','omission','missing'];
+const STATE_FILL  = {
+  compliant:'var(--green-fill)', remediable:'var(--amber-fill)',
+  omission:'var(--red-fill)',    missing:'var(--grey-fill)',
+};
+const worstState = m => m.documents.reduce(
+  (worst, d) => STATE_ORDER.indexOf(d.state) > STATE_ORDER.indexOf(worst) ? d.state : worst, 'compliant');
 
-/* ---------- árbol ---------- */
-$('#arbol').innerHTML = MODULOS.map(m => `
+const SEV_LABEL  = {critical:'Crítico', minor:'Menor'};
+const SEV_GLYPH  = {critical:'■',       minor:'▲'};
+const CONF_LABEL = {high:'Alta', medium:'Media', low:'Baja'};
+const CONF_LEVEL = {high:3, medium:2, low:1};
+const AREA_LABEL = {legal:'Legal', quality:'Calidad', pharmacology:'Farmacología'};
+const MOD_INK    = {M1:'var(--accent-fill)', M2:'var(--brand-2)', M3:'var(--brand-3)',
+                    M4:'var(--amber-fill)',  M5:'var(--red-fill)'};
+
+/* Navigation of the administrative procedure. Placeholder shape: swap this array
+   for the real BPM map, keeping {id, label, state} with state done|active|pending. */
+const BPM_NAV = [
+  {id:'radicacion',      label:'Radicación',              state:'done'},
+  {id:'completitud',     label:'Verificación documental', state:'done'},
+  {id:'preclasificacion',label:'Preclasificación',        state:'active'},
+  {id:'evaluacion',      label:'Evaluación farmacológica',state:'pending'},
+  {id:'sala',            label:'Sala Especializada',      state:'pending'},
+  {id:'concepto',        label:'Concepto y notificación', state:'pending'},
+];
+
+/* ---------- derived figures ---------- */
+const S         = scores();
+const nCritical = FINDINGS.filter(f => f.severity === 'critical').length;
+const nMinor    = FINDINGS.length - nCritical;
+const anchors   = FINDINGS.reduce((n, f) => n + f.evidence.length, 0);
+const risk      = nCritical >= 2 ? {t:'Alto', c:'risk-high'}
+                : nCritical === 1 ? {t:'Medio', c:'risk-med'}
+                : {t:'Bajo', c:'risk-low'};
+
+/* The two folios that clash, as one short monospace label instead of a sentence. */
+function clashLabel(finding){
+  const pts = finding.evidence.map(e => ({e, n:folioNumber(e.folio)})).filter(p => p.n)
+                      .sort((a, b) => a.n - b.n);
+  if(pts.length < 2) return '';
+  const a = pts[0], b = pts[pts.length - 1];
+  return `${a.e.module} f.${a.n} ⟷ ${b.e.module} f.${b.n}`;
+}
+
+/* ---------- header ---------- */
+$('#cui').textContent   = DOSSIER.cui;
+$('#kRisk').textContent = risk.t;
+$('#kRisk').className   = 'n ' + risk.c;
+$('#kGlobal').style.color = pctInk(S.global);
+countUp($('#kGlobal'), S.global, v => Math.round(v) + '%');
+$('#gaugeArc').style.stroke = pctInk(S.global);
+fillRing($('#gaugeArc'), S.global, 21);
+
+/* ---------- BPM navigation ---------- */
+$('#bpmNav').innerHTML = BPM_NAV.map((n, i) => `
+  <li class="${n.state}">
+    <a href="#content"${n.state === 'active' ? ' aria-current="step"' : ''}>
+      <span class="num" aria-hidden="true">${n.state === 'done' ? '✓' : i + 1}</span>
+      <span>${esc(n.label)}</span>
+      ${n.state === 'active' ? '<span class="st">aquí</span>' : ''}
+    </a>
+  </li>`).join('');
+
+/* ---------- assistant dock ---------- */
+/* Seeded with what the panel is for. Nothing is wired: an assistant that called
+   out would break the promise that the dossier never leaves this machine. */
+$('#chatLog').innerHTML = `
+  <div class="msg bot"><span class="who">Asistente</span>
+    Aquí se responderán preguntas sobre el expediente citando folio y documento.</div>
+  <div class="msg me">¿Por qué H1 es crítico?</div>
+  <div class="msg bot"><span class="who">Asistente</span>
+    <em>Espacio reservado.</em> La respuesta llevará la cita literal y el folio, como en Detalle.</div>
+  <p class="chat-slot">Panel reservado.<br>Se conectará a inferencia local, sin salida de red.</p>`;
+
+/* ---------- folio map ---------- */
+/* One graphic answers the question that opens every review: of 166 folios, which
+   ones have to be looked at. Each mark is a literal quote whose folio can be
+   checked in the organiser's PDF, and clicking it opens its finding. */
+(function folioMap(){
+  const total = DOSSIER.folios;
+  const W = 1000, H = 78, Y = 40, BAR = 17;
+
+  const segments = MODULES.map(m => {
+    const [a, b] = String(m.folios).split(/[–-]/).map(n => parseInt(n, 10));
+    return {m, x:(a - 1) / total * W, w:(b - a + 1) / total * W, state:worstState(m)};
+  });
+
+  const marks = [];
+  for(const f of FINDINGS){
+    for(const e of f.evidence){
+      const n = folioNumber(e.folio);
+      if(n) marks.push({n, f, e, x:(n - .5) / total * W});
+    }
+  }
+
+  $('#map').innerHTML = `
+    <svg viewBox="0 0 ${W} ${H}" role="img"
+         aria-label="Mapa de ${total} folios en cinco módulos con ${marks.length} anclas de evidencia">
+      ${segments.map(s => `
+        <rect x="${s.x.toFixed(1)}" y="${Y}" width="${(s.w - 2).toFixed(1)}" height="${BAR}"
+              rx="3" fill="${STATE_FILL[s.state]}" opacity=".85"></rect>
+        <text x="${(s.x + 4).toFixed(1)}" y="${Y - 8}" font-size="11" font-weight="700"
+              fill="var(--ink-2)" font-family="inherit">${esc(s.m.id)}</text>
+        <text x="${(s.x + 4).toFixed(1)}" y="${Y + BAR + 13}" font-size="9.5" fill="var(--ink-3)"
+              font-family="ui-monospace,Consolas,monospace">${esc(s.m.folios)}</text>`).join('')}
+      ${marks.map((k, i) => `
+        <g class="anchor" data-f="${esc(k.f.id)}" role="button" tabindex="0"
+           data-txt="${esc(k.e.source + ' · ' + k.e.folio + ' — ' + k.f.title)}"
+           aria-label="Folio ${k.n}, ${esc(k.e.source)}: ${esc(k.f.title)}">
+          <line x1="${k.x.toFixed(1)}" y1="${Y - 2}" x2="${k.x.toFixed(1)}" y2="${Y + BAR + 2}"
+                stroke="var(--panel)" stroke-width="1" opacity=".55"></line>
+          <circle class="pulse" cx="${k.x.toFixed(1)}" cy="${Y - 9}" r="${k.f.severity === 'critical' ? 5 : 4}"
+                  fill="${k.f.severity === 'critical' ? 'var(--red)' : 'var(--amber)'}"
+                  style="animation-delay:${(i * .18).toFixed(2)}s"></circle>
+          <circle class="hit" cx="${k.x.toFixed(1)}" cy="${Y - 4}" r="22"></circle>
+        </g>`).join('')}
+    </svg>
+    <div class="tip" id="tip" role="status"></div>`;
+  $('#mapNote').textContent = `${total} folios · ${marks.length} anclas`;
+})();
+
+/* ---------- module pipeline ---------- */
+(function pipeline(){
+  $('#pipe').innerHTML = MODULES.map(m => {
+    const alert = m.documents.some(d => d.state === 'omission' || d.state === 'missing');
+    return `<span class="node${alert ? ' alert' : ''}" title="${esc(m.title)}">${esc(m.id)}</span>`;
+  }).join('<span class="arrow" aria-hidden="true">›</span>') +
+    '<span class="flow-track" aria-hidden="true"><i class="fp"></i><i class="fp d2"></i><i class="fp d3"></i></span>';
+})();
+
+/* ---------- document tree ---------- */
+$('#tree').innerHTML = MODULES.map(m => `
   <section class="mod">
     <div class="mod-h">
       <span class="id">${esc(m.id)}</span>
-      <span class="t">${esc(m.titulo)}</span>
+      <span class="t">${esc(m.title)}</span>
       <span class="f mono">${esc(m.folios)}</span>
     </div>
-    <div class="mod-q">${esc(m.pregunta)}</div>
-    ${m.documentos.map(d => `
-      <div class="doc ${d.estado==='ausente'?'ausente':''}" data-doc="${esc(d.id)}"
-           data-hall="${(d.hallazgos||[]).join(',')}">
-        <span class="pt ${ESTADOS[d.estado].color}">${ESTADOS[d.estado].icono}</span>
-        <span class="nm" title="${esc(d.nombre)}">${esc(d.nombre)}</span>
-        <span class="fo mono">${esc(d.folios)}</span>
-      </div>`).join('')}
+    ${m.documents.map(d => {
+      const n = (d.findings || []).length;
+      const st = STATES[d.state];
+      return `
+      <button type="button" class="doc ${d.state === 'missing' ? 'missing' : ''}" aria-pressed="false"
+              data-find="${(d.findings || []).join(',')}" title="${esc(d.name)} — ${esc(st.label)}">
+        <span class="dot ${st.color}" aria-hidden="true">${st.icon}</span>
+        <span class="name">${esc(d.name)}</span>
+        ${n ? `<span class="count">${n}</span>` : ''}
+        <span class="folios mono">${esc(d.folios)}</span>
+        <span class="sr">${esc(st.label)}${n ? ` · ${n} hallazgo${n > 1 ? 's' : ''}` : ''}</span>
+      </button>`;
+    }).join('')}
   </section>`).join('');
 
-/* ---------- vistas ---------- */
-function vistaHallazgos(){
-  const areas = `
-    <div class="areas">
-      ${[['Legal','legal'],['Calidad','calidad'],['Farmacología','farmacologia']].map(([n,k])=>`
-        <div class="area">
-          <div class="nm">${n}</div>
-          <div class="pc" style="color:${colorPct(P[k])}">${P[k]}%</div>
-          <div class="peso">Peso ${Math.round(PESOS[k]*100)}% del índice global</div>
-          <div class="bar"><i style="width:${P[k]}%;background:${colorPct(P[k])}"></i></div>
-        </div>`).join('')}
+/* ---------- contradiction arc ---------- */
+/* Two folios that cannot both be true, drawn as what they are: two points of the
+   same dossier joined by an arc. The graphic is the finding, not decoration. */
+function contradictionArc(finding){
+  const total = DOSSIER.folios;
+  const pts = finding.evidence.map(e => ({e, n:folioNumber(e.folio)})).filter(p => p.n);
+  if(pts.length < 2) return '';
+
+  const W = 640, H = 92, BASE = 74, PAD = 26;
+  const x = n => PAD + (n - 1) / total * (W - PAD * 2);
+  const ordered = [...pts].sort((a, b) => a.n - b.n);
+  const anchor  = ordered[0];
+
+  const arcs = ordered.slice(1).map(pt => {
+    const x1 = x(anchor.n), x2 = x(pt.n);
+    const top = BASE - 14 - Math.min(46, Math.abs(x2 - x1) * .18);
+    return `<path class="link" d="M ${x1.toFixed(1)} ${BASE - 9} Q ${((x1 + x2) / 2).toFixed(1)} ${top.toFixed(1)} ${x2.toFixed(1)} ${BASE - 9}"></path>`;
+  }).join('');
+
+  const dots = ordered.map(pt => {
+    const ink = MOD_INK[pt.e.module] || 'var(--accent-fill)';
+    return `
+    <g>
+      <circle cx="${x(pt.n).toFixed(1)}" cy="${BASE - 9}" r="4.5" fill="${ink}"></circle>
+      <text class="mod-label" x="${x(pt.n).toFixed(1)}" y="${BASE + 11}" text-anchor="middle"
+            fill="${ink}">${esc(pt.e.module)}</text>
+      <text x="${x(pt.n).toFixed(1)}" y="${BASE + 22}" text-anchor="middle">f.${pt.n}</text>
+    </g>`;
+  }).join('');
+
+  return `
+    <div class="arc-wrap">
+      <svg class="arc" viewBox="0 0 ${W} ${H}" role="img"
+           aria-label="Los folios ${ordered.map(pt => pt.n).join(', ')} del expediente se contradicen entre sí">
+        <line x1="${PAD}" y1="${BASE - 9}" x2="${W - PAD}" y2="${BASE - 9}"
+              stroke="var(--line)" stroke-width="1.5"></line>
+        <text x="${PAD}" y="${BASE + 22}" text-anchor="middle" opacity=".55">1</text>
+        <text x="${W - PAD}" y="${BASE + 22}" text-anchor="middle" opacity=".55">${total}</text>
+        ${arcs}${dots}
+      </svg>
+    </div>`;
+}
+
+/* ---------- summary screen ---------- */
+function renderSummary(){
+  const tiles = [
+    {n:DOSSIER.folios,   cap:'Folios',    ico:'▤', hot:false},
+    {n:FINDINGS.length,  cap:'Hallazgos', ico:'⚑', hot:false},
+    {n:nCritical,        cap:'Críticos',  ico:'■', hot:nCritical > 0},
+    {n:anchors,          cap:'Anclas',    ico:'❝', hot:false},
+  ].map(t => `
+    <div class="tile reveal-item${t.hot ? ' hot' : ''}">
+      <span class="ico" aria-hidden="true">${t.ico}</span>
+      <div><div class="big" data-n="${t.n}">${t.n}</div><div class="cap">${t.cap}</div></div>
+    </div>`).join('');
+
+  const donuts = ['legal','quality','pharmacology'].map(k => `
+    <div class="donut">
+      <div class="ring">
+        <svg viewBox="0 0 76 76" role="img" aria-label="${AREA_LABEL[k]}: ${S[k]} por ciento">
+          <circle class="bg" cx="38" cy="38" r="32"></circle>
+          <circle class="fg" cx="38" cy="38" r="32" data-pct="${S[k]}" style="stroke:${pctFill(S[k])}"></circle>
+        </svg>
+        <span class="num" style="color:${pctInk(S[k])}">${S[k]}%</span>
+      </div>
+      <div class="lb">${AREA_LABEL[k]}</div>
+      <div class="wt">peso ${Math.round(WEIGHTS[k] * 100)}%</div>
+    </div>`).join('');
+
+  const heat = MODULES.map(m => `
+    <div class="heat-row">
+      <span class="mid">${esc(m.id)}</span>
+      <div class="heat-cells">
+        ${m.documents.map(d => {
+          const st = STATES[d.state];
+          const ids = (d.findings || []).join(',');
+          return `<button type="button" class="cell${ids ? ' act' : ''}" data-find="${ids}"
+                    style="background:${STATE_FILL[d.state]}"
+                    aria-label="${esc(d.name)}: ${esc(st.label)}"
+                    title="${esc(d.name)} — ${esc(st.label)}">
+                    <span aria-hidden="true">${ids ? st.icon : ''}</span></button>`;
+        }).join('')}
+      </div>
+    </div>`).join('');
+
+  const legend = ['compliant','remediable','omission','missing'].map(k =>
+    `<span><i style="background:${STATE_FILL[k]}"></i>${STATES[k].label}</span>`).join('');
+
+  const pcCrit = Math.round(nCritical / FINDINGS.length * 100);
+  const split = `
+    <div class="split" role="img"
+         aria-label="${nCritical} hallazgos críticos y ${nMinor} menores">
+      <i class="crit" style="width:${pcCrit}%">${nCritical} críticos</i>
+      <i class="min" style="width:${100 - pcCrit}%">${nMinor} menores</i>
     </div>`;
 
-  const cards = HALLAZGOS.map(h => {
-    const prec = h.precedente ? precedentePorId(h.precedente) : null;
-    return `
-    <article class="card" id="c-${h.id}">
-      <div class="card-h" data-t="c-${h.id}">
-        <span class="sev ${h.severidad}">${h.severidad === 'critico' ? 'Crítico' : 'Menor'}</span>
-        <div class="tt"><h3>${esc(h.titulo)}</h3><p>${esc(h.respuesta)}</p></div>
-        <span class="chev">▶</span>
+  const chips = FINDINGS.map(f => `
+    <button type="button" class="find-chip ${f.severity}" data-find="${esc(f.id)}">
+      <span class="g" aria-hidden="true">${SEV_GLYPH[f.severity]}</span>
+      <span class="tx">${esc(f.title)}</span>
+      <span class="cl">${esc(clashLabel(f))}</span>
+      <span class="go" aria-hidden="true">›</span>
+      <span class="sr">${SEV_LABEL[f.severity]} — ampliar</span>
+    </button>`).join('');
+
+  $('#screenSummary').innerHTML = `
+    <div class="tiles">${tiles}</div>
+    <div class="cols2">
+      <section class="panel reveal-item"><h3>Rigor por área</h3><div class="donuts">${donuts}</div></section>
+      <section class="panel reveal-item"><h3>Estado por documento</h3>
+        <div class="heat">${heat}</div>
+        <div class="legend-inline">${legend}</div>
+      </section>
+    </div>
+    <section class="panel reveal-item" style="margin-bottom:14px">
+      <h3>Severidad</h3>${split}
+    </section>
+    <section class="gfx">
+      <div class="gfx-h"><h2>Qué hay que mirar</h2><span class="note">pulsa para ampliar</span></div>
+      <div class="chips-find">${chips}</div>
+    </section>
+    <section class="gfx">
+      <div class="gfx-h"><h2>Gráficos</h2><span class="note">espacio reservado</span></div>
+      <div class="gfx-grid">
+        <div class="gfx-slot"><b>Slot 1</b>Gráfico por definir.</div>
+        <div class="gfx-slot"><b>Slot 2</b>Gráfico por definir.</div>
+        <div class="gfx-slot"><b>Slot 3</b>Gráfico por definir.</div>
       </div>
-      <div class="card-b">
-        <div class="campo"><div class="k">Evidencia</div><div class="v">
-          ${h.evidencia.map(e => `
+    </section>`;
+
+  $$('#screenSummary .donut .fg').forEach(c => fillRing(c, +c.dataset.pct, 32));
+  $$('#screenSummary .split i').forEach(i => animateWidth(i, i.style.width));
+  $$('#screenSummary .tile .big').forEach(n => countUp(n, +n.dataset.n, v => String(Math.round(v))));
+}
+
+/* ---------- detail screen ---------- */
+let severityFilter = 'all';
+
+function viewFindings(){
+  const filters = `
+    <div class="filters" role="group" aria-label="Filtrar hallazgos por severidad">
+      <span class="label">Filtrar</span>
+      <button type="button" class="chip" data-sev="all" aria-pressed="${severityFilter === 'all'}">
+        Todos <b>${FINDINGS.length}</b></button>
+      <button type="button" class="chip" data-sev="critical" aria-pressed="${severityFilter === 'critical'}">
+        <span class="dot red" aria-hidden="true">■</span> Críticos <b>${nCritical}</b></button>
+      <button type="button" class="chip" data-sev="minor" aria-pressed="${severityFilter === 'minor'}">
+        <span class="dot amber" aria-hidden="true">▲</span> Menores <b>${nMinor}</b></button>
+    </div>`;
+
+  const list = FINDINGS.filter(f => severityFilter === 'all' || f.severity === severityFilter);
+  if(!list.length) return filters + '<p class="empty">Ningún hallazgo con ese filtro.</p>';
+
+  const cards = list.map(f => {
+    const prec  = f.precedent ? precedentById(f.precedent) : null;
+    const level = CONF_LEVEL[f.confidence] || 1;
+    const ink   = f.confidence === 'high' ? 'var(--green)' : 'var(--amber)';
+    return `
+    <article class="card reveal-item ${f.severity}" id="c-${esc(f.id)}">
+      <button type="button" class="card-h" aria-expanded="false" aria-controls="b-${esc(f.id)}">
+        <span class="sev ${f.severity}">
+          <span aria-hidden="true">${SEV_GLYPH[f.severity]}</span> ${SEV_LABEL[f.severity]}</span>
+        <span class="tt"><h3>${esc(f.title)}</h3></span>
+        <span class="folios mono">${esc(clashLabel(f))}</span>
+        <span class="chev" aria-hidden="true">▶</span>
+      </button>
+      <div class="card-b" id="b-${esc(f.id)}" hidden>
+        <div class="field"><div class="k">Qué pasa</div><div class="v">${esc(f.answer)}</div></div>
+        <div class="field"><div class="k">Dónde se contradice</div>
+          <div class="v">${contradictionArc(f)}</div></div>
+        <div class="field"><div class="k">Evidencia</div><div class="v">
+          ${f.evidence.map(e => `
             <div class="ev">
-              <q>${esc(e.texto)}</q>
+              <q>${esc(e.text)}</q>
               <div class="src">
-                <span class="b mono">${esc(e.modulo)}</span>
-                <span class="mono">${esc(e.fuente)}</span>
-                <span>·</span><span>${esc(e.folio)}</span>
+                <span class="b mono">${esc(e.module)}</span>
+                <span class="mono">${esc(e.source)}</span>
+                <span aria-hidden="true">·</span><span>${esc(e.folio)}</span>
               </div>
             </div>`).join('')}
         </div></div>
-        <div class="campo"><div class="k">Ubicación exacta</div>
-          <div class="v"><div class="ruta mono">${esc(h.ubicacion)}</div></div></div>
-        <div class="campo"><div class="k">Versión</div><div class="v tenue mono">${esc(h.version)}</div></div>
-        <div class="campo"><div class="k">Nivel de confianza</div>
-          <div class="v"><div class="conf"><span class="lvl ${esc(h.confianza)}">${esc(h.confianza)}</span></div>
-          <div style="margin-top:4px;color:var(--ink-2);font-size:13px">${esc(h.confianzaNota)}</div></div></div>
-        <div class="campo"><div class="k">Contradicciones</div><div class="v tenue">${esc(h.contradicciones)}</div></div>
-        <div class="campo"><div class="k">Información faltante</div><div class="v tenue">${esc(h.faltante)}</div></div>
-        <div class="campo"><div class="k">Limitaciones</div><div class="v tenue">${esc(h.limitaciones)}</div></div>
+        <div class="field"><div class="k">Ubicación exacta</div>
+          <div class="v"><div class="path-line mono">${esc(f.location)}</div></div></div>
+        <div class="field"><div class="k">Versión</div><div class="v dim mono">${esc(f.version)}</div></div>
+        <div class="field"><div class="k">Nivel de confianza</div>
+          <div class="v">
+            <div class="conf">
+              <span class="lvl ${f.confidence}">${CONF_LABEL[f.confidence]}</span>
+              <span class="conf-bars" aria-hidden="true" style="color:${ink}">
+                ${[1,2,3].map(i => `<i class="${i <= level ? 'on' : ''}"></i>`).join('')}
+              </span>
+            </div>
+            <div class="dim" style="margin-top:5px;font-size:13px">${esc(f.confidenceNote)}</div>
+          </div></div>
+        <div class="field"><div class="k">Contradicciones</div><div class="v dim">${esc(f.contradictions)}</div></div>
+        <div class="field"><div class="k">Información faltante</div><div class="v dim">${esc(f.missingInfo)}</div></div>
+        <div class="field"><div class="k">Limitaciones</div><div class="v dim">${esc(f.limitations)}</div></div>
         ${prec ? `
-        <div class="campo"><div class="k">Precedente de Sala aplicable</div><div class="v">
-          <div class="ev" style="border-left-color:var(--verde)">
-            <q>${esc(prec.leccion)}</q>
-            <div class="src"><span class="b mono">${esc(prec.producto)}</span><span>·</span>
-            <span>${esc(prec.acta)}</span></div>
+        <div class="field"><div class="k">Precedente aplicable</div><div class="v">
+          <div class="ev" style="border-left-color:var(--green-fill)">
+            <q>${esc(prec.lesson)}</q>
+            <div class="src"><span class="b mono">${esc(prec.product)}</span>
+            <span aria-hidden="true">·</span><span>${esc(prec.minutes)}</span></div>
           </div></div></div>` : ''}
-        <div class="accion">
+        <div class="action">
           <div class="k">Siguiente acción sugerida</div>
-          <div class="v">${esc(h.accion)}</div>
+          <div class="v">${esc(f.action)}</div>
         </div>
-        <div class="nota-humana">
-          <span>◆</span>
-          <span>Sugerencia para revisión. El sistema no califica cumplimiento ni propone el sentido
-          de la decisión: la valoración y la firma corresponden al evaluador competente.</span>
+        <div class="human-note">
+          <span aria-hidden="true">◆</span>
+          <span>Sugerencia para revisión. La valoración y la firma son del evaluador competente.</span>
         </div>
       </div>
     </article>`;
   }).join('');
-  return areas + cards;
+  return filters + cards;
 }
 
-function vistaAprobado(){
-  const folios = YA_APROBADO
-    .map(y => parseInt(y.ahorro, 10))
-    .filter(n => !isNaN(n))
-    .reduce((a,b) => a+b, 0);
+function viewCleared(){
+  const folios = CLEARED.map(c => parseInt(c.saved, 10))
+    .filter(n => !isNaN(n)).reduce((a, b) => a + b, 0);
+  const covered = Math.round(folios / DOSSIER.folios * 100);
   const head = `
-    <div class="ahorro">
-      <strong>${folios} de ${EXPEDIENTE.folios} folios</strong> corresponden a tramos sin hallazgos de
-      coherencia entre módulos. Se listan aquí para que la revisión empiece por lo que sí tiene
-      discrepancias, no para darlos por aprobados: el concepto sigue siendo del evaluador.
-    </div>`;
-  return head + YA_APROBADO.map(y => {
-    const prec = y.precedente ? precedentePorId(y.precedente) : null;
-    return `
-    <article class="card open">
-      <div class="card-h" style="cursor:default">
-        <span class="sev ${y.razon === 'precedente' ? 'ref' : 'ok'}">
-          ${y.razon === 'precedente' ? 'Precedente' : 'Sin hallazgos'}</span>
-        <div class="tt">
-          <h3>${esc(y.ambito)}</h3>
-          <p>${esc(y.detalle)}</p>
-        </div>
-        <span class="fo mono" style="color:var(--ink-3);font-size:11.5px">${esc(y.ahorro)}</span>
+    <div class="summary reveal-item">
+      <strong>${folios} de ${DOSSIER.folios} folios</strong> sin hallazgos de coherencia entre
+      módulos. No están aprobados: el concepto sigue siendo del evaluador.
+      <div class="bar" style="margin-top:11px">
+        <i data-w="${covered}%" style="width:${covered}%;background:var(--green-fill)"></i>
       </div>
-      ${prec ? `<div class="card-b" style="display:block">
-        <div class="campo"><div class="k">Concepto previo de la Sala</div>
-        <div class="v tenue">${esc(prec.concepto)}</div></div></div>` : ''}
+    </div>`;
+  return head + CLEARED.map(c => {
+    const prec   = c.precedent ? precedentById(c.precedent) : null;
+    const isPrec = c.reason === 'precedent';
+    return `
+    <article class="card reveal-item">
+      <div class="card-h">
+        <span class="sev ${isPrec ? 'ref' : 'ok'}">
+          <span aria-hidden="true">${isPrec ? '◇' : '●'}</span> ${isPrec ? 'Precedente' : 'Sin hallazgos'}</span>
+        <span class="tt"><h3>${esc(c.scope)}</h3><p>${esc(c.detail)}</p></span>
+        <span class="folios mono">${esc(c.saved)}</span>
+      </div>
+      ${prec ? `<div class="card-b">
+        <div class="field"><div class="k">Concepto previo de la Sala</div>
+        <div class="v dim">${esc(prec.opinion)}</div></div></div>` : ''}
     </article>`;
   }).join('');
 }
 
-function vistaPrecedentes(){
-  return `<div class="ahorro" style="background:var(--azul-bg);border-color:color-mix(in srgb,var(--azul) 24%,transparent)">
-    Conceptos previos de la Sala Especializada sobre productos comparables, tomados del
-    <strong>Acta No. 04 de 2026 SEMPB</strong>. Responden a la primera tarea manual del proceso:
-    buscar conceptos previos y productos similares antes de armar la agenda.
-  </div>` + PRECEDENTES.map(p => `
-    <article class="card open">
-      <div class="card-h" style="cursor:default">
-        <span class="sev ${p.relacion === 'contraste' ? 'critico' : 'ref'}">
-          ${p.relacion === 'contraste' ? 'Contraste' : 'Referencia'}</span>
-        <div class="tt"><h3>${esc(p.producto)}</h3><p>${esc(p.porQue)}</p></div>
+function viewPrecedents(){
+  return PRECEDENTS.map(p => {
+    const contrast = p.relation === 'contrast';
+    return `
+    <article class="card reveal-item">
+      <div class="card-h">
+        <span class="sev ${contrast ? 'critical' : 'ref'}">
+          <span aria-hidden="true">${contrast ? '⇄' : '◇'}</span> ${contrast ? 'Contraste' : 'Referencia'}</span>
+        <span class="tt"><h3>${esc(p.product)}</h3><p>${esc(p.why)}</p></span>
       </div>
-      <div class="card-b" style="display:block">
-        <table class="prec">
-          <tr><td>Similitud</td><td>${esc(p.similitud)}</td></tr>
-          ${p.expediente !== '—' ? `<tr><td>Expediente</td><td class="mono">${esc(p.expediente)}</td></tr>
-          <tr><td>Radicado</td><td class="mono">${esc(p.radicado)}</td></tr>
-          <tr><td>Fecha</td><td>${esc(p.fecha)}</td></tr>
-          <tr><td>Interesado</td><td>${esc(p.interesado)}</td></tr>` : ''}
-          <tr><td>Fuente</td><td>${esc(p.acta)}</td></tr>
-          <tr><td>Concepto</td><td>${esc(p.concepto)}</td></tr>
-          <tr><td>Lectura</td><td><strong>${esc(p.leccion)}</strong></td></tr>
-        </table>
+      <div class="card-b">
+        <table class="prec"><tbody>
+          <tr><td>Similitud</td><td>${esc(p.similarity)}</td></tr>
+          ${p.fileNumber !== '—' ? `
+          <tr><td>Expediente</td><td class="mono">${esc(p.fileNumber)}</td></tr>
+          <tr><td>Radicado</td><td class="mono">${esc(p.filing)}</td></tr>
+          <tr><td>Fecha</td><td>${esc(p.date)}</td></tr>
+          <tr><td>Interesado</td><td>${esc(p.party)}</td></tr>` : ''}
+          <tr><td>Fuente</td><td>${esc(p.minutes)}</td></tr>
+          <tr><td>Concepto</td><td>${esc(p.opinion)}</td></tr>
+          <tr><td>Lectura</td><td><strong>${esc(p.lesson)}</strong></td></tr>
+        </tbody></table>
       </div>
-    </article>`).join('');
+    </article>`;
+  }).join('');
 }
 
-const VISTAS = {hallazgos:vistaHallazgos, aprobado:vistaAprobado, precedentes:vistaPrecedentes};
-function render(v){ $('#vista').innerHTML = VISTAS[v](); }
+const VIEWS = {findings:viewFindings, cleared:viewCleared, precedents:viewPrecedents};
+let currentView = 'findings';
 
-$('#cH').textContent = HALLAZGOS.length;
-$('#cA').textContent = YA_APROBADO.length;
-$('#cP').textContent = PRECEDENTES.length;
-render('hallazgos');
+function render(v){
+  currentView = v;
+  const box = $('#view');
+  box.innerHTML = VIEWS[v]();
+  box.setAttribute('aria-labelledby', 'tab-' + v);
+  $$('#view .bar i').forEach(i => animateWidth(i, i.dataset.w || i.style.width));
+}
 
-/* ---------- interacción ---------- */
+$('#cH').textContent = FINDINGS.length;
+$('#cA').textContent = CLEARED.length;
+$('#cP').textContent = PRECEDENTS.length;
+
+/* The class that introduces the initial animation state is added here, never in
+   the HTML: if this script fails there is nothing dimmed left to repair. */
+if(!lessMotion()) document.body.classList.add('anim');
+renderSummary();
+render('findings');
+
+/* ---------- screens, tabs, cards ---------- */
+let currentScreen = 'summary';
+
+function showScreen(name){
+  currentScreen = name;
+  $$('.screens button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.s === name)));
+  $('#screenSummary').hidden = name !== 'summary';
+  $('#screenDetail').hidden  = name !== 'detail';
+}
+
+function selectTab(tab){
+  $$('.tab').forEach(t => t.setAttribute('aria-selected', String(t === tab)));
+  render(tab.dataset.v);
+}
+
+function openFinding(id){
+  const f = findingById(id);
+  if(f && severityFilter !== 'all' && f.severity !== severityFilter) severityFilter = 'all';
+  showScreen('detail');
+  if(currentView !== 'findings') selectTab($('#tab-findings'));
+  else render('findings');
+
+  const card = document.getElementById('c-' + id);
+  if(!card) return;
+  const head = card.querySelector('.card-h');
+  const body = card.querySelector('.card-b');
+  head.setAttribute('aria-expanded', 'true');
+  body.hidden = false;
+  $$('.arc path.link', body).forEach(drawIn);
+  card.scrollIntoView({behavior: lessMotion() ? 'auto' : 'smooth', block:'center'});
+  head.focus();
+}
+
 document.addEventListener('click', e => {
+  const scr = e.target.closest('.screens button');
+  if(scr){ showScreen(scr.dataset.s); return; }
+
   const tab = e.target.closest('.tab');
-  if(tab){
-    document.querySelectorAll('.tab').forEach(t => t.classList.toggle('on', t === tab));
-    render(tab.dataset.v);
+  if(tab){ selectTab(tab); return; }
+
+  const chip = e.target.closest('.chip');
+  if(chip){ severityFilter = chip.dataset.sev; render('findings'); return; }
+
+  const head = e.target.closest('button.card-h');
+  if(head){
+    const open = head.getAttribute('aria-expanded') === 'true';
+    head.setAttribute('aria-expanded', String(!open));
+    const body = document.getElementById(head.getAttribute('aria-controls'));
+    if(body){
+      body.hidden = open;
+      if(!open) $$('.arc path.link', body).forEach(drawIn);
+    }
     return;
   }
-  const cab = e.target.closest('.card-h[data-t]');
-  if(cab){ document.getElementById(cab.dataset.t).classList.toggle('open'); return; }
 
-  const doc = e.target.closest('.doc');
-  if(doc){
-    document.querySelectorAll('.doc').forEach(d => d.classList.toggle('sel', d === doc));
-    const ids = (doc.dataset.hall || '').split(',').filter(Boolean);
-    if(!ids.length) return;
-    document.querySelectorAll('.tab').forEach(t => t.classList.toggle('on', t.dataset.v === 'hallazgos'));
-    render('hallazgos');
-    const card = document.getElementById('c-' + ids[0]);
-    if(card){
-      card.classList.add('open');
-      card.scrollIntoView({behavior:'smooth', block:'center'});
-    }
+  const jump = e.target.closest('[data-find]');
+  if(jump){
+    const ids = (jump.dataset.find || '').split(',').filter(Boolean);
+    if(jump.classList.contains('doc')) $$('.doc').forEach(d => d.setAttribute('aria-pressed', String(d === jump)));
+    if(ids.length) openFinding(ids[0]);
+    return;
+  }
+
+  const anchor = e.target.closest('.anchor');
+  if(anchor) openFinding(anchor.dataset.f);
+});
+
+document.addEventListener('keydown', e => {
+  /* Escape is checked before the target guard: it must work even when focus
+     sits on the document itself, where `closest` does not exist. */
+  if(e.key === 'Escape'){ closePanels(); return; }
+
+  const t = e.target;
+  if(!t || !t.closest) return;
+
+  const anchor = t.closest('.anchor');
+  if(anchor && (e.key === 'Enter' || e.key === ' ')){
+    e.preventDefault(); openFinding(anchor.dataset.f); return;
+  }
+  const strip = t.closest('.tab') || t.closest('.screens button');
+  if(strip && (e.key === 'ArrowRight' || e.key === 'ArrowLeft')){
+    e.preventDefault();
+    const group = $$(t.closest('.tabs') ? '.tab' : '.screens button');
+    const i = group.indexOf(strip);
+    const next = group[(i + (e.key === 'ArrowRight' ? 1 : group.length - 1)) % group.length];
+    next.focus();
+    if(next.classList.contains('tab')) selectTab(next); else showScreen(next.dataset.s);
   }
 });
 
-$('#tema').addEventListener('click', () => {
-  const dark = matchMedia('(prefers-color-scheme:dark)').matches;
-  const cur = document.documentElement.getAttribute('data-theme') || (dark ? 'dark' : 'light');
-  document.documentElement.setAttribute('data-theme', cur === 'dark' ? 'light' : 'dark');
+/* Map tooltip: progressive enhancement over the aria-label already on every
+   anchor, never the only way to read the folio. */
+(function mapTooltip(){
+  const box = $('#map'), tip = $('#tip');
+  if(!box || !tip) return;
+  const show = (el, clientX, clientY) => {
+    tip.textContent = el.dataset.txt;
+    tip.classList.add('on');
+    const r = box.getBoundingClientRect();
+    tip.style.left = Math.min(Math.max(clientX - r.left + 12, 4),
+                              Math.max(4, r.width - tip.offsetWidth - 4)) + 'px';
+    tip.style.top  = Math.max(2, clientY - r.top - tip.offsetHeight - 12) + 'px';
+  };
+  box.addEventListener('mousemove', e => {
+    const a = e.target.closest('.anchor');
+    if(a) show(a, e.clientX, e.clientY); else tip.classList.remove('on');
+  });
+  box.addEventListener('mouseleave', () => tip.classList.remove('on'));
+  box.addEventListener('focusin', e => {
+    const a = e.target.closest('.anchor');
+    if(!a) return;
+    const r = a.getBoundingClientRect();
+    show(a, r.left + r.width / 2, r.top);
+  });
+  box.addEventListener('focusout', () => tip.classList.remove('on'));
+})();
+
+/* ---------- side panels ---------- */
+/* One class per panel flips it away from its default, and the default itself is
+   a CSS decision: rail open above 1020px, dock open above 1380px. aria-expanded
+   is read back from layout so it stays true at every width. */
+const app = $('#app');
+
+/* Docked or drawer is a CSS decision, read back here through `position`: sticky
+   means the panel is docked and the class hides it, fixed means it is a drawer
+   and the class reveals it. Measuring rectangles instead would race the slide. */
+function syncPanel(btn, el, cls){
+  const drawer = getComputedStyle(el).position === 'fixed';
+  const flipped = app.classList.contains(cls);
+  btn.setAttribute('aria-expanded', String(drawer ? flipped : !flipped));
+}
+function syncAll(){
+  syncPanel($('#railToggle'), $('#sidebar'), 'rail-toggled');
+  syncPanel($('#chatToggle'), $('#chat'), 'chat-toggled');
+}
+function closePanels(){
+  app.classList.remove('rail-toggled', 'chat-toggled');
+  syncAll();
+}
+
+$('#railToggle').addEventListener('click', () => { app.classList.toggle('rail-toggled'); syncAll(); });
+$('#chatToggle').addEventListener('click', () => { app.classList.toggle('chat-toggled'); syncAll(); });
+$('#scrim').addEventListener('click', closePanels);
+addEventListener('resize', syncAll);
+syncAll();
+
+/* localStorage throws under some file:// policies, so both sides are wrapped. */
+$('#theme').addEventListener('click', () => {
+  const systemDark = matchMedia('(prefers-color-scheme:dark)').matches;
+  const current = document.documentElement.getAttribute('data-theme') || (systemDark ? 'dark' : 'light');
+  const next = current === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  try{ localStorage.setItem('theme', next); }catch(_){}
 });
+try{
+  const saved = localStorage.getItem('theme');
+  if(saved) document.documentElement.setAttribute('data-theme', saved);
+}catch(_){}
 </script>
 </body>
 </html>

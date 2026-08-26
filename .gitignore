@@ -1,3 +1,9 @@
 .claude
 /descubrimientos
-/docs 
+
+/reference
+/docs
+.env
+.env.*
+
+.worktreeinclude
