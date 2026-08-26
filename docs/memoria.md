@@ -481,3 +481,28 @@ vivo que el de dejarlo documentado como pendiente. El árbol M1–M8 tampoco se 
 recuperados asumen un archivo que no está en este checkout, y adivinar su forma es más caro que no
 tenerlo. Detalle completo, con lo que sí se verificó en navegador, en
 [verificacion.md §5.10](verificacion.md).
+
+### 2026-08-26, 14:24 (el árbol M1–M8 que tres sesiones no llegaron a construir, sale de los mismos datos)
+
+El usuario trajo `flujo_extraccion_validacion_M5_DALVANCE.md` —un pipeline de referencia sobre un
+Clinical Review real (DALVANCE, FDA)— pidiendo la interacción exacta que `generax-summit-84` había
+dejado a medio ensamblar por límite de cuota: abrir un módulo, entrar a un documento, saltar de ahí a
+dónde se extrajo el dato. Se tomó el patrón, no el contenido: DALVANCE es otra molécula, y su PDF real
+no se tocó ni se mezcló con el expediente CORAZILIMAB del reto.
+
+La construcción no necesitó ningún dato nuevo ni el archivo del motor que faltaba en este checkout
+(`motor/salida/expediente.json`, gitignored, solo en el worktree). `MODULES` y `FINDINGS` ya tenían
+todo: cada documento ya declaraba qué hallazgos lo citan, y cada hallazgo ya traía el folio y el texto
+exacto de su evidencia. La pestaña **Expediente** solo reagrupa esos mismos datos por documento en vez
+de por hallazgo, y reutiliza `openFinding()` para el salto — sin duplicar lógica.
+
+Una decisión explícita: no se embebió el PDF de DALVANCE ni los PDF reales de CORAZILIMAB. Lo que abre
+al elegir un documento es el fragmento citado que el motor ya extrajo, con su folio — la misma
+evidencia que ya se veía en una tarjeta de hallazgo, mirada desde el documento en vez de desde el
+hallazgo. Redistribuir el PDF del organizador en el repo público sigue siendo el riesgo abierto de
+[verificacion.md §7.6](verificacion.md), no algo que este cambio debía resolver.
+
+Verificado en navegador: `Expediente → M5 → Fase III pivotal → fragmento` salta a la tarjeta H1 en
+Detalle, expandida y con foco. Un estudio declarado y no aportado (`CRZ-HAP-501`) muestra el mensaje
+correcto: no hay folio que abrir, la ausencia es la evidencia. Detalle completo en
+[verificacion.md §5.11](verificacion.md).

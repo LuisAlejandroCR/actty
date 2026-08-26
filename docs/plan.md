@@ -242,6 +242,7 @@ Medidas en [verificacion.md](verificacion.md) §6.
 | Prueba de inyección con folio envenenado | ✅ 0 afirmaciones del atacante en evidencia |
 | Checklist puesta por el sistema | ⏳ `resolverItem` está escrito pero **no ejercido** en el caso demo |
 | Pantalla del registro (qué entró, qué salió, quién revisó) | ✅ 2026-08-26 14:08, pestaña Huella en `prototipo/index.html` |
+| Árbol del expediente: módulo → documento → fragmento extraído → hallazgo | ✅ 2026-08-26 14:24, pestaña Expediente. No es criterio explícito de B6; se construyó a pedido del usuario sobre `MODULES`/`FINDINGS` ya existentes — [verificacion.md](verificacion.md) §5.11 |
 
 **Lo que falta y no se puede fingir:** los folios corridos del prototipo hay que corregirlos antes de
 las 15:15, y la cifra de fiabilidad es 5/5 **sobre un caso**, no sobre el expediente. Ambas cosas se

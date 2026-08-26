@@ -640,6 +640,30 @@ button.card-h:hover{background:var(--panel-2)}
   .link .box{border-left-width:3px; border-radius:0 var(--radius) var(--radius) 0}
 }
 
+/* ---------- expediente tree: module -> document -> extracted fragment ---------- */
+.tree-panel{
+  background:var(--panel); border:1px solid var(--line); border-radius:var(--radius);
+  box-shadow:var(--shadow); padding:16px 18px; margin-bottom:16px; scroll-margin-top:16px;
+}
+.tree-hint{color:var(--ink-3); font-size:13px; margin:0}
+.tree-doc-h{display:flex; align-items:center; gap:9px; flex-wrap:wrap; margin-bottom:4px}
+.tree-doc-h h3{font-size:15px; margin:0}
+.tree-doc-meta{font-size:11.5px; color:var(--ink-3); margin-left:auto}
+.tree-missing{
+  font-size:13px; color:var(--ink-2); background:var(--grey-bg); border-radius:8px;
+  padding:10px 12px; margin-top:8px;
+}
+.tree-frags{margin-top:10px; display:flex; flex-direction:column; gap:8px}
+.frag{
+  display:block; width:100%; text-align:left; font:inherit; cursor:pointer;
+  background:var(--panel-2); border:1px solid var(--line-2); border-left:3px solid var(--accent-fill);
+  border-radius:0 8px 8px 0; padding:9px 12px; color:var(--ink);
+}
+.frag:hover{border-left-color:var(--accent-solid); background:var(--accent-bg)}
+.frag-q{display:block; font-size:13px; line-height:1.5}
+.frag-meta{display:block; font-size:11.5px; color:var(--ink-3); margin-top:4px}
+.tree-list .mod:last-child{border-bottom:none}
+
 /* ---------- aviso al administrado ---------- */
 .aviso-doc{
   max-width:72ch; margin:0 auto; background:var(--panel); border:1px solid var(--line);
@@ -803,6 +827,8 @@ table.prec td:first-child{
           <span aria-hidden="true">▦</span> Resumen</button>
         <button role="tab" id="scr-detail" aria-selected="false" aria-controls="content" data-s="detail">
           <span aria-hidden="true">☰</span> Detalle</button>
+        <button role="tab" id="scr-tree" aria-selected="false" aria-controls="content" data-s="tree">
+          <span aria-hidden="true">🗂</span> Expediente</button>
         <button role="tab" id="scr-trace" aria-selected="false" aria-controls="content" data-s="trace">
           <span aria-hidden="true">⛓</span> Huella</button>
         <button role="tab" id="scr-aviso" aria-selected="false" aria-controls="content" data-s="aviso">
@@ -861,6 +887,8 @@ table.prec td:first-child{
         </div>
         <div id="view" role="tabpanel" aria-labelledby="tab-findings"></div>
       </div>
+
+      <div id="screenTree" data-screen="tree" hidden></div>
 
       <div id="screenTrace" data-screen="trace" hidden></div>
 
@@ -2088,6 +2116,87 @@ function signReview(){
   renderTrace();
 }
 
+/* ---------- expediente tree: module -> document -> extracted fragment ---------- */
+/* Answers the request end to end: open M5, see its documents, open one and see
+   exactly the fragments the engine pulled from it, jump from a fragment to the
+   finding it supports. No PDF is embedded — the organiser's originals stay out
+   of the public repo (verificacion.md §7.6); a "page" here is the same quoted
+   text + folio the evaluator already sees in a finding's evidence list. */
+let selectedDoc = null;
+
+function docById(id){
+  for(const m of MODULES) for(const d of m.documents) if(d.id === id) return {m, d};
+  return null;
+}
+
+function fragmentsFor(docId){
+  const out = [];
+  for(const f of FINDINGS) for(const e of f.evidence) if(e.source === docId) out.push({finding: f, evidence: e});
+  return out;
+}
+
+function selectTreeDoc(id){
+  selectedDoc = id;
+  renderTree();
+  $('#treePanel').scrollIntoView({behavior: lessMotion() ? 'auto' : 'smooth', block:'start'});
+}
+
+function renderTreePanel(){
+  if(!selectedDoc){
+    return '<p class="tree-hint">Seleccione un documento del árbol para ver los fragmentos que el ' +
+           'motor extrajo de él y saltar al hallazgo donde se usó cada uno.</p>';
+  }
+  const hit = docById(selectedDoc);
+  if(!hit) return '';
+  const m = hit.m, d = hit.d, st = STATES[d.state];
+  const head = '<div class="tree-doc-h"><span class="dot ' + st.color + '">' + st.icon + '</span>' +
+    '<h3>' + esc(d.name) + '</h3>' +
+    '<span class="tree-doc-meta">' + esc(m.id) + ' · v' + esc(d.version) + ' · folios ' + esc(d.folios) + '</span></div>';
+
+  if(d.state === 'missing'){
+    const refs = (d.findings || []).map(esc).join(', ');
+    return head + '<p class="tree-missing">' + esc(m.id) + ' declara este estudio, pero <b>no fue ' +
+      'aportado</b> al expediente radicado: no hay folio que abrir. Esa ausencia es en sí misma la ' +
+      'evidencia del hallazgo ' + refs + '.</p>';
+  }
+
+  const frags = fragmentsFor(d.id);
+  const body = frags.length
+    ? '<div class="tree-frags">' + frags.map(({finding, evidence}) =>
+        '<button type="button" class="frag" data-find="' + esc(finding.id) + '">' +
+        '<span class="frag-q">' + esc(evidence.text) + '</span>' +
+        '<span class="frag-meta">' + esc(evidence.folio) +
+        (evidence.anchored === false ? ' · sin ancla, en cola humana' : '') +
+        ' · usado en «' + esc(finding.title) + '»</span>' +
+        '</button>'
+      ).join('') + '</div>'
+    : '<p class="tree-hint">Revisado. Ningún hallazgo cita un fragmento de este documento.</p>';
+  return head + body;
+}
+
+function renderTree(){
+  $('#screenTree').innerHTML =
+    '<div class="tree-panel" id="treePanel">' + renderTreePanel() + '</div>' +
+    '<div class="tree-list">' + MODULES.map(m =>
+      '<section class="mod">' +
+      '<div class="mod-h"><span class="id">' + esc(m.id) + '</span><span class="t">' + esc(m.title) + '</span>' +
+      '<span class="f mono">' + esc(m.folios) + '</span></div>' +
+      '<p class="mod-q">' + esc(m.question) + '</p>' +
+      m.documents.map(d => {
+        const n = (d.findings || []).length;
+        const st = STATES[d.state];
+        return '<button type="button" class="doc' + (d.state === 'missing' ? ' missing' : '') + '" ' +
+          'aria-pressed="' + (d.id === selectedDoc) + '" data-doc="' + esc(d.id) + '" ' +
+          'title="' + esc(d.name) + ' — ' + esc(st.label) + '">' +
+          '<span class="dot ' + st.color + '">' + st.icon + '</span>' +
+          '<span class="name">' + esc(d.name) + '</span>' +
+          (n ? '<span class="count">' + n + '</span>' : '') +
+          '<span class="folios mono">' + esc(d.folios) + '</span></button>';
+      }).join('') +
+      '</section>'
+    ).join('') + '</div>';
+}
+
 /* ---------- aviso al administrado ---------- */
 /* Generated from the same FINDINGS/DOSSIER data the evaluator sees — see
    docs/aviso-administrado.md for the wording rule (§5.4: no bare score without
@@ -2189,6 +2298,7 @@ function showScreen(name){
   currentScreen = name;
   $$('.screens button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.s === name)));
   $$('#content [data-screen]').forEach(el => { el.hidden = el.dataset.screen !== name; });
+  if(name === 'tree') renderTree();
   if(name === 'trace') renderTrace();
   if(name === 'aviso') renderAviso();
 }
@@ -2223,6 +2333,9 @@ document.addEventListener('click', e => {
   if(e.target.closest('#chainVerify')){ renderTrace(); return; }
   if(e.target.closest('#chainTamper')){ toggleTamper(); return; }
   if(e.target.closest('#signBtn')){ signReview(); return; }
+
+  const tdoc = e.target.closest('#screenTree .doc');
+  if(tdoc){ selectTreeDoc(tdoc.dataset.doc); return; }
 
   const tab = e.target.closest('.tab');
   if(tab){ selectTab(tab); return; }

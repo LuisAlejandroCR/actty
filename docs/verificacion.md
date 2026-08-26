@@ -645,6 +645,36 @@ abiertos:
    que no están en este checkout. Ensamblarlos a ciegas y sin ese archivo es más caro que no tenerlo.
    Queda fuera de esta pasada.
 
+### 5.11 Pantalla Expediente: módulo → documento → fragmento extraído, medida el 2026-08-26, 14:24
+
+El usuario aportó `flujo_extraccion_validacion_M5_DALVANCE.md` (pipeline de referencia sobre el
+Clinical Review real de DALVANCE, NDA 21883 FDA) como especificación de la interacción deseada: abrir
+un módulo, entrar a un documento y saltar desde ahí a dónde se extrajo cada dato. **No se usó el PDF
+de DALVANCE ni sus datos** — son de otra molécula, ajenos al expediente CORAZILIMAB del reto, y
+mezclarlos habría inventado evidencia. Se tomó solo el patrón de navegación.
+
+Tampoco se embebió ningún PDF real: los nueve PDF del organizador son material de terceros y no se
+redistribuyen en el repo público (riesgo ya anotado en §7.6). Lo que abre la pantalla al elegir un
+documento es exactamente el texto citado que el motor ya extrajo —los mismos `evidence[].text` y
+`folio` que muestra una tarjeta de hallazgo—, reagrupado por documento de origen en vez de por
+hallazgo.
+
+**Lo que se construyó**, reutilizando datos ya existentes (`MODULES`, `FINDINGS`), cero datos nuevos:
+
+1. Pestaña **Expediente**: lista M1–M5 con sus documentos (la misma información del árbol lateral,
+   ahora como pantalla completa).
+2. Click en un documento → panel con los fragmentos que el motor extrajo de él, cada uno con su folio
+   y el hallazgo donde se usó.
+3. Click en un fragmento → salta a **Detalle**, abre y hace scroll a la tarjeta del hallazgo — reutiliza
+   `openFinding()`, sin código nuevo para ese salto.
+4. Caso de estudio declarado y no aportado (p. ej. `CRZ-HAP-501`) → mensaje explícito: la ausencia
+   misma es la evidencia, no hay folio que abrir.
+
+Verificado con JavaScript en la página cargada: `#scr-tree` muestra 22 botones de documento; abrir
+`M5-03-PIVOTAL` lista 2 fragmentos con folio 149 y 140; hacer click en el primero deja `currentScreen
+=== 'detail'` y la tarjeta `#c-H1` con `aria-expanded="true"`. Sin errores de consola en las cinco
+pestañas. Repetido visualmente en el navegador.
+
 ## 6. Motor de evidencia — medido el 2026-08-26
 
 Código en `motor/`, worktree `motor-evidencia`. Node 24 sin dependencias, `pdftotext -layout` para
