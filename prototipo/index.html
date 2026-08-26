@@ -317,6 +317,21 @@ h1,h2,h3{margin:0; font-weight:660; letter-spacing:-.012em}
   border:1px dashed var(--line); border-radius:10px; padding:14px; text-align:center;
   font-size:12px; color:var(--ink-3); line-height:1.55;
 }
+.chat-h .st.on{background:var(--green-bg); color:var(--green)}
+.chat-h .st.off{background:var(--red-bg); color:var(--red)}
+/* An anchor is not decoration: it is the reason the sentence is allowed on
+   screen, so it carries the literal quote it was resolved from. */
+.msg .cites{margin-top:8px; padding-top:8px; border-top:1px solid var(--line-2); display:grid; gap:6px}
+.msg .cite{font-size:11.5px; line-height:1.45; color:var(--ink-2)}
+.msg .cite b{
+  display:inline-block; font-size:10px; font-weight:700; letter-spacing:.04em;
+  padding:1px 6px; border-radius:999px; background:var(--accent-bg); color:var(--accent);
+  margin-right:6px;
+}
+.msg .low{
+  margin-top:8px; font-size:11.5px; color:var(--amber); background:var(--amber-bg);
+  border-radius:8px; padding:6px 9px;
+}
 .chat-form{display:flex; gap:8px; padding:12px 15px; border-top:1px solid var(--line)}
 .chat-form input{
   flex:1; min-width:0; min-height:44px; padding:0 12px; font:inherit; font-size:13px;
@@ -679,6 +694,29 @@ button.card-h:hover{background:var(--panel-2)}
 .frag-meta .tag.warn{background:var(--amber-bg); color:var(--amber)}
 .frag-meta .go{margin-left:auto; color:var(--accent); font-weight:700}
 .tree-list .mod:last-child{border-bottom:none}
+
+/* The nine mandatory fields stay in the card, one click away instead of in the
+   reader's face: the summary names the requirement and shows the count. */
+.strip{display:flex; flex-wrap:wrap; gap:8px; margin:0 0 12px}
+.s-it{
+  display:flex; align-items:center; gap:6px; font-size:11px; color:var(--ink-3);
+  background:var(--panel-2); border:1px solid var(--line-2); border-radius:7px; padding:5px 9px;
+}
+.s-it b{font-size:11.5px; color:var(--ink-2); font-weight:700}
+.s-it b.lvl{padding:0; background:none}
+.nine{margin-top:12px; border-top:1px solid var(--line-2); padding-top:10px}
+.nine summary{
+  cursor:pointer; font-size:12px; font-weight:700; color:var(--accent);
+  display:flex; align-items:center; gap:7px; min-height:38px; list-style:none;
+}
+.nine summary::-webkit-details-marker{display:none}
+.nine summary .chev{font-size:9px; transition:transform .18s var(--ease)}
+.nine[open] summary .chev{transform:rotate(90deg)}
+.n9{
+  margin-left:auto; background:var(--green-bg); color:var(--green); border-radius:999px;
+  padding:1px 9px; font-size:10.5px;
+}
+.nine .field:first-of-type{margin-top:8px}
 /* The rows are navigation, so they say so: what is inside, and a chevron. */
 #screenTree .doc .opens{
   flex:none; font-size:11px; font-weight:700; color:var(--accent);
@@ -1026,14 +1064,14 @@ table.prec td:first-child{
     <div class="chat-h">
       <span aria-hidden="true">✦</span>
       <h2>Asistente</h2>
-      <span class="st">Sin conectar</span>
+      <span class="st" id="chatStatus">Comprobando…</span>
     </div>
     <div class="chat-log" id="chatLog"></div>
     <form class="chat-form" id="chatForm">
       <label class="sr" for="chatInput">Pregunta al asistente</label>
       <input id="chatInput" type="text" autocomplete="off" disabled
-             placeholder="Espacio reservado — aún sin conectar">
-      <button type="submit" disabled aria-label="Enviar">↑</button>
+             placeholder="Comprobando el motor local…">
+      <button type="submit" id="chatSend" disabled aria-label="Enviar">↑</button>
     </form>
   </aside>
 
@@ -1630,15 +1668,101 @@ $('#bpmNav').innerHTML = BPM_NAV.map((n, i) => `
   </li>`).join('');
 
 /* ---------- assistant dock ---------- */
-/* Seeded with what the panel is for. Nothing is wired: an assistant that called
-   out would break the promise that the dossier never leaves this machine. */
-$('#chatLog').innerHTML = `
-  <div class="msg bot"><span class="who">Asistente</span>
-    Aquí se responderán preguntas sobre el expediente citando folio y documento.</div>
-  <div class="msg me">¿Por qué H1 es crítico?</div>
-  <div class="msg bot"><span class="who">Asistente</span>
-    <em>Espacio reservado.</em> La respuesta llevará la cita literal y el folio, como en Detalle.</div>
-  <p class="chat-slot">Panel reservado.<br>Se conectará a inferencia local, sin salida de red.</p>`;
+/* Wired to motor/chat-server.mjs on loopback. The one outbound call this page
+   makes goes to 127.0.0.1: the dossier still never leaves the machine, which is
+   why the panel stays dead rather than falling back to anything remote. */
+const CHAT_API = 'http://127.0.0.1:4319';
+const chatLog = $('#chatLog'), chatInput = $('#chatInput'),
+      chatSend = $('#chatSend'), chatStatus = $('#chatStatus');
+
+/* Server text is data, never markup: it carries quotes lifted from the PDFs.
+   Escaping reuses the page's own esc() — these strings only ever land in
+   element content, never in an attribute. */
+function bubble(who, html, mine = false) {
+  const el = document.createElement('div');
+  el.className = mine ? 'msg me' : 'msg bot';
+  el.innerHTML = mine ? html : `<span class="who">${esc(who)}</span>${html}`;
+  chatLog.append(el);
+  chatLog.scrollTop = chatLog.scrollHeight;
+  return el;
+}
+
+/* Every anchor arrives with the literal passage it was resolved from, so the
+   evaluator checks the sentence against the quote without leaving the panel. */
+function renderAnswer(data) {
+  let html = esc(data.texto);
+  if (data.anclas?.length) {
+    html += '<div class="cites">' + data.anclas.map((a) =>
+      `<div class="cite"><b>${esc(a.module)} · ${esc(a.folio)}</b>${esc(a.text)}
+       <span style="color:var(--ink-3)"> — ${esc(a.source)}</span></div>`).join('') + '</div>';
+  }
+  if (data.estado !== 'anclado') {
+    html += `<p class="low">Sin ancla verificable — va a cola humana como baja confianza.
+             ${esc(new Date(data.hora).toLocaleTimeString('es-CO'))}</p>`;
+  }
+  return html;
+}
+
+function chatOffline(reason) {
+  chatStatus.textContent = 'Sin conectar';
+  chatStatus.className = 'st off';
+  chatInput.disabled = chatSend.disabled = true;
+  chatInput.placeholder = 'Motor local sin responder';
+  chatLog.innerHTML =
+    `<p class="chat-slot">No se pudo contactar al servidor local del chat
+     (motor/chat-server.mjs). ¿Está corriendo?<br><br>
+     <code>node motor/chat-server.mjs</code><br><br>
+     El resto del cockpit funciona: los hallazgos y sus folios están precomputados.</p>`;
+  if (reason) console.info('chat offline:', reason);
+}
+
+(async function chatBoot() {
+  let salud;
+  try {
+    const res = await fetch(`${CHAT_API}/salud`, { signal: AbortSignal.timeout(2500) });
+    salud = await res.json();
+  } catch (e) { return chatOffline(e.message); }
+
+  if (!salud?.ollama) return chatOffline(salud?.reason ?? 'ollama no responde');
+
+  chatStatus.textContent = 'Local · ' + salud.model;
+  chatStatus.className = 'st on';
+  chatInput.disabled = chatSend.disabled = false;
+  chatInput.placeholder = 'Pregunta sobre el expediente…';
+  chatLog.innerHTML = '';
+  bubble('Asistente',
+    `Respondo citando folio y documento, sobre ${salud.fragments} pasajes anclados
+     del expediente. No emito juicio de cumplimiento: eso lo firma usted.`);
+})();
+
+$('#chatForm').addEventListener('submit', async (ev) => {
+  ev.preventDefault();
+  const pregunta = chatInput.value.trim();
+  if (!pregunta) return;
+
+  bubble('', esc(pregunta), true);
+  chatInput.value = '';
+  chatInput.disabled = chatSend.disabled = true;
+  const pending = bubble('Asistente', '<em>Consultando el modelo local…</em>');
+
+  try {
+    const res = await fetch(`${CHAT_API}/preguntar`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ pregunta }),
+    });
+    pending.innerHTML = `<span class="who">Asistente</span>${renderAnswer(await res.json())}`;
+  } catch (e) {
+    pending.innerHTML = `<span class="who">Asistente</span>
+      <p class="low">No se pudo contactar al servidor local del chat
+      (motor/chat-server.mjs). ¿Está corriendo?</p>`;
+    console.info('chat error:', e.message);
+  } finally {
+    chatInput.disabled = chatSend.disabled = false;
+    chatInput.focus();
+    chatLog.scrollTop = chatLog.scrollHeight;
+  }
+});
 
 /* ---------- folio map ---------- */
 /* One graphic answers the question that opens every review: of 166 folios, which
@@ -1920,36 +2044,46 @@ function viewFindings(){
             </div>`;
           }).join('')}
         </div></div>
-        <div class="field"><div class="k">Ubicación exacta</div>
-          <div class="v"><div class="path-line mono">${esc(f.location)}</div></div></div>
-        <div class="field"><div class="k">Versión</div><div class="v dim mono">${esc(f.version)}</div></div>
-        <div class="field"><div class="k">Nivel de confianza</div>
-          <div class="v">
-            <div class="conf">
-              <span class="lvl ${f.confidence}">${CONF_LABEL[f.confidence]}</span>
-              <span class="conf-bars" aria-hidden="true" style="color:${ink}">
-                ${[1,2,3].map(i => `<i class="${i <= level ? 'on' : ''}"></i>`).join('')}
-              </span>
-            </div>
-            <div class="dim" style="margin-top:5px;font-size:13px">${esc(f.confidenceNote)}</div>
-          </div></div>
-        <div class="field"><div class="k">Contradicciones</div><div class="v dim">${esc(f.contradictions)}</div></div>
-        <div class="field"><div class="k">Información faltante</div><div class="v dim">${esc(f.missingInfo)}</div></div>
-        <div class="field"><div class="k">Limitaciones</div><div class="v dim">${esc(f.limitations)}</div></div>
-        ${prec ? `
-        <div class="field"><div class="k">Precedente aplicable</div><div class="v">
-          <div class="ev" style="border-left-color:var(--green-fill)">
-            <q>${esc(prec.lesson)}</q>
-            <div class="src"><span class="b mono">${esc(prec.product)}</span>
-            <span aria-hidden="true">·</span><span>${esc(prec.minutes)}</span></div>
-          </div></div></div>` : ''}
+        <div class="strip">
+          <span class="s-it"><b>${anchored(f).length}</b> anclas</span>
+          <span class="s-it"><b class="lvl ${f.confidence}">${CONF_LABEL[f.confidence]}</b> confianza</span>
+          <span class="s-it"><b class="mono">${esc(f.version.split('·')[0].replace(/\s*\(.*/, '').trim())}</b></span>
+          ${f.precedent ? '<span class="s-it"><b>◆</b> con precedente</span>' : ''}
+        </div>
         <div class="action">
           <div class="k">Siguiente acción sugerida</div>
           <div class="v">${esc(f.action)}</div>
         </div>
+        <details class="nine">
+          <summary><span class="chev" aria-hidden="true">▶</span> Los 9 campos obligatorios,
+            completos <span class="n9">9/9</span></summary>
+          <div class="field"><div class="k">Ubicación exacta</div>
+            <div class="v"><div class="path-line mono">${esc(f.location)}</div></div></div>
+          <div class="field"><div class="k">Versión</div><div class="v dim mono">${esc(f.version)}</div></div>
+          <div class="field"><div class="k">Nivel de confianza</div>
+            <div class="v">
+              <div class="conf">
+                <span class="lvl ${f.confidence}">${CONF_LABEL[f.confidence]}</span>
+                <span class="conf-bars" aria-hidden="true" style="color:${ink}">
+                  ${[1,2,3].map(i => `<i class="${i <= level ? 'on' : ''}"></i>`).join('')}
+                </span>
+              </div>
+              <div class="dim" style="margin-top:5px;font-size:13px">${esc(f.confidenceNote)}</div>
+            </div></div>
+          <div class="field"><div class="k">Contradicciones</div><div class="v dim">${esc(f.contradictions)}</div></div>
+          <div class="field"><div class="k">Información faltante</div><div class="v dim">${esc(f.missingInfo)}</div></div>
+          <div class="field"><div class="k">Limitaciones</div><div class="v dim">${esc(f.limitations)}</div></div>
+          ${prec ? `
+          <div class="field"><div class="k">Precedente aplicable</div><div class="v">
+            <div class="ev" style="border-left-color:var(--green-fill)">
+              <q>${esc(prec.lesson)}</q>
+              <div class="src"><span class="b mono">${esc(prec.product)}</span>
+              <span aria-hidden="true">·</span><span>${esc(prec.minutes)}</span></div>
+            </div></div></div>` : ''}
+        </details>
         <div class="human-note">
           <span aria-hidden="true">◆</span>
-          <span>Sugerencia para revisión. La valoración y la firma son del evaluador competente.</span>
+          <span>Sugerencia · firma el evaluador competente</span>
         </div>
       </div>
     </article>`;

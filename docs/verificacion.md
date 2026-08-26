@@ -783,6 +783,34 @@ Verificado tras el recorte: los chips salen con el color de su severidad (`H1` s
 claro), el fragmento sigue saltando a la tarjeta —`currentScreen === 'detail'`, `aria-expanded="true"`—
 y no hay errores de consola. El aviso corto se lee sin desbordar a 349 px de ancho.
 
+### 5.15 La tarjeta de hallazgo pierde la mitad de su texto sin perder un campo — 15:20
+
+La superficie más densa que quedaba era la tarjeta desplegada: **2.436 caracteres** de once bloques
+seguidos. Los nueve campos obligatorios son requisito de la ficha visual y de B6, así que no se podía
+borrar ninguno. Se reordenó por jerarquía en lugar de recortar:
+
+- **Visible al desplegar:** qué pasa · el arco de contradicción · la evidencia anclada · una tira de
+  chips (`5 anclas` · `Alta confianza` · `M2-05-CO v1.0` · `◆ con precedente`) · la acción sugerida.
+- **A un clic**, en un `<details>` cuyo resumen **nombra el requisito**: «Los 9 campos obligatorios,
+  completos · 9/9». Dentro van ubicación exacta, versión, nivel de confianza, contradicciones,
+  información faltante, limitaciones y precedente.
+
+| Medida | Antes | Ahora |
+|---|---|---|
+| Texto visible al desplegar la tarjeta | 2.436 car. | **1.046 car.** (−57 %) |
+| Campos obligatorios presentes | 9 | 9 |
+
+Se usó `<details>` nativo: funciona con teclado y **sin JavaScript**, lo que importa porque §5.5
+declara que la vista central depende del script. Verificado: el resumen abre y cierra, los 7 bloques
+de dentro rinden con sus etiquetas correctas, y no hay errores de consola.
+
+**Por qué esto no es esconder el requisito.** El contador `9/9` del propio resumen lo hace más
+visible que antes, no menos: antes había que contar once bloques para saber si estaban los nueve.
+
+⏳ **Sin comprobar:** el contador `9/9` está escrito a mano en la plantilla, no calculado sobre los
+campos presentes. Si un hallazgo llegara sin uno de los nueve, la etiqueta mentiría. Hoy los cinco los
+traen completos —cotejado en §7.1—, pero el verificador honesto sería contarlos en el render.
+
 ## 6. Motor de evidencia — medido el 2026-08-26
 
 Código en `motor/`, worktree `motor-evidencia`. Node 24 sin dependencias, `pdftotext -layout` para
