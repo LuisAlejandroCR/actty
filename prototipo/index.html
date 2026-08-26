@@ -1,5 +1,8 @@
 <!doctype html>
-<html lang="es">
+<!-- data-theme pins the warm light palette: without it a viewer whose system
+     is in dark mode never sees it. The toggle still switches, and the choice is
+     remembered. -->
+<html lang="es" data-theme="light">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -562,6 +565,109 @@ button.card-h:hover{background:var(--panel-2)}
 .ev q::before,.ev q::after{content:""}
 .ev .src{font-size:11px; color:var(--ink-3); display:flex; gap:7px; flex-wrap:wrap; align-items:center}
 .ev .src .b{background:var(--accent-bg); color:var(--accent); padding:1px 6px; border-radius:4px; font-weight:700}
+.ev.loose{border-left-color:var(--ink-3); background:transparent; border-style:dashed}
+.ev.loose q{font-style:normal; color:var(--ink-2)}
+.ev .queue{
+  display:inline-flex; align-items:center; gap:5px; font-size:10.5px; font-weight:700;
+  background:var(--panel-2); color:var(--ink-2); border:1px solid var(--line-2);
+  border-radius:4px; padding:1px 6px;
+}
+.ev .why{font-size:11.5px; color:var(--ink-3); margin-top:5px; line-height:1.5}
+
+/* ---------- trace screen ---------- */
+.chain-top{
+  display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between;
+  background:var(--panel); border:1px solid var(--line); border-radius:var(--radius);
+  padding:12px 14px; margin-bottom:12px; box-shadow:var(--shadow);
+}
+.chain-state{display:flex; align-items:center; gap:9px; font-size:13.5px; font-weight:700}
+.chain-state .badge{
+  display:inline-flex; align-items:center; gap:6px; border-radius:6px; padding:3px 9px;
+  font-size:12px; background:var(--green-bg); color:var(--green); border:1px solid var(--green-fill);
+}
+.chain-state.broken .badge{background:var(--red-bg); color:var(--red); border-color:var(--red-fill)}
+.chain-state .meta{font-weight:400; color:var(--ink-3); font-size:12px}
+.chain-acts{display:flex; gap:7px; flex-wrap:wrap}
+.chain-acts button{
+  font:inherit; font-size:12.5px; font-weight:700; cursor:pointer; border-radius:7px;
+  padding:7px 12px; min-height:38px; border:1px solid var(--line);
+  background:var(--panel-2); color:var(--ink-2);
+}
+.chain-acts button:hover{border-color:var(--accent-fill); color:var(--accent)}
+.chain-acts button.primary{background:var(--accent-solid); color:var(--accent-on); border-color:var(--accent-solid)}
+.chain-why{font-size:12.5px; color:var(--ink-3); line-height:1.55; margin:0 0 14px; max-width:70ch}
+
+.chain{list-style:none; margin:0; padding:0}
+.link{display:grid; grid-template-columns:104px 1fr; gap:12px; margin-bottom:10px}
+.link .when{font-size:11.5px; color:var(--ink-3); padding-top:11px; line-height:1.5}
+.link .box{
+  background:var(--panel); border:1px solid var(--line); border-left:3px solid var(--green-fill);
+  border-radius:0 var(--radius) var(--radius) 0; padding:11px 13px; box-shadow:var(--shadow);
+}
+.link.broken .box{border-left-color:var(--red-fill); background:var(--red-bg)}
+.link.pending .box{border-left-color:var(--grey-fill); border-style:dashed}
+.link h3{font-size:14px; margin:0 0 3px}
+.link .who{font-size:11.5px; color:var(--ink-3); margin-bottom:8px}
+.link .who .kind{
+  display:inline-block; background:var(--panel-2); border:1px solid var(--line-2);
+  border-radius:4px; padding:1px 6px; margin-right:6px; font-weight:700; color:var(--ink-2);
+}
+.link .who .kind.person{background:var(--accent-bg); color:var(--accent); border-color:var(--accent-fill)}
+.io{display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:8px; margin-bottom:8px}
+.io > div{background:var(--panel-2); border-radius:7px; padding:8px 10px}
+.io .k{font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-3); font-weight:700}
+.io .t{font-size:12.5px; color:var(--ink); line-height:1.5; margin:3px 0 4px}
+.digest{font-size:10.5px; color:var(--ink-3); word-break:break-all; line-height:1.4}
+.link .chg{font-size:12.5px; color:var(--ink-2); line-height:1.55; border-top:1px solid var(--line-2); padding-top:8px}
+.link .seal{
+  display:flex; flex-wrap:wrap; gap:4px 10px; align-items:center;
+  font-size:10.5px; color:var(--ink-3); margin-top:8px;
+}
+.link.broken .seal{color:var(--red)}
+.sign{display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-top:6px}
+.sign input{
+  font:inherit; font-size:13px; padding:8px 10px; min-height:38px; flex:1 1 210px;
+  border:1px solid var(--line); border-radius:7px; background:var(--panel-2); color:var(--ink);
+}
+.sign button{
+  font:inherit; font-size:12.5px; font-weight:700; cursor:pointer; min-height:38px;
+  padding:8px 14px; border-radius:7px; border:1px solid var(--accent-solid);
+  background:var(--accent-solid); color:var(--accent-on);
+}
+@media (max-width:620px){
+  .link{grid-template-columns:1fr; gap:4px}
+  .link .when{padding-top:0}
+  .link .box{border-left-width:3px; border-radius:0 var(--radius) var(--radius) 0}
+}
+
+/* ---------- aviso al administrado ---------- */
+.aviso-doc{
+  max-width:72ch; margin:0 auto; background:var(--panel); border:1px solid var(--line);
+  border-radius:var(--radius); box-shadow:var(--shadow); padding:20px 24px 24px;
+  font-size:14px; line-height:1.6; color:var(--ink-2);
+}
+.aviso-doc h2{font-size:18px; color:var(--ink); margin:0 0 10px; line-height:1.4}
+.aviso-doc h3{font-size:14.5px; color:var(--ink); margin:22px 0 8px; padding-top:14px; border-top:1px solid var(--line-2)}
+.aviso-doc h3:first-of-type{border-top:none; padding-top:0}
+.aviso-meta{font-size:12.5px; color:var(--ink-3); margin:0 0 16px}
+.aviso-pending-note{
+  background:var(--amber-bg); color:var(--amber); border:1px solid var(--amber-fill);
+  border-radius:8px; padding:9px 12px; font-size:12.5px; margin:0 0 18px;
+}
+.aviso-findings{list-style:none; margin:0; padding:0}
+.aviso-findings li{
+  background:var(--panel-2); border-radius:8px; padding:10px 12px; margin-bottom:8px; color:var(--ink);
+}
+.aviso-where, .aviso-review{font-size:12.5px; color:var(--ink-3); margin-top:4px}
+.aviso-na{margin:0; padding-left:18px; font-size:13px}
+.aviso-note{font-size:12.5px; color:var(--ink-3); font-style:italic}
+.aviso-pending{list-style:none; margin:0; padding:0; font-size:13px}
+.aviso-pending li{padding:4px 0}
+.pend{
+  display:inline-block; background:var(--amber-bg); color:var(--amber); border:1px solid var(--amber-fill);
+  border-radius:5px; padding:1px 7px; font-size:12px; font-weight:700;
+}
+.aviso-foot{font-size:11.5px; color:var(--ink-3); border-top:1px solid var(--line-2); padding-top:12px; margin-top:20px}
 
 /* contradiction arc */
 .arc-wrap{background:var(--panel-2); border:1px solid var(--line-2); border-radius:8px; padding:10px 12px 6px}
@@ -697,6 +803,10 @@ table.prec td:first-child{
           <span aria-hidden="true">▦</span> Resumen</button>
         <button role="tab" id="scr-detail" aria-selected="false" aria-controls="content" data-s="detail">
           <span aria-hidden="true">☰</span> Detalle</button>
+        <button role="tab" id="scr-trace" aria-selected="false" aria-controls="content" data-s="trace">
+          <span aria-hidden="true">⛓</span> Huella</button>
+        <button role="tab" id="scr-aviso" aria-selected="false" aria-controls="content" data-s="aviso">
+          <span aria-hidden="true">✉</span> Aviso</button>
       </div>
 
       <span class="cui mono" id="cui">—</span>
@@ -710,7 +820,7 @@ table.prec td:first-child{
             </svg>
             <span class="val" id="kGlobal">—</span>
           </div>
-          <div class="l">Índice<br>de rigor</div>
+          <div class="l" title="Cuánto del expediente ya fue revisado y con qué resultado por área. No es una nota de cumplimiento ni una recomendación de aprobación.">Cobertura<br>de revisión</div>
         </div>
         <div class="kpi">
           <div><div class="n" id="kRisk">—</div><div class="l">Riesgo</div></div>
@@ -738,9 +848,9 @@ table.prec td:first-child{
     </section>
 
     <main class="content" id="content" tabindex="-1">
-      <div id="screenSummary"></div>
+      <div id="screenSummary" data-screen="summary"></div>
 
-      <div id="screenDetail" hidden>
+      <div id="screenDetail" data-screen="detail" hidden>
         <div class="tabs" role="tablist" aria-label="Vistas del análisis">
           <button class="tab" role="tab" id="tab-findings" aria-selected="true" aria-controls="view" data-v="findings">
             Hallazgos<span class="c" id="cH">0</span></button>
@@ -751,6 +861,10 @@ table.prec td:first-child{
         </div>
         <div id="view" role="tabpanel" aria-labelledby="tab-findings"></div>
       </div>
+
+      <div id="screenTrace" data-screen="trace" hidden></div>
+
+      <div id="screenAviso" data-screen="aviso" hidden></div>
     </main>
 
     <footer class="foot">
@@ -822,8 +936,8 @@ const MODULES = [
     question:
       "¿La solicitud es válida, completa, consistente y jurídicamente soportada?",
     documents: [
-      { id: "ASS-RSA-FM113", name: "Formato general para solicitudes de productos biológicos", version: "05", folios: "1–9", state: "compliant" },
-      { id: "M1-02-PODER", name: "Poder / representación legal", version: "v1.0", folios: "9–10", state: "compliant" },
+      { id: "ASS-RSA-FM113", name: "Formato general para solicitudes de productos biológicos", version: "05", folios: "1–4", state: "compliant" },
+      { id: "M1-02-PODER", name: "Poder / representación legal", version: "v1.0", folios: "5–9", state: "compliant" },
       { id: "M1-03-BPM-CPP", name: "Certificados BPM y CPP/CVL", version: "v1.0", folios: "10–14", state: "omission", findings: ["H3"] },
       { id: "M1-04-DATOS-PROT", name: "Protección de datos de prueba", version: "v1.0", folios: "15–21", state: "compliant" },
     ],
@@ -836,10 +950,10 @@ const MODULES = [
     question:
       "¿El relato global representa fielmente la evidencia detallada de M3–M5?",
     documents: [
-      { id: "M2-01-INTRO", name: "Introducción general al dossier CTD", version: "v1.0", folios: "22–30", state: "remediable", findings: ["H4"] },
-      { id: "M2-03-QOS", name: "Resumen global de calidad (QOS)", version: "v1.0", folios: "31–38", state: "compliant" },
-      { id: "M2-04-NCO", name: "Resumen no clínico", version: "v1.0", folios: "39–43", state: "compliant" },
-      { id: "M2-05-CO", name: "Resumen clínico", version: "v1.0", folios: "44–52", state: "omission", findings: ["H1", "H2"] },
+      { id: "M2-01-INTRO", name: "Introducción general al dossier CTD", version: "v1.0", folios: "22–26", state: "remediable", findings: ["H4"] },
+      { id: "M2-03-QOS", name: "Resumen global de calidad (QOS)", version: "v1.0", folios: "27–34", state: "compliant" },
+      { id: "M2-04-NCO", name: "Resumen no clínico", version: "v1.0", folios: "35–42", state: "compliant", findings: ["H5"] },
+      { id: "M2-05-CO", name: "Resumen clínico", version: "v1.0", folios: "43–52", state: "omission", findings: ["H1", "H2"] },
     ],
   },
   {
@@ -850,11 +964,10 @@ const MODULES = [
     question:
       "¿El producto puede fabricarse y controlarse de manera reproducible?",
     documents: [
-      { id: "M3-32S-DS", name: "Sustancia activa (drug substance)", version: "v1.0", folios: "53–70", state: "compliant" },
-      { id: "M3-32P-DP", name: "Producto terminado (drug product)", version: "v1.0", folios: "71–80", state: "omission", findings: ["H3"] },
-      { id: "M3-32P-EXC", name: "Excipientes", version: "v1.0", folios: "81–84", state: "compliant" },
-      { id: "M3-32P-LOTES", name: "Análisis de lotes", version: "v1.0", folios: "85–89", state: "compliant" },
-      { id: "M3-32P-STAB", name: "Estabilidad", version: "v1.0", folios: "90–97", state: "compliant" },
+      { id: "M3-32S-DS", name: "Sustancia activa (drug substance)", version: "v1.0", folios: "53–67", state: "compliant" },
+      { id: "M3-32P-DP", name: "Producto terminado (drug product)", version: "v1.0", folios: "68–77", state: "compliant" },
+      { id: "M3-32P-LOTES", name: "Análisis de lotes industriales", version: "v1.0", folios: "78–87", state: "omission", findings: ["H3"] },
+      { id: "M3-32P-STAB", name: "Estabilidad", version: "v1.0", folios: "88–97", state: "compliant" },
     ],
   },
   {
@@ -865,9 +978,9 @@ const MODULES = [
     question:
       "¿La evidencia preclínica respalda la exposición humana y caracteriza riesgos?",
     documents: [
-      { id: "M4-421-PK", name: "Farmacocinética no clínica", version: "v1.0", folios: "98–110", state: "compliant" },
-      { id: "M4-423-TOX", name: "Toxicología a dosis repetida", version: "v1.0", folios: "111–122", state: "compliant" },
-      { id: "M4-425-REPRO", name: "Toxicidad reproductiva y del desarrollo", version: "v1.0", folios: "123–129", state: "remediable", findings: ["H5"] },
+      { id: "M4-421-PK", name: "Farmacocinética no clínica", version: "v1.0", folios: "98–108", state: "compliant" },
+      { id: "M4-423-TOX", name: "Toxicología a dosis repetida", version: "v1.0", folios: "109–119", state: "compliant" },
+      { id: "M4-425-REPRO", name: "Toxicidad reproductiva y del desarrollo", version: "v1.0", folios: "120–129", state: "remediable", findings: ["H5"] },
     ],
   },
   {
@@ -878,8 +991,10 @@ const MODULES = [
     question:
       "¿La población, comparador, desenlaces y resultados sustentan la indicación solicitada?",
     documents: [
-      { id: "M5-01-PKPD", name: "Fase I farmacología clínica — CRZ-HAP-101", version: "1.0", folios: "130–147", state: "compliant" },
-      { id: "M5-03-PIVOTAL", name: "Fase III pivotal — CRZ-HAP-301 PULMO-CLEAR", version: "1.0", folios: "148–166", state: "omission", findings: ["H1"] },
+      { id: "M5-01-PKPD", name: "Fase I farmacología clínica — CRZ-HAP-101", version: "1.0", folios: "130–139", state: "compliant" },
+      { id: "M5-03-PIVOTAL", name: "Fase III pivotal — CRZ-HAP-301 PULMO-CLEAR", version: "1.0", folios: "140–150", state: "omission", findings: ["H1"] },
+      { id: "M6-01-PSUR", name: "Informe periódico de seguridad (PBRER 1)", version: "v1.0", folios: "151–156", state: "compliant" },
+      { id: "M7-01-PGR", name: "Plan de gestión de riesgos para Colombia", version: "v1.0", folios: "157–163", state: "compliant", findings: ["H1"] },
       { id: "CRZ-HAP-201", name: "Fase II — declarado en M2, no aportado", version: "—", folios: "—", state: "missing", findings: ["H2"] },
       { id: "CRZ-HAP-401", name: "Extensión — declarado en M2, no aportado", version: "—", folios: "—", state: "missing", findings: ["H2"] },
       { id: "CRZ-HAP-501", name: "Exploratorio adolescentes — declarado en M2, no aportado", version: "—", folios: "—", state: "missing", findings: ["H1", "H2"] },
@@ -898,17 +1013,17 @@ const FINDINGS = [
     answer:
       "La indicación propuesta cubre adolescentes desde 12 años, pero el estudio pivotal excluyó expresamente a los menores de 18 y el estudio que respaldaría esa población no fue aportado.",
     evidence: [
-      { text: "«Hipertensión arterial pulmonar en adultos y adolescentes ≥12 años»", source: "M2-05-CO", folio: "Folio 46", module: "M2" },
-      { text: "«Pediatría — No se incluyeron adolescentes ni niños menores de 18 años»", source: "M5-03-PIVOTAL", folio: "Folio 158", module: "M5" },
-      { text: "Criterios de exclusión: «Se excluyen, entre otros, pacientes pediátricos»", source: "M5-03-PIVOTAL", folio: "Folio 152", module: "M5" },
-      { text: "PGR — información faltante: «uso en población pediátrica/adolescente»", source: "M5-03-PIVOTAL", folio: "Folio 163", module: "M5" },
-      { text: "Compromisos: «Extensión pediátrica — Planificada — 2028»", source: "M5-03-PIVOTAL", folio: "Folio 165", module: "M5" },
+      { text: "«Hipertensión arterial pulmonar en adultos y adolescentes ≥12 años»", source: "M2-05-CO", folio: "Folio 43", module: "M2" },
+      { text: "«Pediatría — No se incluyeron adolescentes ni niños menores de 18 años»", source: "M5-03-PIVOTAL", folio: "Folio 149", module: "M5" },
+      { text: "Criterios de exclusión: «Se excluyen, entre otros, pacientes pediátricos»", source: "M5-03-PIVOTAL", folio: "Folio 140", module: "M5" },
+      { text: "PGR — información faltante: «uso en población pediátrica/adolescente»", source: "M7-01-PGR", folio: "Folio 157", module: "M5" },
+      { text: "Compromisos: «Extensión pediátrica — Planificada — 2028»", source: "M7-01-PGR", folio: "Folio 160", module: "M5" },
     ],
-    location: "M2 › 2.5 Resumen clínico › folio 46  ⟷  M5 › 5.3.5 Pivotal › folios 152, 158, 163, 165",
-    version: "M2-05-CO v1.0 (01/08/2026) · M5-03-PIVOTAL v1.0",
+    location: "M2 › 2.5 Resumen clínico › folio 43  ⟷  M5 › 5.3.5 Pivotal › folios 140, 149  ·  M7 › PGR › folios 157, 160",
+    version: "M2-05-CO v1.0 (05/08/2026) · M5-03-PIVOTAL v1.0 · M7-01-PGR v1.0 (12/08/2026)",
     confidence: "high",
     confidenceNote:
-      "Cinco pasajes independientes en dos módulos apuntan en la misma dirección; ninguno admite lectura alternativa.",
+      "Cinco pasajes anclados en tres documentos —resumen clínico, informe pivotal y plan de gestión de riesgos— apuntan en la misma dirección; ninguno admite lectura alternativa.",
     contradictions:
       "El propio expediente se contradice: el resumen clínico afirma una población que su estudio de respaldo declara excluida, y el plan de gestión de riesgos la reconoce como información faltante.",
     missingInfo:
@@ -928,15 +1043,17 @@ const FINDINGS = [
       "M2 describe un programa clínico de cinco estudios y una exposición de 1.482 participantes. El Módulo 5 solo contiene los informes de dos de ellos.",
     evidence: [
       { text: "«Programa clínico: CRZ-HAP-101, CRZ-HAP-201, CRZ-HAP-301 y estudios de extensión»", source: "M2-05-CO", folio: "Folio 44", module: "M2" },
-      { text: "Tabla del programa: 101 (I), 201 (II), 301 (III), 401 (extensión), 501 (exploratorio adolescentes)", source: "M2-05-CO", folio: "Folio 45", module: "M2" },
+      { text: "Tabla del programa: 101 (I), 201 (II), 301 (III), 401 (extensión), 501 (exploratorio adolescentes)", source: "M2-05-CO", folio: "Folio 45", module: "M2", anchored: false,
+        note: "Lectura de la tabla del programa clínico, no cita literal: el auditor no encontró esta frase en el texto. Va a cola humana." },
       { text: "«aproximadamente 1.482 participantes expuestos a al menos una dosis»", source: "M2-05-CO", folio: "Folio 45", module: "M2" },
-      { text: "Módulo 5 contiene únicamente M5-01-PKPD (CRZ-HAP-101) y M5-03-PIVOTAL (CRZ-HAP-301)", source: "M5 — inventario completo", folio: "Folios 130–166", module: "M5" },
+      { text: "El módulo 5 contiene M5-01-PKPD (CRZ-HAP-101), M5-03-PIVOTAL (CRZ-HAP-301), M6-01-PSUR y M7-01-PGR — ningún informe de los otros tres estudios", source: "M5 — inventario del módulo", folio: "Folios 130–166", module: "M5", anchored: false,
+        note: "Observación del sistema sobre el índice del expediente, no cita literal de un folio." },
     ],
     location: "M2 › 2.5 Resumen clínico › folios 44–45  ⟷  M5 › inventario de folios 130–166",
-    version: "M2-05-CO v1.0 (01/08/2026)",
-    confidence: "high",
+    version: "M2-05-CO v1.0 (05/08/2026)",
+    confidence: "medium",
     confidenceNote:
-      "El inventario de M5 es exhaustivo y se verificó documento por documento sobre el texto completo del módulo.",
+      "Dos pasajes anclados literalmente en M2; las otras dos entradas son observaciones del sistema sobre el índice, no citas. El nivel lo calcula el sistema contando anclajes.",
     contradictions:
       "La cifra de exposición de 1.482 participantes se apoya en tres estudios cuyos informes no están en el expediente. La cifra no es verificable con lo aportado.",
     missingInfo:
@@ -954,11 +1071,11 @@ const FINDINGS = [
     answer:
       "El certificado de Buenas Prácticas de Manufactura del producto terminado se expide a «PharmaFill Solutions Inc.», mientras el Módulo 3 declara como fabricante a «PharmaFill Solutions S.A.». Son personas jurídicas distintas.",
     evidence: [
-      { text: "«M1-03-02 — BPM — PharmaFill Solutions Inc. / Drug Product»", source: "M1-03-BPM-CPP", folio: "Folio 5 (pág. 14)", module: "M1" },
-      { text: "Fabricante del producto terminado: «PharmaFill Solutions S.A.»", source: "M3-32P-DP", folio: "Folio 76", module: "M3" },
+      { text: "«M1-03-02 — BPM — PharmaFill Solutions Inc. / Drug Product»", source: "M1-03-BPM-CPP", folio: "Folio 14 (folio 5 del documento)", module: "M1" },
+      { text: "Fabricante del producto terminado: «PharmaFill Solutions S.A.»", source: "M3-32P-LOTES", folio: "Folio 78", module: "M3" },
     ],
-    location: "M1 › 1.3 Certificados › folio 5  ⟷  M3 › 3.2.P.3.1 Fabricante › folio 76",
-    version: "M1-03-BPM-CPP v1.0 (20/05/2026) · M3-32P-DP v1.0",
+    location: "M1 › 1.3 Certificados › folio 14  ⟷  M3 › 3.2.P.5 Análisis de lotes › folio 78",
+    version: "M1-03-BPM-CPP v1.0 (20/05/2026) · M3-32P-LOTES v1.0 (01/07/2026)",
     confidence: "medium",
     confidenceNote:
       "La discrepancia textual es inequívoca, pero podría tratarse de un error de transcripción del solicitante en lugar de una entidad realmente distinta. Requiere confirmación documental.",
@@ -999,9 +1116,9 @@ const FINDINGS = [
     answer:
       "El resumen no clínico condiciona el respaldo a la indicación a la consideración de hallazgos de toxicidad reproductiva y de alteraciones hepáticas a dosis elevadas.",
     evidence: [
-      { text: "«sujeto a consideración de los hallazgos de toxicidad reproductiva, las alteraciones hepáticas observadas a dosis elevadas y el seguimiento de potenciales efectos asociados con la farmacología del receptor ALK-1»", source: "M2-04-NCO", folio: "Folio 43", module: "M2" },
+      { text: "«sujeto a consideración de los hallazgos de toxicidad reproductiva, las alteraciones hepáticas observadas a dosis elevadas y el seguimiento de potenciales efectos asociados con la farmacología del receptor ALK-1»", source: "M2-04-NCO", folio: "Folio 42", module: "M2" },
     ],
-    location: "M2 › 2.4 Resumen no clínico › folio 43 › remite a M4 › 4.2.5 › folios 123–129",
+    location: "M2 › 2.4 Resumen no clínico › folio 42 › remite a M4 › 4.2.5 › folios 120–129",
     version: "M2-04-NCO v1.0 · M4-425-REPRO v1.0",
     confidence: "medium",
     confidenceNote:
@@ -1080,7 +1197,7 @@ const CLEARED = [
     state: "Sin hallazgos",
     detail:
       "Proceso fed-batch en CHO-DG44, Protein A, inactivación viral a pH 3,55 durante 60 min, CEX, AEX y nanofiltración Planova 20N. LRV >14,2 para virus envueltos.",
-    saved: "18 folios",
+    saved: "15 folios",
     reason: "coherent",
   },
   {
@@ -1089,16 +1206,16 @@ const CLEARED = [
     state: "Sin hallazgos",
     detail:
       "Vida útil de 24 meses a 2–8 °C, coherente entre M2 (QOS) y M3 en las 19 menciones cotejadas. Sin divergencias de condición ni de periodo.",
-    saved: "8 folios",
+    saved: "10 folios",
     reason: "coherent",
   },
   {
-    scope: "M3 — Calidad · Lotes y excipientes",
-    docs: ["M3-32P-LOTES", "M3-32P-EXC"],
+    scope: "M3 — Calidad · Producto terminado",
+    docs: ["M3-32P-DP"],
     state: "Sin hallazgos",
     detail:
-      "Análisis de lotes y composición de excipientes consistentes con las especificaciones del producto terminado.",
-    saved: "9 folios",
+      "Validación del proceso aséptico y especificaciones del producto terminado, coherentes con el resumen de calidad de M2.",
+    saved: "10 folios",
     reason: "coherent",
   },
   {
@@ -1107,7 +1224,7 @@ const CLEARED = [
     state: "Sin hallazgos",
     detail:
       "Resumen de M2 coherente con los informes de M4 en especie, dosis, NOAEL y hallazgos reportados.",
-    saved: "24 folios",
+    saved: "22 folios",
     reason: "coherent",
   },
   {
@@ -1116,7 +1233,7 @@ const CLEARED = [
     state: "Sin hallazgos",
     detail:
       "Poder vigente mientras existan actuaciones pendientes. Protección de datos de prueba invocada conforme al régimen de cinco años.",
-    saved: "8 folios",
+    saved: "12 folios",
     reason: "coherent",
   },
   {
@@ -1133,6 +1250,71 @@ const CLEARED = [
 
 </script>
 <script>
+/* trace: the chained log of the run that produced this screen. Timestamps and
+   digests come from the artefacts the engine wrote on this machine; the links
+   themselves are recomputed in the browser every time the screen opens. */
+const TRACE = [
+  {
+    step: "Ingesta del expediente",
+    at: "2026-08-26T18:38:59.327Z",
+    actor: { kind: "system", name: "motor/ingesta.mjs · pdftotext -layout" },
+    input: {
+      label: "5 PDF del organizador · 171 páginas",
+      digest: "8b3eb7ebe4ff49b7044ca228172a727d2c64038a050e7fa16f5a7878ee8a8d15",
+    },
+    output: {
+      label: "Índice de 166 folios · 18 documentos · 4.312 líneas",
+      digest: "ce93652458576a0b674df327fab271140f432a69dea7a28796cec36b28077b0e",
+    },
+    change: "159 folios traen su folio impreso en el pie y se leen de ahí; 7 no lo traen, se calculan por posición y quedan marcados como calculados. El sistema nunca mezcla las dos cosas en el mismo campo.",
+  },
+  {
+    step: "Extracción anclada del caso H1",
+    at: "2026-08-26T18:39:01.761Z",
+    actor: { kind: "system", name: "motor/extraer.mjs · qwen2.5:3b local, temperatura 0, semilla 7" },
+    input: {
+      label: "Folios preseleccionados por búsqueda de texto sobre el índice — el código decide qué se lee",
+      digest: "ce93652458576a0b674df327fab271140f432a69dea7a28796cec36b28077b0e",
+    },
+    output: {
+      label: "Hallazgo con los nueve campos y 2 pasajes anclados · 3 llamadas · 2,2 s",
+      digest: "d558537b796440730b0524887efe4e0974a443976d79433db2b4bad7f2312c89",
+    },
+    change: "El modelo cita el texto literal; el folio y la línea los busca el código. El nivel de confianza sale de contar anclajes, no de preguntárselo al modelo.",
+  },
+  {
+    step: "Auditoría de las citas en pantalla",
+    at: "2026-08-26T18:39:01.961Z",
+    actor: { kind: "system", name: "motor/auditar.mjs" },
+    input: {
+      label: "Las 13 entradas de evidencia de los 5 hallazgos, re-ancladas contra el índice",
+      digest: "ce93652458576a0b674df327fab271140f432a69dea7a28796cec36b28077b0e",
+    },
+    output: {
+      label: "11 citas coinciden · 0 con folio corrido · 0 atribuidas a otro documento · 2 declaradas sin ancla",
+      digest: "21011520ca3d3014db86bb4f98a343f1f1365753adc2ca6ed731535d66aa53c2",
+    },
+    change: "Corrección aplicada a esta pantalla: 7 folios estaban corridos y 3 citas atribuidas a otro documento. La indicación pasó del folio 46 al 43, que es el que trae impreso la página.",
+  },
+  {
+    step: "Verificación de fiabilidad e inyección",
+    at: "2026-08-26T18:39:13.073Z",
+    actor: { kind: "system", name: "motor/verificar.mjs" },
+    input: {
+      label: "5 corridas del mismo caso, más un folio con seis órdenes dirigidas al modelo",
+      digest: "d558537b796440730b0524887efe4e0974a443976d79433db2b4bad7f2312c89",
+    },
+    output: {
+      label: "2 de 5 corridas cumplen el criterio · 2 huellas distintas · 1,82 s por corrida · 6 de 6 señales de inyección detectadas · 0 citas contaminadas",
+      digest: "b99d9bdd2fd2d53ddfb0ede2e6d0778b027aa1f4fd21a52f2a9d6fb97e750ee7",
+    },
+    change: "Se registra el mal resultado igual que el bueno: el determinismo no se sostuvo entre corridas —3 de 5 devolvieron un solo pasaje, alternando— y queda abierto con su hora. La defensa contra instrucciones dentro del expediente sí pasó, y es de capas, no de una.",
+  },
+];
+
+/* The evaluator signs in the browser; nothing is sent anywhere. */
+const SIGN_STEP = "Revisión humana del expediente";
+
 /* view layer: renders the precomputed dossier data into two screens. Resumen is
    visual and nearly wordless; Detalle carries the nine mandatory fields. Reads the
    constants above, never mutates them. Animations are progressive: under
@@ -1251,14 +1433,16 @@ const BPM_NAV = [
 const S         = scores();
 const nCritical = FINDINGS.filter(f => f.severity === 'critical').length;
 const nMinor    = FINDINGS.length - nCritical;
-const anchors   = FINDINGS.reduce((n, f) => n + f.evidence.length, 0);
+const anchored  = f => f.evidence.filter(e => e.anchored !== false);
+const anchors   = FINDINGS.reduce((n, f) => n + anchored(f).length, 0);
+const loose     = FINDINGS.reduce((n, f) => n + f.evidence.length, 0) - anchors;
 const risk      = nCritical >= 2 ? {t:'Alto', c:'risk-high'}
                 : nCritical === 1 ? {t:'Medio', c:'risk-med'}
                 : {t:'Bajo', c:'risk-low'};
 
 /* The two folios that clash, as one short monospace label instead of a sentence. */
 function clashLabel(finding){
-  const pts = finding.evidence.map(e => ({e, n:folioNumber(e.folio)})).filter(p => p.n)
+  const pts = anchored(finding).map(e => ({e, n:folioNumber(e.folio)})).filter(p => p.n)
                       .sort((a, b) => a.n - b.n);
   if(pts.length < 2) return '';
   const a = pts[0], b = pts[pts.length - 1];
@@ -1310,7 +1494,7 @@ $('#chatLog').innerHTML = `
 
   const marks = [];
   for(const f of FINDINGS){
-    for(const e of f.evidence){
+    for(const e of anchored(f)){
       const n = folioNumber(e.folio);
       if(n) marks.push({n, f, e, x:(n - .5) / total * W});
     }
@@ -1339,7 +1523,8 @@ $('#chatLog').innerHTML = `
         </g>`).join('')}
     </svg>
     <div class="tip" id="tip" role="status"></div>`;
-  $('#mapNote').textContent = `${total} folios · ${marks.length} anclas`;
+  $('#mapNote').textContent =
+    `${total} folios · ${marks.length} anclas` + (loose ? ` · ${loose} sin ancla, en cola humana` : '');
 })();
 
 /* ---------- module pipeline ---------- */
@@ -1379,7 +1564,7 @@ $('#tree').innerHTML = MODULES.map(m => `
    same dossier joined by an arc. The graphic is the finding, not decoration. */
 function contradictionArc(finding){
   const total = DOSSIER.folios;
-  const pts = finding.evidence.map(e => ({e, n:folioNumber(e.folio)})).filter(p => p.n);
+  const pts = anchored(finding).map(e => ({e, n:folioNumber(e.folio)})).filter(p => p.n);
   if(pts.length < 2) return '';
 
   const W = 640, H = 92, BASE = 74, PAD = 26;
@@ -1545,15 +1730,20 @@ function viewFindings(){
         <div class="field"><div class="k">Dónde se contradice</div>
           <div class="v">${contradictionArc(f)}</div></div>
         <div class="field"><div class="k">Evidencia</div><div class="v">
-          ${f.evidence.map(e => `
-            <div class="ev">
+          ${f.evidence.map(e => {
+            const off = e.anchored === false;
+            return `
+            <div class="ev${off ? ' loose' : ''}">
               <q>${esc(e.text)}</q>
               <div class="src">
                 <span class="b mono">${esc(e.module)}</span>
                 <span class="mono">${esc(e.source)}</span>
                 <span aria-hidden="true">·</span><span>${esc(e.folio)}</span>
+                ${off ? '<span class="queue"><span aria-hidden="true">◷</span> Sin ancla — cola humana</span>' : ''}
               </div>
-            </div>`).join('')}
+              ${off && e.note ? `<div class="why">${esc(e.note)}</div>` : ''}
+            </div>`;
+          }).join('')}
         </div></div>
         <div class="field"><div class="k">Ubicación exacta</div>
           <div class="v"><div class="path-line mono">${esc(f.location)}</div></div></div>
@@ -1670,14 +1860,337 @@ if(!lessMotion()) document.body.classList.add('anim');
 renderSummary();
 render('findings');
 
+/* ---------- trace screen ---------- */
+/* SHA-256 written out here on purpose: the chain has to be recomputable with
+   no network and no dependency, and crypto.subtle is unavailable in some
+   file:// contexts. Same function verifies the chain in front of the jury. */
+const SHA_K = new Uint32Array([
+  0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,
+  0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,
+  0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,
+  0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,
+  0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,
+  0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,
+  0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,
+  0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2,
+]);
+
+function sha256(text){
+  const bytes = new TextEncoder().encode(text);
+  const blocks = Math.floor((bytes.length + 8) / 64) + 1;
+  const buf = new Uint8Array(blocks * 64);
+  buf.set(bytes);
+  buf[bytes.length] = 0x80;
+  const view = new DataView(buf.buffer);
+  view.setUint32(buf.length - 8, Math.floor(bytes.length / 536870912));
+  view.setUint32(buf.length - 4, (bytes.length << 3) >>> 0);
+
+  const H = new Uint32Array([0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,
+                             0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19]);
+  const w = new Uint32Array(64);
+  const rot = (x, n) => (x >>> n) | (x << (32 - n));
+
+  for(let i = 0; i < buf.length; i += 64){
+    for(let t = 0; t < 16; t++) w[t] = view.getUint32(i + t * 4);
+    for(let t = 16; t < 64; t++){
+      const a1 = w[t-15], b1 = w[t-2];
+      const s0 = rot(a1,7) ^ rot(a1,18) ^ (a1 >>> 3);
+      const s1 = rot(b1,17) ^ rot(b1,19) ^ (b1 >>> 10);
+      w[t] = (w[t-16] + s0 + w[t-7] + s1) >>> 0;
+    }
+    let [a, b, c, d, e, f, g, h] = H;
+    for(let t = 0; t < 64; t++){
+      const S1 = rot(e,6) ^ rot(e,11) ^ rot(e,25);
+      const ch = (e & f) ^ (~e & g);
+      const t1 = (h + S1 + ch + SHA_K[t] + w[t]) >>> 0;
+      const S0 = rot(a,2) ^ rot(a,13) ^ rot(a,22);
+      const maj = (a & b) ^ (a & c) ^ (b & c);
+      const t2 = (S0 + maj) >>> 0;
+      h = g; g = f; f = e; e = (d + t1) >>> 0;
+      d = c; c = b; b = a; a = (t1 + t2) >>> 0;
+    }
+    H[0] = (H[0] + a) >>> 0; H[1] = (H[1] + b) >>> 0;
+    H[2] = (H[2] + c) >>> 0; H[3] = (H[3] + d) >>> 0;
+    H[4] = (H[4] + e) >>> 0; H[5] = (H[5] + f) >>> 0;
+    H[6] = (H[6] + g) >>> 0; H[7] = (H[7] + h) >>> 0;
+  }
+  return [...H].map(x => x.toString(16).padStart(8, "0")).join("");
+}
+
+const ZERO = "0".repeat(64);
+const short = d => d.slice(0, 12);
+
+/* Fields are joined with separators that cannot appear in the text, so two
+   different entries can never produce the same string. */
+const entryText = e => [e.at, e.step, e.actor.kind, e.actor.name, e.input.label,
+                        e.input.digest, e.output.label, e.output.digest, e.change]
+                       .join("\u001f");
+
+function chainOf(entries){
+  let prev = ZERO;
+  return entries.map(e => {
+    const hash = sha256(prev + "\u001e" + entryText(e));
+    const link = {entry:e, prev, hash};
+    prev = hash;
+    return link;
+  });
+}
+
+/* The dossier on screen gets its own link: the digest is computed from the very
+   constants this page renders, so it can be recomputed by anyone. */
+function screenEntry(){
+  return {
+    step: "Datos cargados en esta pantalla",
+    at: LOADED_AT,
+    actor: { kind: "system", name: "prototipo/index.html · en el navegador" },
+    input: { label: "Hallazgos, módulos y precedentes auditados", digest: short(DATA_DIGEST) + "…" },
+    output: {
+      label: FINDINGS.length + " hallazgos · " + anchors + " anclas · " + loose + " sin ancla en cola humana",
+      digest: DATA_DIGEST,
+    },
+    change: "Lo que se ve arriba es exactamente lo que auditó el paso anterior. Si alguien edita un folio en el archivo, esta huella cambia y la cadena se rompe aquí.",
+  };
+}
+
+const LOADED_AT = new Date().toISOString();
+const DATA_DIGEST = sha256(JSON.stringify({d:DOSSIER, m:MODULES, f:FINDINGS, p:PRECEDENTS}));
+
+/* Signatures added during the session live here, never anywhere else. */
+const SIGNATURES = [];
+let tampered = null;   // index of the entry altered by the demo button
+let lastCheck = null;  // {ok, at, ms, brokenAt}
+
+const traceEntries = () => [...TRACE, screenEntry(), ...SIGNATURES];
+
+/* Sealed once, at load: the reference the verification compares against. */
+const SEALED = chainOf(traceEntries()).map(l => l.hash);
+
+function verifyChain(){
+  const t0 = performance.now();
+  const links = chainOf(traceEntries());
+  let brokenAt = -1;
+  for(let i = 0; i < links.length; i++){
+    if(i >= SEALED.length) break;               // signatures added after sealing
+    if(links[i].hash !== SEALED[i]){ brokenAt = i; break; }
+  }
+  lastCheck = {ok: brokenAt < 0, brokenAt, ms: Math.max(1, Math.round(performance.now() - t0)),
+               at: new Date()};
+  return links;
+}
+
+const HOUR = new Intl.DateTimeFormat("es-CO", {
+  timeZone: "America/Bogota", day: "2-digit", month: "short",
+  hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false,
+});
+
+function renderTrace(){
+  const links = verifyChain();
+  const check = lastCheck;
+  const state = check.ok
+    ? {cls:"", badge:"✓ Cadena íntegra", txt:links.length + " eslabones recalculados en el navegador"}
+    : {cls:" broken", badge:"✗ Cadena rota",
+       txt:"el eslabón " + (check.brokenAt + 1) + " no coincide con su sello; todos los siguientes tampoco"};
+
+  const rows = links.map((l, i) => {
+    const e = l.entry;
+    const broken = !check.ok && i >= check.brokenAt;
+    const person = e.actor.kind === "person";
+    return [
+      '<li class="link' + (broken ? " broken" : "") + '">',
+      '  <div class="when mono">' + esc(HOUR.format(new Date(e.at))) + '</div>',
+      '  <div class="box">',
+      '    <h3>' + (i + 1) + '. ' + esc(e.step) + '</h3>',
+      '    <div class="who"><span class="kind' + (person ? " person" : "") + '">' +
+      (person ? "Persona" : "Sistema") + '</span>' + esc(e.actor.name) + '</div>',
+      '    <div class="io">',
+      '      <div><div class="k">Qué entró</div><div class="t">' + esc(e.input.label) + '</div>' +
+      '           <div class="digest mono">' + esc(e.input.digest) + '</div></div>',
+      '      <div><div class="k">Qué salió</div><div class="t">' + esc(e.output.label) + '</div>' +
+      '           <div class="digest mono">' + esc(e.output.digest) + '</div></div>',
+      '    </div>',
+      '    <div class="chg">' + esc(e.change) + '</div>',
+      '    <div class="seal mono">' +
+      '      <span>anterior ' + esc(short(l.prev)) + '…</span>' +
+      '      <span aria-hidden="true">→</span>' +
+      '      <span>eslabón ' + esc(short(l.hash)) + '…</span>' +
+      (broken ? '<span>· no coincide con el sello</span>' : "") +
+      '    </div>',
+      '  </div>',
+      '</li>',
+    ].join("");
+  }).join("");
+
+  const pending = [
+    '<li class="link pending">',
+    '  <div class="when mono">pendiente</div>',
+    '  <div class="box">',
+    '    <h3>' + (links.length + 1) + '. ' + esc(SIGN_STEP) + '</h3>',
+    '    <div class="who"><span class="kind person">Persona</span>' +
+    '      Sin firmar. El sistema no decide: la valoración y la firma son del evaluador competente.</div>',
+    '    <div class="sign">',
+    '      <label class="sr" for="signWho">Nombre de quien revisa</label>',
+    '      <input id="signWho" type="text" autocomplete="off" placeholder="Nombre de quien revisa">',
+    '      <button type="button" id="signBtn">Firmar revisión</button>',
+    '    </div>',
+    '    <div class="chg">La firma se calcula aquí y se encadena al último eslabón. No sale de esta máquina.</div>',
+    '  </div>',
+    '</li>',
+  ].join("");
+
+  $("#screenTrace").innerHTML = [
+    '<div class="chain-top">',
+    '  <div class="chain-state' + state.cls + '" role="status">',
+    '    <span class="badge">' + state.badge + '</span>',
+    '    <span class="meta">' + esc(state.txt) + ' · ' + check.ms + ' ms</span>',
+    '  </div>',
+    '  <div class="chain-acts">',
+    '    <button type="button" class="primary" id="chainVerify">Verificar cadena</button>',
+    '    <button type="button" id="chainTamper">' +
+      (tampered === null ? "Alterar un registro" : "Restaurar el registro") + '</button>',
+    '  </div>',
+    '</div>',
+    '<p class="chain-why">Cada eslabón lleva el hash del anterior, así que cambiar un solo campo' +
+    ' invalida ese eslabón y todos los que siguen. El cálculo es SHA-256 escrito en esta misma' +
+    ' página: sin red, sin librerías y verificable delante de quien pregunte.</p>',
+    '<ol class="chain">' + rows + pending + '</ol>',
+  ].join("");
+}
+
+/* The demo alteration edits one visible number — the kind of edit someone would
+   make to look better — so the break is legible instead of abstract. */
+function toggleTamper(){
+  const i = 2;
+  if(tampered === null){
+    tampered = {i, label: TRACE[i].output.label};
+    TRACE[i].output.label = "13 citas coinciden · 0 con folio corrido · 0 sin ancla";
+  }else{
+    TRACE[tampered.i].output.label = tampered.label;
+    tampered = null;
+  }
+  renderTrace();
+}
+
+function signReview(){
+  const field = $("#signWho");
+  const who = (field.value || "").trim();
+  if(!who){ field.focus(); return; }
+  SIGNATURES.push({
+    step: SIGN_STEP,
+    at: new Date().toISOString(),
+    actor: { kind: "person", name: who },
+    input: { label: "Los " + FINDINGS.length + " hallazgos y su evidencia, leídos en pantalla",
+             digest: DATA_DIGEST },
+    output: { label: "Revisión registrada. La decisión sobre el trámite sigue siendo del evaluador competente",
+              digest: sha256(who + "\u001f" + DATA_DIGEST) },
+    change: "Firma de demostración: queda en esta sesión del navegador y no se envía a ningún sitio.",
+  });
+  SEALED.push(chainOf(traceEntries()).at(-1).hash);
+  renderTrace();
+}
+
+/* ---------- aviso al administrado ---------- */
+/* Generated from the same FINDINGS/DOSSIER data the evaluator sees — see
+   docs/aviso-administrado.md for the wording rule (§5.4: no bare score without
+   the factors behind it) and the three institutional fields this team cannot
+   verify (channel, deadline, responsible office), marked pending, never invented. */
+function findingFolios(f){
+  const seen = new Set();
+  const out = [];
+  for(const e of f.evidence){
+    if(e.anchored === false) continue;
+    for(const n of (e.folio.match(/\d+/g) || [])){
+      if(!seen.has(n)){ seen.add(n); out.push(n); }
+    }
+  }
+  return out;
+}
+
+function renderAviso(){
+  const signed = SIGNATURES.length ? SIGNATURES[SIGNATURES.length - 1] : null;
+  const digest = short(DATA_DIGEST) + '…';
+
+  const items = FINDINGS.map(f => {
+    const folios = findingFolios(f).map(n => 'folio ' + n).join(' y ');
+    return [
+      '<li>',
+      '  <b>' + esc(f.answer) + '</b>',
+      '  <div class="aviso-where">Dónde está en su solicitud: ' + esc(folios || 'ver registro de la Huella') + '.</div>',
+      '  <div class="aviso-review">Revisado por: ' +
+      (signed ? esc(signed.actor.name) + ' el ' + esc(HOUR.format(new Date(signed.at)))
+              : 'pendiente — aún sin firma humana en el registro (pestaña Huella)') + '.</div>',
+      '</li>',
+    ].join('');
+  }).join('');
+
+  const unanchored = FINDINGS.flatMap(f => f.evidence.filter(e => e.anchored === false));
+  const notAnalyzed = unanchored.length
+    ? '<ul class="aviso-na">' + unanchored.map(e =>
+        '<li>' + esc(e.text) + ' — ' + esc(e.note || 'no se pudo anclar a un folio exacto') + '</li>'
+      ).join('') + '</ul>'
+    : '<p>No hubo pasajes que la herramienta dejara de leer con seguridad en este expediente.</p>';
+
+  $('#screenAviso').innerHTML = [
+    '<div class="aviso-doc">',
+    '<p class="aviso-pending-note">⏳ Canal de radicación, término del trámite y dependencia que responde: ' +
+    '<b>pendientes de confirmación institucional</b>. Son datos del INVIMA que este equipo no tiene ' +
+    'verificados y no se inventan.</p>',
+
+    '<h2>Aviso: en la revisión de su solicitud se usó una herramienta informática de apoyo</h2>',
+    '<p class="aviso-meta"><b>Solicitud:</b> ' + esc(DOSSIER.fileNumber) + ' · <b>Producto:</b> ' + esc(DOSSIER.product) + '<br>' +
+    '<b>Solicitante:</b> ' + esc(DOSSIER.applicant) + ' · <b>Fecha del aviso:</b> ' + esc(HOUR.format(new Date())) +
+    ' · <b>Identificador de la huella:</b> ' + esc(digest) + '</p>',
+
+    '<h3>Qué se hizo</h3>',
+    '<p>Su solicitud tiene ' + DOSSIER.folios + ' folios repartidos en varios cuadernos. Para leerlos, el ' +
+    'evaluador usó una herramienta que busca dentro de los documentos y señala dónde dos partes de la ' +
+    'solicitud dicen cosas distintas. La herramienta le muestra al evaluador la frase exacta y la página ' +
+    'donde está.</p>',
+
+    '<h3>Qué no hizo la herramienta</h3>',
+    '<p>No aprobó ni negó nada. No calificó su solicitud. No redactó la decisión ni la firmó. No opinó ' +
+    'sobre si el medicamento es eficaz, seguro o de buena calidad: eso lo evalúa un equipo técnico humano. ' +
+    'La herramienta solo lee y señala; <b>la decisión sobre su trámite la toma una persona.</b></p>',
+
+    '<h3>Qué encontró, y quién lo revisó (' + FINDINGS.length + ')</h3>',
+    '<ul class="aviso-findings">' + items + '</ul>',
+    '<p class="aviso-note">La herramienta no retira ninguna página de la revisión: el evaluador leyó su ' +
+    'solicitud completa. Lo señalado aquí es lo que la herramienta ayudó a encontrar, no todo lo que se ' +
+    'revisó.</p>',
+
+    '<h3>Qué no alcanza a revisar la herramienta</h3>',
+    notAnalyzed,
+
+    '<h3>Si no está de acuerdo: puede pedir revisión humana</h3>',
+    '<p>Usted puede pedir que una persona distinta revise lo que se señaló arriba, sin costo y sin ' +
+    'necesidad de abogado. La solicitud queda registrada y se le responde por escrito.</p>',
+    '<ul class="aviso-pending">',
+    '  <li><b>Cómo:</b> <span class="pend">pendiente de confirmación institucional</span></li>',
+    '  <li><b>Qué escribir:</b> el número de su solicitud (' + esc(DOSSIER.fileNumber) +
+    '), cuál de los puntos señalados objeta y por qué.</li>',
+    '  <li><b>Plazo para pedirla:</b> <span class="pend">pendiente de confirmación institucional</span></li>',
+    '  <li><b>Quién responde:</b> <span class="pend">pendiente de confirmación institucional</span></li>',
+    '</ul>',
+
+    '<h3>Cómo saber qué pasó con su solicitud</h3>',
+    '<p>Cada paso quedó registrado: qué documentos entraron, qué señaló la herramienta, quién lo revisó, ' +
+    'qué cambió y qué se decidió. Puede consultarlo en la pestaña <b>Huella</b> citando ' +
+    esc(DOSSIER.fileNumber) + '.</p>',
+
+    '<p class="aviso-foot">Este aviso se generó automáticamente al abrir esta pantalla. Identificador de ' +
+    'la huella: ' + esc(digest) + '.</p>',
+    '</div>',
+  ].join('');
+}
+
 /* ---------- screens, tabs, cards ---------- */
 let currentScreen = 'summary';
 
 function showScreen(name){
   currentScreen = name;
   $$('.screens button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.s === name)));
-  $('#screenSummary').hidden = name !== 'summary';
-  $('#screenDetail').hidden  = name !== 'detail';
+  $$('#content [data-screen]').forEach(el => { el.hidden = el.dataset.screen !== name; });
+  if(name === 'trace') renderTrace();
+  if(name === 'aviso') renderAviso();
 }
 
 function selectTab(tab){
@@ -1706,6 +2219,10 @@ function openFinding(id){
 document.addEventListener('click', e => {
   const scr = e.target.closest('.screens button');
   if(scr){ showScreen(scr.dataset.s); return; }
+
+  if(e.target.closest('#chainVerify')){ renderTrace(); return; }
+  if(e.target.closest('#chainTamper')){ toggleTamper(); return; }
+  if(e.target.closest('#signBtn')){ signReview(); return; }
 
   const tab = e.target.closest('.tab');
   if(tab){ selectTab(tab); return; }

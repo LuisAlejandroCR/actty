@@ -23,7 +23,7 @@ concepto favorable o precedente de Sala**, para no reevaluarlos.
 
 Cuatro hechos de arquitectura que condicionan toda la clasificación:
 
-1. El análisis se **precomputa fuera de línea** y queda en `datos.js`, revisado por una persona antes
+1. El análisis se **precomputa fuera de línea** y queda incrustado en `prototipo/index.html`, revisado por una persona antes
    de publicarse.
 2. La aplicación **no hace llamadas de red** y no envía el expediente a ningún servicio externo: se
    abre con `file://` y funciona con el WiFi apagado.
@@ -56,7 +56,7 @@ ubica en el borde superior del nivel porque una acción sugerida puede convertir
 Subsanable / Omisión / No aportado califican **el documento dentro de la revisión**, nunca el
 trámite; el estado del trámite lo fija la persona. Cada hallazgo trae un campo `limitaciones` que
 declara qué **no** juzga el sistema (H5: la valoración beneficio-riesgo queda fuera de alcance).
-**Estado:** implementado — verificable en `prototipo/datos.js`; no existe ningún campo de veredicto.
+**Estado:** implementado — verificable en `prototipo/index.html`; no existe ningún campo de veredicto.
 
 ### 2. Autonomía — MEDIO
 
@@ -68,10 +68,17 @@ excluido por construcción: no hay decisión automatizada, no se emite acto, no 
 expediente.
 
 **Control.** (a) Toda recomendación aparece junto a su evidencia literal y su folio, nunca sola.
-(b) Los pesos internos (legal 0,25 · calidad 0,45 · farmacología 0,30) ordenan la carga de revisión;
-**no se publica un porcentaje global de cumplimiento ni de aprobabilidad** — es el residuo de riesgo
-más visible de esta pieza y por eso se declara. (c) La acción se redacta como requerimiento
-*propuesto*. **Estado:** (a) y (c) implementados; (b) comprometido y verificable en la entrega.
+(b) La pantalla **sí publica un índice global en porcentaje** —«Índice de rigor»—, ponderado por
+área. Es el residuo de riesgo más visible del prototipo y se declara tal cual: un número único invita
+a leerse como calificación de cumplimiento, y calificar cumplimiento como salida final está en la
+columna de usos no admisibles de §4. Tres acotaciones lo mantienen del lado admisible, y las tres son
+verificables en pantalla: nunca se rotula «cumple», «aprueba» ni «aprobabilidad»; **los factores que
+lo producen se muestran desglosados** por área, por módulo y por documento, que es justo lo que §5.4
+exige para que un número no vaya solo; y califica **documentos dentro de la revisión**, nunca el
+trámite. ⚠️ **Decisión abierta antes del cierre:** renombrarlo a lo que de verdad mide —cobertura de
+la revisión— o sacarlo de la cabecera. (c) La acción se redacta como requerimiento *propuesto*.
+**Estado:** (a) y (c) implementados; (b) publicado y declarado, con el rótulo pendiente de decisión —
+cotejado contra `prototipo/index.html` el 26 de agosto a las 13:40.
 
 ### 3. Datos personales — MEDIO (por regla de duda)
 
@@ -85,7 +92,7 @@ exigencia ante la duda: **medio**.
 CRF, listados de sujetos, narrativas de eventos adversos. Si alguna vez los ingiriera, este criterio
 pasa a alto y con él la clasificación global. Sin red, el dato no sale de la máquina. Intentar
 reidentificar información anonimizada está prohibido (§11.6) y no se hace ni como demostración.
-**Estado:** implementado en el prototipo (`datos.js` no contiene datos personales) + frontera
+**Estado:** implementado en el prototipo (los datos precomputados no contienen datos personales) + frontera
 comprometida para despliegue.
 
 ### 4. Impacto en seguridad sanitaria o salud pública — MEDIO (indirecto)
@@ -118,7 +125,7 @@ poblacionales ni sobre el público general, lo que excluye el nivel alto.
 **Control.** Prohibición expresa de vistas agregadas **por titular o por solicitante**: cualquier
 ranking por quién radica es perfilamiento con efectos jurídicos (§4, usos no admisibles; §11.7). La
 agrupación admitida es por trámite y por riesgo sanitario. **Estado:** comprometido — hoy no existe
-ninguna vista por titular en `datos.js`, y esa ausencia es una decisión de diseño, no un pendiente.
+ninguna vista por titular en `prototipo/index.html`, y esa ausencia es una decisión de diseño, no un pendiente.
 
 ### 6. Reversibilidad — MEDIO (difícilmente reversible)
 
@@ -128,7 +135,7 @@ art. 94 del Decreto 2106 de 2019 se formula **una sola vez y consolidado**: un h
 herramienta no vio y la persona tampoco no obtiene un segundo requerimiento. Marcar «reversible»
 sería mirar solo el software y no el procedimiento en el que se inserta.
 
-**Control.** La revisión humana de `datos.js` antes de publicarlo y la regla dura de cita —sin folio
+**Control.** La revisión humana de los datos precomputados antes de publicarlos y la regla dura de cita —sin folio
 verificable no se muestra la afirmación— actúan antes de que un error llegue al requerimiento. Además
 la pantalla dice **qué no revisó**: los campos `faltante` y `limitaciones` existen para que la persona
 complete el requerimiento con su propio criterio. **Estado:** implementado.

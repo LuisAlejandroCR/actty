@@ -60,7 +60,7 @@ No asumir el estado de un archivo sin leerlo.
 |---|---|---|
 | `prototipo/index.html` | Cockpit del evaluador: un solo archivo, sin peticiones de red, datos precomputados | Público |
 | `motor/` | Motor de evidencia en Node (`ingesta` · `anclar` · `auditar`). Vive hoy en el worktree `motor-evidencia` | Público |
-| `docs/` | `plan.md` (bloques y criterios) · `memoria.md` (enfoque + bitácora) · `verificacion.md` (datos y correcciones) · `pitch.md` | Privado |
+| `docs/` | `plan.md` (bloques y criterios) · `memoria.md` (enfoque + bitácora) · `verificacion.md` (datos y correcciones) · `pitch.md` · `eia.md` (los 12 puntos de Reglas §7) · `aviso-administrado.md` | Privado |
 | `descubrimientos/` | Investigación: reto, dataset, competencia, riesgos, stack, toolchain, método | Privado |
 | `reference/` | Fuentes primarias: los 9 PDF del día, reglas, declaración de PI | Privado |
 | `README.md` | La cara pública, escrita para el usuario | Público |
@@ -166,6 +166,8 @@ destructivas; tras tres intentos fallidos, parar y nombrar el supuesto dudoso.
 - Plan y criterios de aceptación → [`docs/plan.md`](docs/plan.md)
 - Enfoque técnico y bitácora → [`docs/memoria.md`](docs/memoria.md)
 - Datos verificados, pendientes y correcciones → [`docs/verificacion.md`](docs/verificacion.md)
+- Evaluación de Impacto Algorítmico, 12 puntos → [`docs/eia.md`](docs/eia.md); nivel de riesgo →
+  [`reference/clasificacion-riesgo.md`](reference/clasificacion-riesgo.md)
 - El dataset y sus contradicciones → [`descubrimientos/dataset-corazilimab.md`](descubrimientos/dataset-corazilimab.md)
 - Rulebook transversal → `../procedures/agents.md`
 - Docs de librerías → <https://context7.com/>

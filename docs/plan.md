@@ -50,26 +50,43 @@ que nada administrativo me deje fuera de una jornada que ya preparé.
 **Historia.** Como equipo quiero llegar con la tabla de riesgo razonada, para que el 26 solo haya que
 ajustarla a la idea final en lugar de descubrir el formato.
 
-**Criterios de aceptación**
-- [ ] Los seis criterios de [Reglas §6] evaluados en una tabla: efecto sobre derechos, autonomía,
+**Criterios de aceptación** — cerrado el 2026-08-26 en
+[../reference/clasificacion-riesgo.md](../reference/clasificacion-riesgo.md), **nivel MEDIO**.
+- [x] Los seis criterios de [Reglas §6] evaluados en una tabla: efecto sobre derechos, autonomía,
       datos personales, impacto en salud pública, alcance, reversibilidad.
-- [ ] El nivel final es el **más alto** de los seis, y así está escrito.
-- [ ] Cada nivel trae una frase de justificación, no solo la etiqueta.
-- [ ] Si el nivel resulta alto, hay al menos un control reforzado por cada criterio que lo elevó.
+- [x] El nivel final es el **más alto** de los seis, y así está escrito.
+- [x] Cada nivel trae una frase de justificación, un control con su estado, y no solo la etiqueta.
+- [x] No resultó alto, así que el criterio de controles reforzados no aplica — pero en las dos
+      fronteras cortas hacia alto (autonomía y omisión) se aplican controles de nivel alto, y los
+      **cinco disparadores de reclasificación** quedan escritos por adelantado.
+- [x] Cotejado contra la pantalla el 26 a las 13:40: dos afirmaciones del documento no coincidían con
+      lo que hace `prototipo/index.html` y se corrigieron en el documento —
+      [verificacion.md](verificacion.md) §7.3 y §7.4.
 
-### B2 — EIA preliminar con huecos (D-1, ~90 min)
+### B2 — EIA preliminar (escrita el día D, 13:30–14:00)
 
-**Historia.** Como equipo quiero la Evaluación de Impacto Algorítmico ya redactada en todo lo que no
-depende de la idea, para que el 26 se llenen huecos en vez de escribir un documento entero.
+**Historia.** Como equipo quiero la Evaluación de Impacto Algorítmico completa y proporcional al
+riesgo, para pasar la etapa eliminatoria sin depender de que el jurado sea benévolo leyendo huecos.
+
+**Los criterios cambiaron el 26 a las 13:45, y por qué.** Este bloque se escribió para un esqueleto de
+D-1 con siete puntos en blanco. Ese documento nunca se redactó, y hoy los 12 puntos tienen medición
+detrás, así que el criterio de «huecos visibles» dejó de aplicar y el tope de páginas subió: lo que
+antes era un esqueleto ahora carga la clasificación de riesgo, los controles con su estado y las
+cifras del motor. El fondo no se relajó — sigue exigiendo los 12 puntos, el esqueleto NIST y
+proporcionalidad.
 
 **Criterios de aceptación**
-- [ ] Los 12 puntos de [Reglas §7] presentes como secciones, en ese orden.
-- [ ] Los puntos 4 (desarrollador), 8 (seguridad de la información), 10 (mitigaciones),
-      11 (supervisión humana) y 12 (revisión u objeción) **ya redactados**: no dependen de la idea.
-- [ ] Los puntos 1, 2, 3, 5, 6, 7, 9 marcados con hueco visible del tipo `‹se llena el 26›`.
-- [ ] Esqueleto organizado por las funciones del NIST AI RMF, según
+- [x] Los 12 puntos de [Reglas §7] presentes como secciones, en ese orden — 2026-08-26,
+      [eia.md](eia.md). Cotejados uno por uno contra las reglas; cero huecos `‹…›`.
+- [x] Esqueleto organizado por las funciones del NIST AI RMF, según
       [../descubrimientos/metodologia-sdd.md](../descubrimientos/metodologia-sdd.md).
-- [ ] Cabe en 2–3 páginas: es preliminar y proporcional al riesgo, no una tesis.
+- [x] Los cuatro requisitos de [Reglas §5.1] —dónde interviene el funcionario, qué recibe, qué
+      conserva, qué puede modificar— respondidos en ese orden, en el punto 11.
+- [x] Cada cifra remite a su medición en [verificacion.md](verificacion.md); lo no medido se declara
+      como no medido. Cuatro huecos de conocimiento escritos a propósito.
+- [x] Proporcional al riesgo, no una tesis: **282 líneas, 68 de ellas de tabla**, contra un tope
+      fijado en 300. Equivale a unas 5–6 páginas impresas; ⏳ no se renderizó a PDF para contarlas.
+- [ ] ⏳ Licencias de los cuatro componentes de terceros confirmadas y anexadas — va con B8.
 
 ### B3 — Guion del pitch y respuestas al jurado adversario (D-1, ~60 min)
 
@@ -143,8 +160,10 @@ documentación pública (§2 del mismo documento).
 para que el número de impacto sea real y no una estimación de pitch.
 
 **Criterios de aceptación**
-- [ ] **Pista declarada: A o B.** A = escalar la comprensión humana del expediente. B = habilitar
-      flujos autónomos de bajo riesgo. Son las dos únicas aprobadas y hay que decir cuál.
+- [x] **Pista declarada: A** — escalar la comprensión humana del expediente. Queda por escrito en el
+      encabezado de [eia.md](eia.md) y en el punto 1, con las **filas de uso elegible** de [Reglas §4]
+      que la autorizan: extracción estructurada de dossieres como principal; detección de expedientes
+      incompletos y clasificación/priorización como accesorias.
 - [ ] Idea elegida con la **fila de uso elegible anotada** que la autoriza.
 - [ ] Las 12 causales revisadas contra la idea; ninguna aplica.
 - [ ] **Baseline cronometrado**: alguien busca a mano una de las contradicciones verificadas de
@@ -193,7 +212,11 @@ cruce M2↔M5 que hoy hacen dos grupos evaluadores distintos y ninguno ve al otr
 - [ ] **La checklist la pone el sistema**, nunca se le pregunta al modelo "qué falta" en abstracto —
       eso produjo un falso positivo consistente 3/3. Su **origen queda anotado**: dataset del evento,
       norma citada, o supuesto propio ([verificacion.md](verificacion.md) §3.13).
-- [ ] Existe una pantalla o vista donde se ve el registro: qué entró, qué salió, quién revisó, qué cambió.
+- [x] Existe una pantalla o vista donde se ve el registro: qué entró, qué salió, quién revisó, qué
+      cambió — 2026-08-26, 14:08. Pestaña **Huella** en `prototipo/index.html`: SHA-256 escrito en la
+      página (sin red, sin librerías), cadena de 4 pasos del motor + 1 de la pantalla + firma humana
+      pendiente. Botón "Alterar un registro" rompe la cadena en vivo y "Restaurar" la repara — medido
+      en navegador. [verificacion.md](verificacion.md) §5.10.
 - [x] Ninguna salida es un veredicto de cumplimiento — cada hallazgo sale marcado como *lectura
       asistida* y la acción sugerida termina siempre en una persona.
 - [x] Degradación: si un proveedor externo no responde, la pantalla lo dice con hora, y no se cae —
@@ -218,7 +241,7 @@ Medidas en [verificacion.md](verificacion.md) §6.
 | Caso H1 de punta a punta con los 9 campos | ✅ 5/5, 1,87 s, determinista |
 | Prueba de inyección con folio envenenado | ✅ 0 afirmaciones del atacante en evidencia |
 | Checklist puesta por el sistema | ⏳ `resolverItem` está escrito pero **no ejercido** en el caso demo |
-| Pantalla del registro (qué entró, qué salió, quién revisó) | ⏳ es del frontend, no del motor |
+| Pantalla del registro (qué entró, qué salió, quién revisó) | ✅ 2026-08-26 14:08, pestaña Huella en `prototipo/index.html` |
 
 **Lo que falta y no se puede fingir:** los folios corridos del prototipo hay que corregirlos antes de
 las 15:15, y la cifra de fiabilidad es 5/5 **sobre un caso**, no sobre el expediente. Ambas cosas se
@@ -229,10 +252,21 @@ dicen tal cual o cuestan más de lo que ahorran.
 **Historia.** Como titular de un trámite quiero saber que hubo apoyo de IA y cómo pedir revisión
 humana, porque el art. 7.1 de la Resolución me reconoce ese derecho.
 
-**Criterios de aceptación**
-- [ ] Una página: qué hizo la IA, qué revisó una persona, cómo se pide revisión humana documentada.
-- [ ] Redactada para un ciudadano, sin jerga técnica.
-- [ ] Se genera desde el sistema, no es un PDF suelto hecho a mano.
+**Criterios de aceptación** — texto y especificación en
+[aviso-administrado.md](aviso-administrado.md), escritos el 2026-08-26.
+- [x] Una página: qué hizo la IA, **qué no hizo**, qué revisó una persona y cómo se pide revisión
+      humana documentada.
+- [x] Redactada para un ciudadano, sin jerga técnica: sin «IA generativa», sin «anclaje», sin nombres
+      de archivo. Ejemplo del hallazgo H1 traducido a lenguaje llano.
+- [x] Cumple la exigencia de [Reglas §5.4] de **no presentar solo una puntuación o recomendación**:
+      enumera cada hallazgo con su folio y sus limitaciones.
+- [x] Los tres campos institucionales que este equipo no tiene verificados —canal, término,
+      dependencia— se pintan como pendientes en vez de inventarse.
+- [x] Se genera desde el sistema, no es un PDF suelto hecho a mano — 2026-08-26, 14:09. Pestaña
+      **Aviso** en `prototipo/index.html`, generada desde `DOSSIER`/`FINDINGS`, sin texto de plantilla
+      escrito a mano salvo el fijo del documento fuente. Verificador ejercido en navegador: la vista
+      abre, muestra los 5 hallazgos con su folio, y cero huecos `‹…›` fuera de los tres campos
+      institucionales marcados «pendiente de confirmación institucional». [verificacion.md](verificacion.md) §5.10.
 
 ### B8 — Doble verificación y congelación (día D, 15:30–17:00)
 

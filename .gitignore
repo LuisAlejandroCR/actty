@@ -1,8 +1,8 @@
 .claude
 /descubrimientos
-
-
 .env
 .env.*
 
 .worktreeinclude
+
+/cockpit-evaluador

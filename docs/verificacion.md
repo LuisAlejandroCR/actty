@@ -587,6 +587,64 @@ de pantalla activa, etapa BPM activa, burbuja del usuario, botón de enviar, bar
 resolvió con tokens propios —`--accent-solid`/`--accent-on`, `--crit-*`, `--min-*`— que en tema
 oscuro invierten a tinta oscura sobre relleno claro.
 
+### 5.10 Dos pantallas nuevas — Huella y Aviso, medidas el 2026-08-26, 14:10
+
+Tres sesiones de Claude Code trabajaron en paralelo sobre `prototipo/index.html` entre las 13:35 y las
+13:55 (`generax-summit-4e` en el cockpit, `generax-summit-14` en documentos, `generax-summit-84`
+preparando el árbol M1–M8) y las tres agotaron su límite de sesión antes de soltar código funcionando.
+Se recuperaron sus transcripciones exportadas y se retomó desde ahí.
+
+**Pantalla Huella.** El script `add_trace.mjs` que la sesión del cockpit había escrito (capturado en su
+transcripción, nunca ejecutado) se corrió contra el `index.html` actual. Insertó CSS, marcado y JS sin
+tocar `FINDINGS`, `scores()` ni el mapa lateral, tal como su propio comentario prometía. Dos bugs
+propios del script, no del cambio en sí, salieron al `node --check` del script inline:
+
+1. Dos líneas de la función `renderTrace` habían quedado con la concatenación de cadena rota —una
+   comilla de más partía el literal `(person ? "Persona" : "Sistema")` en texto suelto—. Corregido a
+   mano en las dos ocurrencias.
+2. `showScreen()` perdió sus dos `$$(...)` y quedó con `$(...)` simple: `String.prototype.replace`
+   interpreta `$$` en el **reemplazo** como escape de un solo `$`, y el script nunca usó una función de
+   reemplazo para evitarlo. Corregido a mano; es la causa de que `$$(...).forEach` lanzara
+   `TypeError: forEach is not a function` en la primera carga.
+
+Verificado en navegador tras el arreglo: la pestaña abre sin error de consola, "✓ Cadena íntegra"
+sobre 5 eslabones; "Alterar un registro" rompe la cadena en el eslabón 3 y lo dice; "Restaurar"
+la repara; firmar con un nombre añade un sexto eslabón y la cadena sigue íntegra. Sin red: el hash es
+SHA-256 escrito en la propia página.
+
+**Pantalla Aviso.** No existía ni como script a medias — se escribió de cero siguiendo la especificación
+de [aviso-administrado.md](aviso-administrado.md), leyendo `DOSSIER` y `FINDINGS` ya cargados, sin
+depender de datos del motor que no están en este checkout (`motor/salida/` vive en el worktree
+`motor-evidencia`, gitignored, no llega al principal). Verificador de una frase de ese documento,
+ejercido con JavaScript en la página cargada:
+
+```json
+{"hidden": false, "hasPlaceholderGaps": false, "findingsShown": 5, "pendCount": 3}
+```
+
+Los tres campos institucionales (canal, término, dependencia) salen marcados
+«pendiente de confirmación institucional» — nunca inventados, tal como pide el documento fuente.
+
+**Efecto colateral aprovechado.** El área de documentos había dejado, sobre la mesa, una recomendación
+de la sesión `generax-summit-14`: renombrar «Índice de rigor» a lo que mide, porque un porcentaje único
+junto a la palabra «Riesgo» roza la columna de usos no admisibles de [Reglas §4]. Se renombró a
+**«Cobertura de revisión»** con un `title` explicando que no es nota de cumplimiento ni recomendación de
+aprobación. No se tocó el cálculo, solo la etiqueta — es una `l` de un `div`, sin riesgo de regresión.
+
+**Lo que queda deliberadamente sin tocar, y por qué.** Dos hallazgos de las mismas sesiones siguen
+abiertos:
+
+1. `WEIGHTS`, el mapa de valor por estado y los umbrales de color siguen en claro en el `index.html`
+   público. Sacarlos de verdad exige precomputar los puntajes fuera del navegador y dejar de mostrar la
+   fórmula — un cambio de arquitectura, no una edición de texto, y a 65 minutos del cierre de código el
+   riesgo de romper el cálculo en vivo (que sostiene Confiabilidad 20 %) pesa más que el de dejarlo
+   documentado como pendiente. Se mantiene como estaba: reportado, no maquillado.
+2. El árbol M1–M8 (pantalla "Expediente": Módulo → Sección → Documento → Versión → Folio → Fragmento)
+   que `generax-summit-84` estaba construyendo no llegó a ningún archivo ejecutable — solo fragmentos de
+   CSS y JS sueltos en su scratchpad de sesión, pensados para datos de `motor/salida/expediente.json`
+   que no están en este checkout. Ensamblarlos a ciegas y sin ese archivo es más caro que no tenerlo.
+   Queda fuera de esta pasada.
+
 ## 6. Motor de evidencia — medido el 2026-08-26
 
 Código en `motor/`, worktree `motor-evidencia`. Node 24 sin dependencias, `pdftotext -layout` para
@@ -657,3 +715,130 @@ no existen en el expediente y no anclaron.
 De ahí la cuarta regla del motor, hermana de las tres de §3.12: **el código preselecciona los folios
 candidatos por búsqueda de texto antes de llamar al modelo**. Es determinista, se explica en una
 frase —«los folios donde aparecen estas palabras»— y baja el caso completo a dos llamadas.
+
+### 5.8 La paleta cálida se fija en claro
+
+Con el sistema en modo oscuro la página abría en la variante oscura, y lo que se pidió fue la cálida.
+Se ancló `data-theme="light"` en el propio `<html>`: la paleta crema y terracota es ahora el estado
+de arranque, el botón ◐ sigue conmutando y la elección se recuerda.
+
+Verificado con `prefers-color-scheme: dark` emulado: `systemPrefersDark: true` y aun así
+`body` en `#faf6f0`, tinta `#241d17`, tarjetas `#fffcf8`. La barra lateral se queda marrón oscuro
+`#2b201a` a propósito — es el riel de navegación, como en el patrón de panel que se tomó de
+referencia, no un residuo del tema oscuro.
+
+**Si en una máquina sigue abriendo oscuro**, es `localStorage` con una preferencia guardada de una
+sesión anterior: un clic en ◐ la corrige.
+
+### 5.9 Despliegue — preparado, pendiente de autorización
+
+El despliegue se preparó **fuera del repositorio**, con una carpeta que contiene únicamente el
+prototipo:
+
+```
+cockpit-evaluador/
+  index.html      ← copia de prototipo/index.html
+  vercel.json     ← cabeceras
+```
+
+`vercel.json` fija una **CSP que convierte la promesa en una regla del navegador**:
+`connect-src 'none'` bloquea `fetch`, `XHR` y WebSocket; `form-action 'none'` bloquea cualquier
+envío; más `frame-ancestors 'none'`, `object-src 'none'`, `base-uri 'none'`, `nosniff`,
+`Referrer-Policy: no-referrer`. Deja de ser "la aplicación no llama a la red" y pasa a ser "el
+navegador no la deja". Es defendible en Seguridad 15 %.
+
+La carpeta está en `.gitignore`. El comando de publicación quedó **sin ejecutar**: requiere
+autorización explícita porque publica hacia fuera.
+
+## 7. Dossier documental — escrito y cotejado el 2026-08-26, 13:30–14:00
+
+Área `docs/**` del reparto de [../WORKTREES.md](../WORKTREES.md). Se escribieron los dos entregables
+que faltaban y se cotejó lo que el dossier **afirmaba** contra lo que la pantalla **hace**.
+
+### 7.1 EIA preliminar — [eia.md](eia.md)
+
+| # | Hecho | Cómo se comprobó |
+|---|---|---|
+| 1 | Los **12 puntos** de [Reglas §7] están presentes, numerados y en el orden de la norma | Cotejo punto por punto contra `reference/Reglas de juego Hackaton Invima-2.md`, líneas 100–111 |
+| 2 | Ninguno queda con hueco `‹se llena el 26›` | Búsqueda de `‹` en el archivo: cero apariciones |
+| 3 | Esqueleto **NIST AI RMF** (*Govern · Map · Measure · Manage*) con los 12 puntos colgados | Tabla de mapa al inicio del documento |
+| 4 | Los cuatro requisitos de [§5.1] —dónde interviene, qué recibe, qué conserva, qué puede modificar— responden en ese orden | Punto 11, tabla de tres momentos |
+| 5 | Toda cifra del documento remite a su medición | Tabla de trazabilidad al final; ninguna cifra sin fila en §6 o §3 |
+
+**Lo que la EIA declara como no medido:** N = 5 sobre un caso, sin tasa de falsos positivos ni
+negativos, sin muestreo a ciegas ejecutado y sin enganche con gestión documental. Cuatro huecos
+escritos a propósito.
+
+⚠️ **Las licencias de los cuatro componentes de terceros siguen sin verificar** (Node, `pdftotext`,
+Ollama, `qwen2.5:3b`). Figuran en el punto 4 con marca de pendiente porque **omitir componentes de
+terceros es causal de descalificación** [§11.11], pero afirmar una licencia sin comprobarla sería
+inventar. Es tarea del anexo de B8.
+
+### 7.2 Aviso al administrado — [aviso-administrado.md](aviso-administrado.md)
+
+Texto en lenguaje llano, la tabla de campos que rellena el sistema y el verificador de una frase para
+el área del cockpit. **Tres campos institucionales quedan sin dato** —canal de radicación, término y
+dependencia responsable—: son información del INVIMA que este equipo no tiene verificada y se pintan
+como pendientes de confirmación, no como si estuvieran fijados.
+
+### 7.3 El dossier citaba un archivo que no existe
+
+La clasificación de riesgo apoyaba cuatro de sus seis controles en `prototipo/datos.js`. **Ese archivo
+no existe**: los datos precomputados viven dentro de `prototipo/index.html`, que es un solo archivo.
+`find . -name "datos.js"` no devuelve nada. Corregidas las cinco menciones. Un jurado que abre el repo
+y no encuentra el archivo citado deja de creer el resto del documento.
+
+### 7.4 El dossier afirmaba un control que la pantalla no cumple
+
+La clasificación decía, como control del criterio de autonomía: *«no se publica un porcentaje global
+de cumplimiento ni de aprobabilidad»*. **La cabecera sí publica un porcentaje global** —«Índice de
+rigor», `#kGlobal`— ponderado por área.
+
+Regla de B8: la discrepancia se corrige en el documento, no se maquilla en el demo. El control quedó
+reescrito con lo que de verdad ocurre, y con las tres acotaciones que sí son verificables en pantalla:
+no se rotula «cumple» ni «aprueba», califica documentos y no el trámite, y los factores que lo
+producen se muestran desglosados —que es lo que [§5.4] exige para que un número no vaya solo—.
+
+⚠️ **Decisión abierta antes del cierre de código**, y no es del área de documentos: renombrar el
+índice a lo que mide —cobertura de la revisión— o retirarlo de la cabecera. Calificar cumplimiento
+como salida final está en la columna de usos **no** admisibles de §4, y un número único junto a la
+palabra «Riesgo» es lo más cerca que está el prototipo de esa frontera.
+
+### 7.5 Business logic expuesta en el repositorio público
+
+`prototipo/index.html` es público y contiene las reglas de puntuación en claro: los pesos por área
+(`WEIGHTS`), el mapa de valor por estado de documento, los umbrales de color (85 / 65) y el umbral de
+riesgo (`nCritical >= 2` → Alto). La pantalla además imprime «peso 25 %» junto a cada área.
+
+[../AGENTS.md](../AGENTS.md) §Public Repository Rules y [../CLAUDE.md](../CLAUDE.md) regla 2 lo
+prohíben: fórmulas, pesos, umbrales y reglas de clasificación no se escriben en el repo público.
+**No se tocó nada**: `prototipo/**` es del área del cockpit y editarlo desde aquí es exactamente el
+fallo que [../WORKTREES.md](../WORKTREES.md) existe para evitar. Queda reportado para esa área y para
+el humano que hace el merge.
+
+### 7.6 ⚠️ Lo privado no está gitignored, y ya está publicado
+
+Comprobado el 26 de agosto a las 13:50, con `git ls-tree -r --name-only origin/main`.
+
+`AGENTS.md`, `CLAUDE.md`, `WORKTREES.md`, **todo `docs/`** y **todo `reference/`** —los nueve PDF del
+organizador, las reglas, la presentación de la jornada y el acta— **están rastreados y ya viven en
+`origin/main`**, que es público. `.gitignore` solo contiene `.claude`, `/descubrimientos`, `.env`,
+`.env.*`, `.worktreeinclude` y `/cockpit-evaluador`.
+
+Es exactamente lo contrario de lo que afirman [../AGENTS.md](../AGENTS.md) §Public Repository Rules,
+[../CLAUDE.md](../CLAUDE.md) y [../WORKTREES.md](../WORKTREES.md): los tres dan por hecho que esas
+rutas están excluidas. **La documentación miente sobre su propio estado**, que es el fallo que este
+archivo existe para atrapar.
+
+Dos consecuencias distintas, y conviene no mezclarlas:
+
+1. **Estrategia y método expuestos.** `docs/` y la investigación llevan el enfoque, las mediciones y
+   las decisiones del equipo. Es información competitiva el mismo día del evento.
+2. **Material del organizador redistribuido.** Los PDF de `reference/` no son del equipo. Publicarlos
+   en un repositorio abierto es una decisión que nadie tomó a propósito.
+
+**No se corrigió desde aquí.** Rehacer el historial y forzar el push está prohibido para un agente
+[AGENTS.md, regla 1], y con el cierre de código a las 15:15 la vía rápida es de una sola pulsación:
+**poner el repositorio en privado en GitHub**, que corta la exposición ahora y deja la limpieza del
+historial para después del pitch. `git rm --cached` deja de publicar en adelante pero **no borra lo
+que ya está en el historial**.

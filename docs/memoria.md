@@ -411,3 +411,73 @@ sistema es inmune» sería exactamente el tipo de frase que un jurado jurídico 
 
 Se añadió además una comprobación de que **el ataque llegó de verdad al modelo**: si la preselección
 hubiera dejado el folio envenenado fuera, el «PASA» no habría probado nada.
+
+### 2026-08-26, 13:30 (el dossier se escribe, y cotejarlo contra la pantalla destapa dos afirmaciones falsas)
+
+Mientras el cockpit y el motor seguían en sus worktrees, el área de documentos escribió las dos
+piezas que faltaban para la etapa eliminatoria: la **EIA de 12 puntos** ([eia.md](eia.md)) y el
+**aviso al administrado** ([aviso-administrado.md](aviso-administrado.md)). La clasificación de riesgo
+ya estaba, en nivel medio.
+
+La EIA cuelga los 12 puntos de [Reglas §7] de las cuatro funciones del NIST AI RMF, pero los deja
+numerados en el orden de la norma: quien verifica admisibilidad lee en línea recta, y quien pregunta
+por el marco recibe el nombre del marco. No hay ningún hueco: hoy los 12 puntos tienen medición
+detrás, así que el plan original de «esqueleto con siete huecos» quedó sin objeto y sus criterios se
+reescribieron con la razón anotada, no en silencio.
+
+**Lo que no estaba previsto fue el cotejo.** Escribir el punto 10 —controles, con su estado— obliga a
+mirar si el control existe de verdad, y dos afirmaciones del dossier no sobrevivieron:
+
+1. La clasificación apoyaba cuatro de sus seis controles en `prototipo/datos.js`. **Ese archivo no
+   existe**: los datos viven dentro del único `index.html`. Un jurado que abre el repo y no encuentra
+   el archivo citado deja de creer el resto.
+2. La clasificación declaraba como control que **«no se publica un porcentaje global de cumplimiento
+   ni de aprobabilidad»**. La cabecera publica uno: el «Índice de rigor», ponderado por área.
+
+La regla de B8 dice qué hacer: la discrepancia se corrige en el documento, no se maquilla en el demo.
+El control quedó reescrito con lo que de verdad ocurre y con las tres acotaciones que sí son
+verificables en pantalla —no se rotula «cumple», califica documentos y no el trámite, y los factores
+se muestran desglosados, que es lo que §5.4 exige para que un número no vaya solo—. La decisión de
+renombrar el índice o retirarlo **no se tomó desde aquí**: es del área del cockpit, y queda marcada
+como abierta antes del cierre de código.
+
+Cotejar también dejó un hallazgo que no es de documentos: `prototipo/index.html` es público y lleva
+los pesos, el mapa de valor por estado y los umbrales en claro, que es justo lo que la regla del repo
+público prohíbe. Reportado, no tocado — editar el archivo de otra área desde aquí es el fallo que
+`WORKTREES.md` existe para evitar.
+
+**Lo que el aviso al administrado obligó a admitir.** El canal de radicación, el término y la
+dependencia responsable son datos del INVIMA que este equipo no tiene verificados. Se pintan como
+pendientes de confirmación institucional. Inventarlos habría sido la afirmación de cumplimiento más
+fácil de desarmar del día, y con un jurado que trae despacho de propiedad intelectual, la más cara.
+
+### 2026-08-26, 14:10 (tres sesiones caen por límite de cuota; se recupera desde sus transcripciones)
+
+Las tres sesiones que se repartieron `prototipo/index.html` a las 13:35 —cockpit, documentos, árbol
+M1–M8— agotaron su cuota antes de terminar. Se exportaron sus transcripciones y se retomó desde ahí en
+vez de empezar de cero: la del cockpit había escrito y nunca ejecutado `add_trace.mjs` (pantalla
+Huella); la del árbol había dejado solo fragmentos de CSS/JS sin ensamblar, a la espera de un archivo
+del motor que no vive en este checkout.
+
+Correr `add_trace.mjs` destapó dos bugs propios del script —una concatenación de cadena rota en
+`renderTrace` y un `$$` que `String.replace` interpretó como escape de `$` dentro del texto de
+reemplazo, dejando `showScreen()` con `$(...).forEach`, que no existe— ninguno de los dos visible sin
+correrlo, porque la sesión que lo escribió nunca llegó a probarlo. Corregidos, la pestaña **Huella**
+queda: cadena de 5 eslabones, "Alterar un registro" la rompe donde dice que la rompe, "Restaurar" la
+repara, firmar añade un eslabón. Cierra el único ítem de B6 que dependía del frontend.
+
+La pestaña **Aviso** se escribió de cero siguiendo [aviso-administrado.md](aviso-administrado.md) —no
+había nada que recuperar—, leyendo los datos ya cargados sin depender del motor. Cierra el último ítem
+de B7.
+
+De paso se aplicó una recomendación que el área de documentos había dejado escrita: «Índice de rigor»
+pasó a «Cobertura de revisión», con una nota de que no es veredicto de cumplimiento — el cálculo no se
+tocó, solo la etiqueta.
+
+**Lo que se decidió no tocar, a propósito.** La exposición de `WEIGHTS` y umbrales en el repo público
+sigue igual: arreglarla de verdad es precomputar los puntajes y dejar de mostrar la fórmula, un cambio
+de arquitectura que a menos de una hora del cierre de código pesa más el riesgo de romper el cálculo en
+vivo que el de dejarlo documentado como pendiente. El árbol M1–M8 tampoco se ensambló: los fragmentos
+recuperados asumen un archivo que no está en este checkout, y adivinar su forma es más caro que no
+tenerlo. Detalle completo, con lo que sí se verificó en navegador, en
+[verificacion.md §5.10](verificacion.md).
