@@ -741,6 +741,48 @@ hay que decir en voz alta:
    renderice hay que comprobarlo abriendo `prototipo/index.html` a mano en un navegador, desde el
    disco. **Está sin comprobar.**
 
+### 5.13 Las dos acciones existían y no se veían — 2026-08-26, 15:03
+
+El usuario preguntó «¿dónde están la imagen y las acciones del árbol?». **Las dos estaban en el DOM y
+funcionaban**: `#bpmOpen` medía 247 × 38 px y era visible en el viewport a 1440 px, y las filas del
+árbol respondían al clic. El fallo no era funcional sino de *affordance*: nada decía que fueran
+pulsables.
+
+| Antes | Ahora |
+|---|---|
+| Botón del mapa BPM: relleno `rgba(255,255,255,.07)` sobre riel marrón oscuro — se leía como un separador | Relleno terracota sólido, texto claro, chevron `›`. Contraste medido **6,80** sobre el relleno, por encima de AA |
+| Filas del árbol: idénticas a una lista estática | Cada fila dice qué hay dentro —«2 extraídos ›»— y las que no tienen nada muestran solo el chevron |
+
+Verificado tras el cambio: las 7 filas de M5 rinden su etiqueta correcta (`M5-03-PIVOTAL` → «2
+extraídos», `M7-01-PGR` → «2 extraídos», el resto solo chevron), el botón abre el visor y `Escape` lo
+cierra, sin errores de consola.
+
+**La lección, que es la misma de las 14:47:** verifiqué que el control *respondiera*, no que alguien
+pudiera *encontrarlo*. Un `click()` disparado por consola pasa igual esté el botón camuflado o no.
+
+### 5.14 Menos palabras, mismo contenido — 2026-08-26, 15:12
+
+Última pasada antes del cierre de código. Se recortó prosa **sin quitar ninguna afirmación exigida**;
+lo que era una frase pasó a ser separador `·`, chip de color o cifra.
+
+| Dónde | Antes | Ahora |
+|---|---|---|
+| Aviso superior | 4 líneas | `Expediente ficticio · No es un sistema del INVIMA · No decide: firma el evaluador` |
+| Pie de página | Párrafo de 4 renglones | Cuatro hechos separados por `·` |
+| Metadatos de cada fragmento | «Folio 149 · usado en “La indicación solicitada excede…”» | Folio + chip `H1` con el color de la severidad + `ver ›` |
+| Documento sin fragmentos | «Revisado. Ningún hallazgo cita un fragmento de este documento.» | `● Revisado · sin fragmentos citados` |
+| Nota del documento demo | 2 renglones | `Documento público de la FDA · ajeno al expediente CORAZILIMAB` |
+| Pasos de la animación | Frases completas | Frases de 3–6 palabras |
+
+**Las tres afirmaciones obligatorias del aviso siguen literales** —expediente ficticio, no es un
+sistema del INVIMA, no emite decisiones y firma el evaluador—: se acortó la redacción, no el
+compromiso. Igual el pie: sigue diciendo cero llamadas de red, origen de los precedentes y que la
+paleta no arrastra identidad institucional.
+
+Verificado tras el recorte: los chips salen con el color de su severidad (`H1` sobre fondo rojo
+claro), el fragmento sigue saltando a la tarjeta —`currentScreen === 'detail'`, `aria-expanded="true"`—
+y no hay errores de consola. El aviso corto se lee sin desbordar a 349 px de ancho.
+
 ## 6. Motor de evidencia — medido el 2026-08-26
 
 Código en `motor/`, worktree `motor-evidencia`. Node 24 sin dependencias, `pdftotext -layout` para

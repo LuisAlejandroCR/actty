@@ -667,8 +667,28 @@ button.card-h:hover{background:var(--panel-2)}
 }
 .frag:hover{border-left-color:var(--accent-solid); background:var(--accent-bg)}
 .frag-q{display:block; font-size:13px; line-height:1.5}
-.frag-meta{display:block; font-size:11.5px; color:var(--ink-3); margin-top:4px}
+.frag-meta{display:flex; align-items:center; gap:7px; flex-wrap:wrap; font-size:11.5px;
+           color:var(--ink-3); margin-top:6px}
+.frag-meta .fol{color:var(--ink-2); font-size:11px}
+.frag-meta .tag{
+  border-radius:5px; padding:1px 7px; font-size:10.5px; font-weight:700;
+  background:var(--grey-bg); color:var(--ink-2);
+}
+.frag-meta .tag.critical{background:var(--red-bg); color:var(--red)}
+.frag-meta .tag.minor{background:var(--amber-bg); color:var(--amber)}
+.frag-meta .tag.warn{background:var(--amber-bg); color:var(--amber)}
+.frag-meta .go{margin-left:auto; color:var(--accent); font-weight:700}
 .tree-list .mod:last-child{border-bottom:none}
+/* The rows are navigation, so they say so: what is inside, and a chevron. */
+#screenTree .doc .opens{
+  flex:none; font-size:11px; font-weight:700; color:var(--accent);
+  display:flex; align-items:center; gap:4px; opacity:.75;
+}
+#screenTree .doc:hover .opens,
+#screenTree .doc[aria-pressed="true"] .opens{opacity:1}
+#screenTree .doc.missing .opens{color:var(--ink-3)}
+#screenTree .doc{border-bottom:1px solid var(--line-2)}
+.sidebar .doc .opens{display:none}
 
 /* ---------- extraction pipeline demo ---------- */
 .demo{
@@ -718,11 +738,13 @@ button.card-h:hover{background:var(--panel-2)}
 
 /* ---------- BPM map lightbox ---------- */
 .map-btn{
-  font:inherit; font-size:12px; font-weight:700; cursor:pointer; width:100%; min-height:38px;
-  margin-top:10px; padding:8px 10px; border-radius:8px; text-align:left;
-  background:rgba(255,255,255,.07); border:1px solid var(--side-line); color:var(--side-ink-2);
+  display:flex; align-items:center; gap:7px;
+  font:inherit; font-size:12.5px; font-weight:700; cursor:pointer; width:100%; min-height:40px;
+  margin-top:12px; padding:9px 11px; border-radius:8px; text-align:left;
+  background:var(--accent-solid); border:1px solid var(--accent-solid); color:var(--accent-on);
 }
-.map-btn:hover{background:rgba(255,255,255,.13); color:var(--side-ink)}
+.map-btn:hover{filter:brightness(1.08)}
+.map-btn .go{margin-left:auto; font-size:14px}
 .lightbox{
   position:fixed; inset:0; z-index:80; background:rgba(20,12,6,.82);
   display:flex; flex-direction:column; padding:14px; gap:10px;
@@ -898,7 +920,9 @@ table.prec td:first-child{
     <nav class="side-sec" aria-label="Etapas del trámite">
       <h2>Proceso</h2>
       <ul class="bpm" id="bpmNav"></ul>
-      <button type="button" class="map-btn" id="bpmOpen">⤢ Ver mapa BPM completo</button>
+      <button type="button" class="map-btn" id="bpmOpen">
+        <span aria-hidden="true">⤢</span> Ver mapa BPM completo <span class="go" aria-hidden="true">›</span>
+      </button>
     </nav>
 
     <div class="side-sec side-tree">
@@ -958,8 +982,7 @@ table.prec td:first-child{
 
     <p class="notice">
       <span aria-hidden="true">⚠</span>
-      <span><b>Expediente ficticio.</b> Prototipo de hackatón. <b>No es un sistema del INVIMA.</b>
-      No emite decisiones: la valoración y la firma son del evaluador.</span>
+      <span><b>Expediente ficticio</b> · <b>No es un sistema del INVIMA</b> · No decide: firma el evaluador</span>
     </p>
 
     <section class="map-wrap" aria-labelledby="mapTitle">
@@ -993,10 +1016,9 @@ table.prec td:first-child{
     </main>
 
     <footer class="foot">
-      Análisis precomputado fuera de línea a partir de los PDF del organizador y revisado por una
-      persona. La aplicación no realiza llamadas de red: el expediente no sale de esta máquina.
-      Precedentes tomados del Acta No.&nbsp;04 de 2026 SEMPB, documento público. Paleta derivada del
-      sitio invima.gov.co; sin logotipo, escudo ni imagen institucional.
+      Análisis precomputado fuera de línea, revisado por una persona · Cero llamadas de red: el
+      expediente no sale de esta máquina · Precedentes del Acta No.&nbsp;04 de 2026 SEMPB (público) ·
+      Solo color de invima.gov.co, sin logotipo ni escudo
     </footer>
   </div>
 
@@ -2294,12 +2316,13 @@ function renderTreePanel(){
     ? '<div class="tree-frags">' + frags.map(({finding, evidence}) =>
         '<button type="button" class="frag" data-find="' + esc(finding.id) + '">' +
         '<span class="frag-q">' + esc(evidence.text) + '</span>' +
-        '<span class="frag-meta">' + esc(evidence.folio) +
-        (evidence.anchored === false ? ' · sin ancla, en cola humana' : '') +
-        ' · usado en «' + esc(finding.title) + '»</span>' +
+        '<span class="frag-meta"><b class="fol mono">' + esc(evidence.folio) + '</b>' +
+        (evidence.anchored === false ? '<span class="tag warn">sin ancla</span>' : '') +
+        '<span class="tag ' + esc(finding.severity) + '">' + esc(finding.id) + '</span>' +
+        '<span class="go" aria-hidden="true">ver ›</span></span>' +
         '</button>'
       ).join('') + '</div>'
-    : '<p class="tree-hint">Revisado. Ningún hallazgo cita un fragmento de este documento.</p>';
+    : '<p class="tree-hint"><span class="dot green">●</span> Revisado · sin fragmentos citados</p>';
   return head + body;
 }
 
@@ -2312,13 +2335,16 @@ function renderTreeStage(){
     m.documents.map(d => {
       const n = (d.findings || []).length;
       const st = STATES[d.state];
+      const frags = d.state === 'missing' ? 0 : fragmentsFor(d.id).length;
       return '<button type="button" class="doc' + (d.state === 'missing' ? ' missing' : '') + '" ' +
         'aria-pressed="' + (d.id === selectedDoc) + '" data-doc="' + esc(d.id) + '" ' +
         'title="' + esc(d.name) + ' — ' + esc(st.label) + '">' +
         '<span class="dot ' + st.color + '">' + st.icon + '</span>' +
         '<span class="name">' + esc(d.name) + '</span>' +
         (n ? '<span class="count">' + n + '</span>' : '') +
-        '<span class="folios mono">' + esc(d.folios) + '</span></button>';
+        '<span class="folios mono">' + esc(d.folios) + '</span>' +
+        '<span class="opens">' + (frags ? frags + ' extraído' + (frags > 1 ? 's' : '') : '') +
+        ' <span aria-hidden="true">›</span></span></button>';
     }).join('') +
     '</section>';
 }
@@ -2342,16 +2368,16 @@ function renderTreeNav(){
    can be shown against a document nobody in the room prepared. Every figure below
    was read out of the PDF with `pdftotext -layout`, never from the model. */
 const DEMO_DOC = {
-  label: 'FDA · Clinical Review NDA 21883 — DALVANCE (dalbavancin)',
-  note: 'Documento público de la FDA, 58 páginas. No pertenece al expediente CORAZILIMAB: sirve para mostrar el recorrido sobre un documento que nadie preparó para este demo.',
+  label: 'FDA · Clinical Review NDA 21883 — DALVANCE',
+  note: 'Documento público de la FDA · ajeno al expediente CORAZILIMAB',
 };
 const DEMO_STEPS = [
-  { k:'Documento',  big:'58',  unit:'páginas',  t:'PDF sin estructura: se identifica autoridad, tipo, producto y revisor.' },
-  { k:'Índice',     big:'8',   unit:'secciones', t:'El código arma el índice clínico antes de llamar al modelo.' },
-  { k:'M5 clínico', big:'5.1', unit:'§ folio 22', t:'La sección de estudios clínicos queda acotada: ya no son 58 páginas.' },
-  { k:'Pivotales',  big:'2',   unit:'estudios',  t:'DUR001-301 y DUR001-302, los dos de Fase III.' },
-  { k:'Endpoint',   big:'6.1.4', unit:'§ folio 44', t:'Análisis del desenlace primario: respuesta clínica a 48–72 h.' },
-  { k:'Evidencia',  big:'T.18', unit:'folio 44',  t:'Tabla 18 — el dato con su ubicación exacta, verificable en el PDF.' },
+  { k:'Documento',  big:'58',  unit:'páginas',  t:'PDF sin estructura.' },
+  { k:'Índice',     big:'8',   unit:'secciones', t:'El código arma el índice, antes del modelo.' },
+  { k:'M5 clínico', big:'5.1', unit:'§ folio 22', t:'Ya no son 58 páginas.' },
+  { k:'Pivotales',  big:'2',   unit:'estudios',  t:'DUR001-301 · DUR001-302.' },
+  { k:'Endpoint',   big:'6.1.4', unit:'§ folio 44', t:'Respuesta clínica a 48–72 h.' },
+  { k:'Evidencia',  big:'T.18', unit:'folio 44',  t:'El dato, con su folio verificable.' },
 ];
 const DEMO_RESULT = [
   ['DUR001-301', '240/288 (83,3 %)', '233/285 (81,8 %)', '+1,5 % (−4,6 · 7,9)'],
@@ -2381,8 +2407,7 @@ function renderDemo(){
       DEMO_RESULT.map(r => '<tr>' + r.map((c, j) =>
         (j ? '<td class="mono">' : '<td>') + esc(c) + '</td>').join('') + '</tr>').join('') +
       '</table>' +
-      '<p class="demo-limit">Margen de no inferioridad −10 %. El sistema <b>trae el dato y su folio</b>; ' +
-      'si la evidencia sustenta la indicación lo decide el evaluador.</p>' +
+      '<p class="demo-limit">Margen NI −10 % · el sistema <b>trae el dato y su folio</b>; concluir es del evaluador</p>' +
     '</div>' +
     '<p class="demo-note">' + esc(DEMO_DOC.note) + '</p>' +
   '</section>';
