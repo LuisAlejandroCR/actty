@@ -6,3 +6,9 @@
 .worktreeinclude
 
 /cockpit-evaluador
+
+# Private: working docs and primary sources. These were tracked by mistake and
+# pushed to the public repo; untracked on 2026-08-26. Ignoring them stops new
+# changes leaking, but every version already pushed stays in the git history.
+/docs
+/reference
