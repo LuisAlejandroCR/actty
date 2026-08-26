@@ -1004,14 +1004,14 @@ table.prec td:first-child{
     <div class="chat-h">
       <span aria-hidden="true">✦</span>
       <h2>Asistente</h2>
-      <span class="st">Sin conectar</span>
+      <span class="st" id="chatStatus">Conectando…</span>
     </div>
     <div class="chat-log" id="chatLog"></div>
     <form class="chat-form" id="chatForm">
       <label class="sr" for="chatInput">Pregunta al asistente</label>
-      <input id="chatInput" type="text" autocomplete="off" disabled
-             placeholder="Espacio reservado — aún sin conectar">
-      <button type="submit" disabled aria-label="Enviar">↑</button>
+      <input id="chatInput" type="text" autocomplete="off"
+             placeholder="Pregunta sobre el expediente…">
+      <button type="submit" aria-label="Enviar">↑</button>
     </form>
   </aside>
 
@@ -1608,15 +1608,72 @@ $('#bpmNav').innerHTML = BPM_NAV.map((n, i) => `
   </li>`).join('');
 
 /* ---------- assistant dock ---------- */
-/* Seeded with what the panel is for. Nothing is wired: an assistant that called
-   out would break the promise that the dossier never leaves this machine. */
-$('#chatLog').innerHTML = `
-  <div class="msg bot"><span class="who">Asistente</span>
-    Aquí se responderán preguntas sobre el expediente citando folio y documento.</div>
-  <div class="msg me">¿Por qué H1 es crítico?</div>
-  <div class="msg bot"><span class="who">Asistente</span>
-    <em>Espacio reservado.</em> La respuesta llevará la cita literal y el folio, como en Detalle.</div>
-  <p class="chat-slot">Panel reservado.<br>Se conectará a inferencia local, sin salida de red.</p>`;
+/* Chat is wired to a local proxy (motor/chat-server.mjs) that holds the
+   Google API key server-side — the browser never sees it. The dossier
+   context sent per request is the same public MODULES/FINDINGS data
+   already rendered on this page. */
+const CHAT_ENDPOINT = 'http://localhost:8787/api/chat';
+const chatHistory = [];
+
+function chatContext() {
+  return {
+    dossier: DOSSIER,
+    modules: MODULES.map(m => ({ id: m.id, title: m.title, folios: m.folios, question: m.question,
+      documents: m.documents.map(d => ({ id: d.id, name: d.name, folios: d.folios, state: d.state, findings: d.findings })) })),
+    findings: FINDINGS.map(f => ({ id: f.id, severity: f.severity, area: f.area, title: f.title,
+      answer: f.answer, evidence: f.evidence, location: f.location })),
+  };
+}
+
+function addChatMsg(role, text) {
+  const div = document.createElement('div');
+  div.className = 'msg ' + (role === 'user' ? 'me' : 'bot');
+  if (role !== 'user') {
+    const who = document.createElement('span');
+    who.className = 'who';
+    who.textContent = 'Asistente';
+    div.appendChild(who);
+    div.appendChild(document.createTextNode(' '));
+  }
+  div.appendChild(document.createTextNode(text));
+  $('#chatLog').appendChild(div);
+  $('#chatLog').scrollTop = $('#chatLog').scrollHeight;
+}
+
+$('#chatLog').innerHTML = '';
+addChatMsg('bot', 'Pregúntame sobre el expediente: módulos, documentos o hallazgos, con folio cuando el contexto lo tenga.');
+$('#chatStatus').textContent = 'Listo';
+
+$('#chatForm').addEventListener('submit', async (ev) => {
+  ev.preventDefault();
+  const input = $('#chatInput');
+  const message = input.value.trim();
+  if (!message) return;
+
+  addChatMsg('user', message);
+  chatHistory.push({ role: 'user', text: message });
+  input.value = '';
+  input.disabled = true;
+  $('#chatStatus').textContent = 'Pensando…';
+
+  try {
+    const res = await fetch(CHAT_ENDPOINT, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ message, history: chatHistory, context: chatContext() }),
+    });
+    const data = await res.json();
+    addChatMsg('bot', data.reply);
+    chatHistory.push({ role: 'model', text: data.reply });
+    $('#chatStatus').textContent = data.degraded ? 'Modo degradado' : 'Listo';
+  } catch {
+    addChatMsg('bot', 'No se pudo contactar al servidor local del chat (motor/chat-server.mjs). ¿Está corriendo?');
+    $('#chatStatus').textContent = 'Sin conexión';
+  } finally {
+    input.disabled = false;
+    input.focus();
+  }
+});
 
 /* ---------- folio map ---------- */
 /* One graphic answers the question that opens every review: of 166 folios, which
