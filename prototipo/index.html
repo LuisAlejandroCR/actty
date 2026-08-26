@@ -798,6 +798,24 @@ button.card-h:hover{background:var(--panel-2)}
 .lb-body{flex:1; overflow:auto; background:#fff; border-radius:8px; padding:8px}
 .lb-body img{display:block; max-width:none; height:auto}
 .lb-fallback{color:var(--ink-3); font-size:13px; padding:20px; text-align:center}
+.lb-zoom{
+  margin-left:auto; display:flex; align-items:center; gap:3px; padding:3px;
+  background:rgba(255,255,255,.13); border:1px solid rgba(255,255,255,.3); border-radius:8px;
+}
+.lb-zoom button{
+  font:inherit; font-size:15px; font-weight:700; line-height:1; cursor:pointer;
+  min-width:36px; min-height:32px; padding:0 8px; border-radius:6px;
+  background:transparent; border:none; color:#fff;
+}
+.lb-zoom button:hover:not(:disabled){background:rgba(255,255,255,.18)}
+.lb-zoom button:disabled{opacity:.35; cursor:default}
+.lb-zoom .fit{font-size:12px; padding:0 10px}
+.lb-zoom output{
+  min-width:50px; text-align:center; font-size:12px; font-weight:700;
+  color:#f6efe6; font-variant-numeric:tabular-nums;
+}
+.lb-zoom ~ .lb-close{margin-left:8px}
+@media (max-width:640px){ .lb-h span{display:none} .lb-zoom .fit{display:none} }
 
 .tree-stages{
   display:flex; align-items:center; gap:6px; margin-bottom:10px; overflow-x:auto; scrollbar-width:none;
@@ -1082,6 +1100,12 @@ table.prec td:first-child{
   <div class="lb-h">
     <b>Mapa BPM del trámite</b>
     <span>Proceso real de registro sanitario — las seis etapas del riel son un recorte de este mapa.</span>
+    <div class="lb-zoom" role="group" aria-label="Zoom del mapa">
+      <button type="button" id="bpmOut" aria-label="Alejar (tecla −)">−</button>
+      <output id="bpmPct" for="bpmOut bpmIn">100 %</output>
+      <button type="button" id="bpmIn" aria-label="Acercar (tecla +)">+</button>
+      <button type="button" class="fit" id="bpmFit" aria-label="Ajustar a la ventana (tecla 0)">Ajustar</button>
+    </div>
     <button type="button" class="lb-close" id="bpmClose">Cerrar</button>
   </div>
   <div class="lb-body">
@@ -1674,6 +1698,12 @@ $('#bpmNav').innerHTML = BPM_NAV.map((n, i) => `
 const CHAT_API = 'http://127.0.0.1:4319';
 const chatLog = $('#chatLog'), chatInput = $('#chatInput'),
       chatSend = $('#chatSend'), chatStatus = $('#chatStatus');
+/* Follow-ups need what came before ("¿y en M3?"). The server caps and re-labels
+   this: history the browser sends is a suggestion, never trusted as context. */
+const chatHistory = [];
+/* Which findings the last answer landed on, so a follow-up stays on topic
+   instead of widening back to all 166 folios. */
+let chatFocus = [];
 
 /* Server text is data, never markup: it carries quotes lifted from the PDFs.
    Escaping reuses the page's own esc() — these strings only ever land in
@@ -1723,16 +1753,19 @@ function chatOffline(reason) {
     salud = await res.json();
   } catch (e) { return chatOffline(e.message); }
 
-  if (!salud?.ollama) return chatOffline(salud?.reason ?? 'ollama no responde');
+  if (!salud?.ready) return chatOffline(salud?.reason ?? 'el motor no responde');
 
-  chatStatus.textContent = 'Local · ' + salud.model;
-  chatStatus.className = 'st on';
+  /* The badge names the engine because the two are not interchangeable claims:
+     "Local" means the dossier stayed here, "Google" means the questions left. */
+  chatStatus.textContent = salud.local ? 'Local · ' + salud.model : 'Google · ' + salud.model;
+  chatStatus.className = salud.local ? 'st on' : 'st off';
   chatInput.disabled = chatSend.disabled = false;
   chatInput.placeholder = 'Pregunta sobre el expediente…';
   chatLog.innerHTML = '';
   bubble('Asistente',
     `Respondo citando folio y documento, sobre ${salud.fragments} pasajes anclados
-     del expediente. No emito juicio de cumplimiento: eso lo firma usted.`);
+     del expediente. No emito juicio de cumplimiento: eso lo firma usted.` +
+    (salud.local ? '' : '<p class="low">Motor remoto: las preguntas salen a Google.</p>'));
 })();
 
 $('#chatForm').addEventListener('submit', async (ev) => {
@@ -1743,16 +1776,25 @@ $('#chatForm').addEventListener('submit', async (ev) => {
   bubble('', esc(pregunta), true);
   chatInput.value = '';
   chatInput.disabled = chatSend.disabled = true;
-  const pending = bubble('Asistente', '<em>Consultando el modelo local…</em>');
+  const pending = bubble('Asistente', '<em>Pensando…</em>');
+  chatHistory.push({ role: 'user', text: pregunta });
 
   try {
     const res = await fetch(`${CHAT_API}/preguntar`, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ pregunta }),
+      body: JSON.stringify({ pregunta, historial: chatHistory.slice(0, -1), foco: chatFocus }),
     });
-    pending.innerHTML = `<span class="who">Asistente</span>${renderAnswer(await res.json())}`;
+    const data = await res.json();
+    pending.innerHTML = `<span class="who">Asistente</span>${renderAnswer(data)}`;
+    /* Only anchored turns go back as context: feeding a refusal to the next
+       question just teaches the model to refuse again. */
+    if (data.estado === 'anclado') {
+      chatHistory.push({ role: 'model', text: data.texto });
+      chatFocus = [...new Set(data.anclas.map(a => a.findingId))];
+    } else chatHistory.pop();
   } catch (e) {
+    chatHistory.pop();
     pending.innerHTML = `<span class="who">Asistente</span>
       <p class="low">No se pudo contactar al servidor local del chat
       (motor/chat-server.mjs). ¿Está corriendo?</p>`;
@@ -2558,12 +2600,64 @@ function bpmFallback(img){
   }));
 }
 
+/* ---------- BPM map zoom ---------- */
+/* Zoom sets the image width rather than transforming it: the lightbox body
+   already scrolls, so a wider image gives real scrollbars to pan with. A CSS
+   transform would scale the pixels and leave nothing to scroll. */
+const BPM_MIN = .25, BPM_MAX = 4, BPM_STEP = 1.25;
+
+function bpmScale(){
+  const img = $('#bpmBox img');
+  return img && img.naturalWidth ? img.clientWidth / img.naturalWidth : 0;
+}
+
+function bpmPaint(){
+  const img = $('#bpmBox img'), zoom = $('#bpmBox .lb-zoom');
+  if(!zoom) return;
+  /* No image means the fallback replaced it: nothing to zoom. */
+  if(!img || !img.naturalWidth){ zoom.hidden = true; return; }
+  zoom.hidden = false;
+  const scale = bpmScale();
+  $('#bpmPct').value = Math.round(scale * 100) + ' %';
+  $('#bpmOut').disabled = scale <= BPM_MIN * 1.001;
+  $('#bpmIn').disabled  = scale >= BPM_MAX * .999;
+}
+
+function bpmZoom(factor){
+  const img = $('#bpmBox img');
+  if(!img || !img.naturalWidth) return;
+  const body = $('#bpmBox .lb-body');
+  /* Keep the middle of the view put, so zooming does not throw away the spot
+     the evaluator was reading. */
+  const midX = (body.scrollLeft + body.clientWidth  / 2) / Math.max(img.clientWidth, 1);
+  const midY = (body.scrollTop  + body.clientHeight / 2) / Math.max(img.clientHeight, 1);
+
+  const next = Math.min(BPM_MAX, Math.max(BPM_MIN, bpmScale() * factor));
+  img.style.width = Math.round(img.naturalWidth * next) + 'px';
+  bpmPaint();
+
+  body.scrollLeft = midX * img.clientWidth  - body.clientWidth  / 2;
+  body.scrollTop  = midY * img.clientHeight - body.clientHeight / 2;
+}
+
+function bpmFit(){
+  const img = $('#bpmBox img');
+  if(!img) return;
+  img.style.width = '100%';
+  bpmPaint();
+}
+
 /* onerror does not fire in every context (a page served from a data: URL just
    leaves the image empty), so the width is checked as well before showing it. */
 function openBpm(){
   $('#bpmBox').hidden = false;
   const img = $('#bpmBox img');
   if(img && img.complete && img.naturalWidth === 0) bpmFallback(img);
+  /* Opens fitted: the map is far wider than the panel, and natural size drops
+     the reader into a corner of it. Decoding may still be pending on first open. */
+  if(img && img.naturalWidth) bpmFit();
+  else if(img) img.addEventListener('load', bpmFit, { once: true });
+  else bpmPaint();
   $('#bpmClose').focus();
 }
 
@@ -2732,6 +2826,9 @@ document.addEventListener('click', e => {
   if(e.target.closest('#demoPlay')){ playDemo(); return; }
   if(e.target.closest('#bpmOpen')){ openBpm(); return; }
   if(e.target.closest('#bpmClose')){ $('#bpmBox').hidden = true; $('#bpmOpen').focus(); return; }
+  if(e.target.closest('#bpmIn')){  bpmZoom(BPM_STEP); return; }
+  if(e.target.closest('#bpmOut')){ bpmZoom(1 / BPM_STEP); return; }
+  if(e.target.closest('#bpmFit')){ bpmFit(); return; }
 
   const tdoc = e.target.closest('#screenTree .doc');
   if(tdoc){ selectTreeDoc(tdoc.dataset.doc); return; }
@@ -2779,6 +2876,13 @@ document.addEventListener('keydown', e => {
   if(e.key === 'Escape'){
     if(!$('#bpmBox').hidden){ $('#bpmBox').hidden = true; $('#bpmOpen').focus(); return; }
     closePanels(); return;
+  }
+
+  /* Zoom keys only while the map is open, so they never fight the chat input. */
+  if(!$('#bpmBox').hidden){
+    if(e.key === '+' || e.key === '='){ e.preventDefault(); bpmZoom(BPM_STEP); return; }
+    if(e.key === '-' || e.key === '_'){ e.preventDefault(); bpmZoom(1 / BPM_STEP); return; }
+    if(e.key === '0'){ e.preventDefault(); bpmFit(); return; }
   }
 
   const t = e.target;
