@@ -675,6 +675,72 @@ Verificado con JavaScript en la página cargada: `#scr-tree` muestra 22 botones 
 === 'detail'` y la tarjeta `#c-H1` con `aria-expanded="true"`. Sin errores de consola en las cinco
 pestañas. Repetido visualmente en el navegador.
 
+**Corrección, 14:34.** La primera versión concatenaba los cinco módulos en una sola lista larga —
+scroll infinito, no navegación por etapas—. Se cambió a un selector de etapas (`M1…M5` con flechas
+`‹ ›`), que muestra **un solo módulo a la vez**; elegir un documento sincroniza la etapa activa con su
+módulo. Verificado: `M1` muestra 4 documentos, saltar a `M5` muestra 7, `‹`/`›` se deshabilitan en los
+extremos, y la etapa elegida sobrevive a cambiar de pestaña y volver.
+
+**Corrección, 14:47.** El usuario señaló con una captura que el problema seguía en otro sitio: el
+**árbol de la barra lateral** (`#tree`, siempre visible, sección "Expediente" del riel) también
+concatenaba los cinco módulos — es un componente distinto de la pestaña Expediente, presente en las
+cinco pantallas, y mi primer arreglo no lo tocaba. Los nodos `M1…M5` del mini-pipeline (`#pipe`, ya
+existían como indicador visual no interactivo) pasaron a ser botones que filtran qué módulo muestra
+`#tree`, compartiendo la misma variable `treeStage` que la pestaña Expediente: elegir un módulo en
+cualquiera de los dos sitios mueve al otro. Verificado en una pestaña de navegador nueva —el `let
+treeStage = 0` de una pestaña reutilizada por la herramienta de previsualización quedaba pegado al
+último valor entre "recargas", lo que confundió la primera ronda de pruebas; en una pestaña realmente
+nueva la carga inicial es `M1` con sus 4 documentos, y elegir `M5` en el riel muestra 7 y sincroniza la
+pestaña Expediente.
+
+### 5.12 Animación del pipeline y mapa BPM — 2026-08-26, 14:57
+
+**La animación «De 58 páginas a un folio».** Seis pasos que se encienden en secuencia sobre la pestaña
+Expediente y terminan revelando la Tabla 18. Corre sola al abrir la pestaña y se repite con
+«▶ Reproducir»; con `prefers-reduced-motion` el retardo baja a 0 y se pinta el estado final de una vez.
+
+**Todas las cifras salieron del PDF, ninguna del modelo.** Documento: `021883Orig1s000MedR.pdf`, FDA
+Clinical Review NDA 21883 (DALVANCE / dalbavancina), 58 páginas, revisor Dmitri Iarikov, fecha de
+revisión 27/02/2014. Extraído con `pdftotext -layout` y cotejado línea por línea:
+
+| Dato en pantalla | Verificado en |
+|---|---|
+| § 5.1 «Tables of Studies», folio 22 | Tabla de contenido, p. 2 del PDF |
+| § 6.1.4 «Analysis of Primary Endpoint», folio 44 | Tabla de contenido + cuerpo, **página 45 del PDF** |
+| Tabla 18, folio 44 | Cuerpo, misma página 45 |
+| DUR001-301 · 240/288 (83,3 %) vs 233/285 (81,8 %) · +1,5 % (−4,6 · 7,9) | Tabla 18, literal |
+| DUR001-302 · 285/371 (76,8 %) vs 288/368 (78,3 %) · −1,5 % (−7,4 · 4,6) | Tabla 18, literal |
+| Margen de no inferioridad −10 % | Párrafo de § 6.1.4 |
+
+⚠️ **El folio impreso y la página del PDF no coinciden** —folio 44 = página 45— porque el PDF es un
+extracto. Se muestra el folio impreso, que es el que un tercero puede citar, y queda anotado aquí de
+dónde sale. Es la misma distinción de §3.17.
+
+**Por qué un segundo documento.** DALVANCE no pertenece al expediente CORAZILIMAB y así se dice en la
+propia pantalla: es un documento público de la FDA que sirve para enseñar el recorrido sobre algo que
+nadie preparó para este demo. **No se mezcla con los hallazgos**: vive en su propia sección, con su
+propia fuente citada, y ningún dato suyo entra en `FINDINGS`.
+
+**Mapa BPM.** El riel decía «navegación provisional — se reemplaza cuando llegue el mapa BPM». Llegó:
+`prototipo/reto_invima_dossier_mvp.png`, el BPMN real del trámite. Se abre en un visor a pantalla
+completa desde el riel, con desplazamiento en ambos ejes, y `Escape` lo cierra.
+
+⚠️ **Queda como archivo aparte, no incrustado, y hay una razón medida.** Incrustarlo como `data:` URI
+llevó `index.html` de 136 kB a **566 kB** y a ese tamaño la herramienta de previsualización dejó de
+poder abrir el archivo — es decir, se perdió la capacidad de verificar. Se revirtió. Consecuencias que
+hay que decir en voz alta:
+
+1. **El PNG tiene que viajar junto a `index.html`.** La carpeta de despliegue de §5.9 hoy solo copia
+   `index.html`: hay que añadir el PNG o el visor sale vacío.
+2. Si el archivo no está, la pantalla **lo dice** en vez de mostrar un icono roto. Verificado: en el
+   contexto de la previsualización —que sirve la página desde una URL `data:` y por eso no resuelve
+   rutas relativas— el visor muestra el aviso, no una imagen rota. `onerror` **no basta** en ese
+   contexto (no se dispara), así que además se comprueba `naturalWidth === 0` al abrir.
+3. ⏳ **No se pudo verificar que la imagen se vea.** Con las herramientas de esta sesión la página
+   siempre se carga desde una URL `data:`, donde la ruta relativa nunca resuelve. Que el BPMN se
+   renderice hay que comprobarlo abriendo `prototipo/index.html` a mano en un navegador, desde el
+   disco. **Está sin comprobar.**
+
 ## 6. Motor de evidencia — medido el 2026-08-26
 
 Código en `motor/`, worktree `motor-evidencia`. Node 24 sin dependencias, `pdftotext -layout` para

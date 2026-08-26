@@ -504,5 +504,33 @@ hallazgo. Redistribuir el PDF del organizador en el repo público sigue siendo e
 
 Verificado en navegador: `Expediente → M5 → Fase III pivotal → fragmento` salta a la tarjeta H1 en
 Detalle, expandida y con foco. Un estudio declarado y no aportado (`CRZ-HAP-501`) muestra el mensaje
-correcto: no hay folio que abrir, la ausencia es la evidencia. Detalle completo en
-[verificacion.md §5.11](verificacion.md).
+correcto: no hay folio que abrir, la ausencia es la evidencia.
+
+El usuario corrigió la primera versión de la lista: los cinco módulos concatenados hacían scroll
+infinito en vez de navegar por etapas. Se cambió a un selector `M1…M5` con flechas, que muestra un
+módulo a la vez y sincroniza la etapa con el documento elegido.
+
+**A las 14:57 entraron la animación y el mapa BPM.** La pestaña Expediente abre ahora con «De 58
+páginas a un folio»: seis pasos que se encienden solos —documento, índice, sección clínica, pivotales,
+endpoint, Tabla 18— y terminan mostrando el dato con su folio. Corre sobre un **segundo documento a
+propósito**: el Clinical Review público de la FDA para DALVANCE, 58 páginas que nadie preparó para
+este demo. Todas sus cifras se leyeron del PDF con `pdftotext`, ninguna del modelo, y no se mezclan
+con los hallazgos de CORAZILIMAB — viven en su propia sección con su fuente citada.
+
+El mapa BPM real reemplazó por fin la frase «navegación provisional» del riel: se abre a pantalla
+completa y se puede recorrer. **Se dejó como archivo aparte y no incrustado**, y la razón es medida:
+incrustarlo como `data:` URI llevó `index.html` de 136 kB a 566 kB, y a ese tamaño la herramienta con
+la que verifico dejó de poder abrir el archivo. Un archivo que no puedo cargar es un archivo que no
+puedo verificar, así que preferí el archivo suelto y dejar escrito que tiene que viajar junto al HTML.
+Lo que sí queda **sin comprobar**: que el BPMN se vea. Mis herramientas cargan la página desde una URL
+`data:`, donde una ruta relativa nunca resuelve, así que verifiqué lo que sí podía —que cuando la
+imagen no está, la pantalla lo dice en vez de mostrar un icono roto— y dejé la comprobación real
+anotada como pendiente de abrir el archivo a mano.
+
+Hizo falta una segunda corrección, y la lección vale anotarla: arreglé la pestaña nueva y di el
+problema por resuelto, pero el usuario mandó una captura mostrando que el scroll infinito seguía —en
+el **árbol de la barra lateral**, que es otro componente, vive en el riel y aparece en las cinco
+pantallas. Los nodos `M1…M5` del mini-pipeline del riel, que hasta ahora solo pintaban estado, pasaron
+a filtrar qué módulo muestra ese árbol, compartiendo `treeStage` con la pestaña Expediente. Corregir
+la pantalla que acabo de construir no es lo mismo que corregir el patrón donde el usuario lo está
+viendo. Detalle en [verificacion.md §5.11](verificacion.md).
